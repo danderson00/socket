@@ -1,4 +1,4 @@
-module.exports = (socket, hostApi, log) => data => {
+module.exports = (socket, hostApi, log, options) => async data => {
   const message = parseMessage(data)
 
   const respond = (status, result) => {
@@ -10,12 +10,24 @@ module.exports = (socket, hostApi, log) => data => {
     }))
   }
 
+  let timedOut = false
+  const timeout = options.timeout &&
+    setTimeout(() => {
+      timedOut = true
+      reportError(new Error(
+        `${message.operation} operation timed out after ${options.timeout}ms`
+      ))
+    }, options.timeout)
+
   try {
-    return Promise.resolve(hostApi[message.operation].apply(hostApi, patchArguments(message.arguments)))
-      .then(result => respond('ok', result))
-      .catch(reportError)
+    const result = await Promise.resolve(
+      hostApi[message.operation].apply(hostApi, patchArguments(message.arguments))
+    )
+    respond(timedOut ? 'timeout' : 'ok', result)
   } catch(error) {
     reportError(error)
+  } finally {
+    clearTimeout(timeout)
   }
 
   function reportError(error) {

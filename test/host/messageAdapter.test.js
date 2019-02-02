@@ -1,5 +1,5 @@
-const messageAdapter = require('../host/messageAdapter')
-const logger = require('../host/logger')
+const messageAdapter = require('../../host/messageAdapter')
+const logger = require('../../host/logger')
 
 test("adapter calls into host API and responds with result", async () => {
   const socket = { send: jest.fn() }

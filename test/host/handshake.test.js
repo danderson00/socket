@@ -1,4 +1,4 @@
-const handshake = require('../host/handshake')
+const handshake = require('../../host/handshake')
 
 test("handshake responds with host API operations when successful", async () => {
   let target

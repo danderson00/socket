@@ -9,5 +9,8 @@
   },
   "keywords": [],
   "author": "danderson00",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^24.0.0"
+  }
 }

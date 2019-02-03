@@ -1,5 +1,5 @@
-module.exports = (data, { send, terminate }) => {
-  let messageHandler
+module.exports = (data, { send, terminate, responseTypes }) => {
+  let messageHandler, responseHandler
 
   const responsePromise = new Promise((resolve, reject) => {
     send.operation(data)
@@ -9,9 +9,17 @@ module.exports = (data, { send, terminate }) => {
         if(data.type === 'static') {
           resolve(data.value)
         } else {
-          // hook up specific response handlers here
-          reject(new Error(`Unknown data type ${data.type}`))
+          const handler = responseTypes[data.type]
+          if(handler) {
+            responseHandler = handler.handler(data.value, { send, terminate })
+            resolve(responseHandler.value)
+          } else {
+            reject(new Error(`Unknown data type ${data.type}`))
+          }
         }
+      
+      } else if(status === 'update') {
+        responseHandler.update(data)
 
       } else if(status === 'error') {
         reject(data)

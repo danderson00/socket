@@ -1,5 +1,6 @@
 const busModule = require('./bus')
 const sessionModule = require('./session')
+const responseTypes = require('./responseTypes')
 const serializerModule = require('../common/serializer')
 const loggerModule = require('./logger')
 
@@ -11,7 +12,7 @@ const defaultOptions = {
 module.exports = (server, hostApi, options = {}) => {
   const config = { ...defaultOptions, ...options }
   const log = options.logger || loggerModule(config.log.level)
-  const sessionFactory = sessionModule(hostApi, log)
+  const sessionFactory = sessionModule(hostApi, responseTypes)
   const serializer = serializerModule()
 
   const handleConnection = socket => {

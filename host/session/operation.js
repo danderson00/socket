@@ -1,4 +1,6 @@
-module.exports = ({ data }, { send, terminate, hostApi }) => {
+module.exports = ({ data }, { send, terminate, hostApi, responseTypes = [] }) => {
+  let responseTypeHandler
+
   const operation = hostApi[data.operation]
 
   if(!operation) {
@@ -7,18 +9,28 @@ module.exports = ({ data }, { send, terminate, hostApi }) => {
 
   Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
     .then(value => {
-      // hook up specific response handlers here...
+      responseType = responseTypes.find(handler => handler.test(value))
 
-      // default response is return the result and terminate the session
-      send.ok({ type: 'static', value })
-      terminate()
+      if(responseType) {
+        responseTypeHandler = responseType.handler(value, { send, terminate })
+      } else {
+        // default response is return the result and terminate the session
+        send.ok({ type: 'static', value })        
+        terminate()
+      }
     })
     .catch(error => {
       send.error(error)
       terminate()
     })
 
-  return { }
+  return {
+    messageHandler: message => { 
+      if(responseTypeHandler) { 
+        responseTypeHandler.messageHandler(message) 
+      } 
+    }
+  }
 }
 
 // JSON.stringify converts undefined array entries to null

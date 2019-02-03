@@ -1,7 +1,8 @@
 const sendWrapper = require('./sendWrapper')
-const nextId = (id => () => ++id)(0)
 
-module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
+module.exports = (socket, sessionFactory, { serialize, deserialize }, responseTypes) => {
+  const nextId = (id => () => ++id)(0)
+
   const sessions = {
     // initiate handshake here for now
     // soon we'll need the ability to handshake again 
@@ -37,9 +38,14 @@ module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
     const executeOperation = operation => {
       return function () {
         const id = nextId()
+        const send = sendWrapper(serialize, socket, id)
         const context = {
-          send: sendWrapper(serialize, socket, id),
-          terminate: delete sessions[id]
+          send,
+          terminate: () => {
+            send.terminate()
+            delete sessions[id]
+          },
+          responseTypes
         }
 
         sessions[id] = sessionFactory.create('operation', { operation, parameters: Array.from(arguments) }, context)

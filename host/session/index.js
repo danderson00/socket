@@ -3,14 +3,15 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = hostApi => ({
+module.exports = (hostApi, responseTypes) => ({
   create: (message, send, terminate) => {
     if(sessions[message.type]) {
       const context = {
         id: message.id,
         send,
         terminate,
-        hostApi
+        hostApi,
+        responseTypes
       }
       try {
         return sessions[message.type](message, context)

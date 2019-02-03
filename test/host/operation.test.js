@@ -1,4 +1,5 @@
 const sessionFactory = require('../../host/session')
+const sendWrapper = require('../../host/sendWrapper')
 
 test("operation executes host API, returns result and terminates session", async () => {
   const receivedFromHost = jest.fn()
@@ -7,9 +8,10 @@ test("operation executes host API, returns result and terminates session", async
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, sessionTerminated)
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), sessionTerminated)
   await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls[0][0]).toEqual({
+    id: 1,
     session: 'terminate',
     status: 'ok',
     data: 'world'
@@ -23,9 +25,10 @@ test("operation returns result of promise", async () => {
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, jest.fn())
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), jest.fn())
   await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls).toEqual([[{
+    id: 1,
     session: 'terminate',
     status: 'ok',
     data: 'world'
@@ -39,8 +42,9 @@ test("operation returns error if API function does not exist", async () => {
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, sessionTerminated)
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), sessionTerminated)
   expect(receivedFromHost.mock.calls).toEqual([[{
+    id: 1,
     status: 'error',
     session: 'terminate',
     data: { message: "No operation 'hello' on host API" }
@@ -55,8 +59,9 @@ test("operation returns error if API function does not exist", async () => {
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, sessionTerminated)
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), sessionTerminated)
   expect(receivedFromHost.mock.calls).toEqual([[{
+    id: 1,
     status: 'error',
     session: 'terminate',
     data: { message: "No operation 'hello' on host API" }
@@ -71,9 +76,10 @@ test("operation returns error if API throws", async () => {
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, sessionTerminated)
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), sessionTerminated)
   await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls[0][0]).toEqual({
+    id: 1,
     session: 'terminate',
     status: 'error',
     data: { message: 'world' }
@@ -88,9 +94,10 @@ test("operation returns error if API rejects promise", async () => {
     session: 'establish',
     type: 'operation',
     operation: 'hello'
-  }, receivedFromHost, sessionTerminated)
+  }, sendWrapper(x => x, { send: receivedFromHost }, 1), sessionTerminated)
   await new Promise(setTimeout)
-  expect(receivedFromHost.mock.calls[0][0]).toEqual({
+  expect(receivedFromHost.mock.calls[0][0]).toMatchObject({
+    id: 1,
     session: 'terminate',
     status: 'error',
     data: { message: 'world' }

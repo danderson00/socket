@@ -1,3 +1,5 @@
+const sendWrapper = require('./sendWrapper')
+
 module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
   const sessions = {}
   
@@ -12,13 +14,13 @@ module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
       }
     } else {
       // send wrapper that serializes attaches the session ID property
-      const send = data => socket.send(serialize({ ...data, id: message.id }))
+      const send = sendWrapper(serialize, socket, message.id)
       const terminate = () => { delete sessions[message.id] }
 
       if(message.session === 'establish') {
         sessions[message.id] = sessionFactory.create(message, send, terminate)
       } else {
-        send({ status: 'error', data: { message: `No active session with ID ${message.id}` } })
+        send.error(`No active session with ID ${message.id}`)
       }
     }
   }

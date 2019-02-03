@@ -10,11 +10,11 @@ module.exports = (message, { send, terminate, hostApi }) => {
       // hook up specific response handlers here...
 
       // default response is return the result and terminate the session
-      send({ status: 'ok', session: 'terminate', data })
+      send.ok(data)
       terminate()
     })
-    .catch((error) => {
-      send({ status: 'error', session: 'terminate', data: { message: error.message || error } })
+    .catch(error => {
+      send.error(error)
       terminate()
     })
 

@@ -2,7 +2,6 @@ const busModule = require('../../host/bus')
 
 let receiveFromConsumer
 let sentFromHost
-let sendFromHost
 let messageHandlers
 let terminateLastSession
 

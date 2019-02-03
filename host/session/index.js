@@ -15,11 +15,11 @@ module.exports = hostApi => ({
       try {
         return sessions[message.type](message, context)
       } catch({ message }) {
-        send({ status: 'error', session: 'terminate', data: { message } })
+        send.error(message)
         terminate()
       }
     } else {
-      send({ status: 'error', session: 'terminate', data: { message: `No session type '${message.type}'` } })
+      send.error(`No session type '${message.type}'`)
       terminate()
     }
   }

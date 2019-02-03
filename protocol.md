@@ -1,5 +1,11 @@
 # xsocket Protocol
 
+## Sessions
+
+All communication occurs over a session.
+
+
+
 ## Handshake
 
 1. Consumer connects to host

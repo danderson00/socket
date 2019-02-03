@@ -1,7 +1,12 @@
 const nextId = (current => () => ++current)(0)
 
-module.exports = operations => {
+module.exports = socket => {
   const active = {}
+
+  socket.addMessageHandler(message => {
+    const operation = active[message.id]
+    operation.responseHandlers[message.status](message)
+  })
 
   const executeOperation = (name, args) => new Promise((resolve, reject) => {
     const id = nextId()
@@ -9,22 +14,19 @@ module.exports = operations => {
     active[id] = { 
       id, 
       responseHandlers: {
-        ok: message => resolve(message.data),
-        error: ({ data }) => reject(data)
+        ok: message => {
+          delete active[id]
+          resolve(message.data)
+        },
+        error: ({ data }) => {
+          delete active[id]
+          reject(data)
+        }
       }
     }
-    socket.send(JSON.stringify({
-      id,
-      operation: name,
-      arguments: args
-    }))
+
+    socket.send.request(id, name, args)
   })
 
-  return {
-    initiate: (name, args) => executeOperation(name, args),
-    handleMessage: message => {
-      const operation = active[message.id]
-      operation.responseHandlers[message.status](message)
-    }
-  }
+  return (name, args) => executeOperation(name, args)
 }

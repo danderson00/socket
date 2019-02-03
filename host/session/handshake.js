@@ -4,9 +4,9 @@ module.exports = ({ data }, { hostApi, send, terminate }) => {
   if(requestIsValid) {
     send.ok({ operations: Object.keys(hostApi) }, 'establish')
   } else {
-      send.error("Invalid handshake request")
-      terminate()
+    send.error("Invalid handshake request")
+    terminate()
   }
   
-  return message => { }
+  return { }
 }

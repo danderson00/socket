@@ -1,11 +1,11 @@
-module.exports = (message, { send, terminate, hostApi }) => {
-  const operation = hostApi[message.operation]
+module.exports = ({ data }, { send, terminate, hostApi }) => {
+  const operation = hostApi[data.operation]
 
   if(!operation) {
-    throw new Error(`No operation '${message.operation}' on host API`)
+    throw new Error(`No operation '${data.operation}' on host API`)
   }
 
-  Promise.resolve(operation.apply(null, patchParameters(message.parameters)))
+  Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
     .then(data => {
       // hook up specific response handlers here...
 
@@ -18,7 +18,7 @@ module.exports = (message, { send, terminate, hostApi }) => {
       terminate()
     })
 
-  return message => { /* no use for incoming messages here */ }
+  return { }
 }
 
 // JSON.stringify converts undefined array entries to null

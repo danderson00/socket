@@ -18,7 +18,7 @@ beforeEach(() => {
       sendFromLastSession = send
       const messageHandler = jest.fn()
       messageHandlers.push(messageHandler)
-      return messageHandler
+      return { messageHandler }
     }
   }
   const serializer = { serialize: x => x, deserialize: x => x }

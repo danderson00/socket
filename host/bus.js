@@ -7,11 +7,15 @@ module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
     const message = deserialize(data)
 
     // pipe message to appropriate session
-    if(sessions[message.id]) {
-      sessions[message.id](message)
+    const session = sessions[message.id]
+    if(session) {
+      if(session.messageHandler) {
+        session.messageHandler(message)
+      }
       if(message.session === 'terminate') {
         delete sessions[message.id]
       }
+      
     } else {
       // send wrapper that serializes attaches the session ID property
       const send = sendWrapper(serialize, socket, message.id)

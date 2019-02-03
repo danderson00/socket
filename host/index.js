@@ -1,5 +1,7 @@
-const logger = require('./logger')
-const handshake = require('./handshake')
+const busModule = require('./bus')
+const sessionModule = require('./session')
+const serializerModule = require('../common/serializer')
+const loggerModule = require('./logger')
 
 const defaultOptions = {
   log: { level: 'warn' },
@@ -8,15 +10,22 @@ const defaultOptions = {
 
 module.exports = (server, hostApi, options = {}) => {
   const config = { ...defaultOptions, ...options }
-  const log = logger(config.log.level)
+  const log = options.logger || loggerModule(config.log.level)
+  const sessionFactory = sessionModule(hostApi, log)
+  const serializer = serializerModule()
 
   server.on('connection', socket => {
-    handshake(socket, hostApi)
-      .then(() => socket.on('message', messageAdapter(socket, hostApi, config, log)))
-      .catch(error => log.error(`Failed to handshake`, error))
+    const bus = busModule(socket, sessionFactory, serializer)
 
-    socket.on('close', (code, reason) => console.log(`Socket closed: ${code} - ${reason}`))
-    socket.on('error', error => console.error('Socket error', error))
+    socket.on('close', (code, reason) => {
+      bus.close()
+      log.debug(`Socket closed: ${code} - ${reason}`)
+    })
+    
+    socket.on('error', error => {
+      bus.close()
+      log.error('Socket error', error)
+    })
   })
 
   return {

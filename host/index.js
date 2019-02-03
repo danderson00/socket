@@ -14,7 +14,7 @@ module.exports = (server, hostApi, options = {}) => {
   const sessionFactory = sessionModule(hostApi, log)
   const serializer = serializerModule()
 
-  server.on('connection', socket => {
+  const handleConnection = socket => {
     const bus = busModule(socket, sessionFactory, serializer)
 
     socket.on('close', (code, reason) => {
@@ -26,9 +26,11 @@ module.exports = (server, hostApi, options = {}) => {
       bus.close()
       log.error('Socket error', error)
     })
-  })
+  }
+
+  server.on('connection', handleConnection)
 
   return {
-    close: () => server.close()
+    // close: () => server.removeEventListener('connection', handleConnection)
   }
 }

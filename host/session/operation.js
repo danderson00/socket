@@ -6,11 +6,11 @@ module.exports = ({ data }, { send, terminate, hostApi }) => {
   }
 
   Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
-    .then(data => {
+    .then(value => {
       // hook up specific response handlers here...
 
       // default response is return the result and terminate the session
-      send.ok(data)
+      send.ok({ type: 'static', value })
       terminate()
     })
     .catch(error => {

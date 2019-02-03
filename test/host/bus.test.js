@@ -9,7 +9,7 @@ beforeEach(() => {
   sentFromHost = jest.fn()
   const socket = {
     send: sentFromHost,
-    addEventListener: (type, listener) => receiveFromConsumer = listener
+    addEventListener: (type, listener) => receiveFromConsumer = data => listener({ data })
   }
   messageHandlers = []
   const sessionFactory = {

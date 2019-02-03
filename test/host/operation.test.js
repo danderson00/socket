@@ -14,7 +14,7 @@ test("operation executes host API, returns result and terminates session", async
     id: 1,
     session: 'terminate',
     status: 'ok',
-    data: 'world'
+    data: { type: 'static', value: 'world' }
   })
   expect(sessionTerminated.mock.calls.length).toBe(1)
 })
@@ -32,7 +32,7 @@ test("operation passes parameters to host API", async () => {
     id: 1,
     session: 'terminate',
     status: 'ok',
-    data: 'wor1d'
+    data: { type: 'static', value: 'wor1d' }
   })
   expect(sessionTerminated.mock.calls.length).toBe(1)
 })
@@ -49,7 +49,7 @@ test("operation returns result of promise", async () => {
     id: 1,
     session: 'terminate',
     status: 'ok',
-    data: 'world'
+    data: { type: 'static', value: 'world' }
   }]])
 })
 

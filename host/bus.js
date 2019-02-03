@@ -3,8 +3,9 @@ const sendWrapper = require('./sendWrapper')
 module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
   const sessions = {}
   
-  const messageHandler = data => {
+  const messageHandler = ({ data }) => {
     const message = deserialize(data)
+    const terminate = () => { delete sessions[message.id] }
 
     // pipe message to appropriate session
     const session = sessions[message.id]
@@ -12,14 +13,14 @@ module.exports = (socket, sessionFactory, { serialize, deserialize }) => {
       if(session.messageHandler) {
         session.messageHandler(message)
       }
+      
       if(message.session === 'terminate') {
-        delete sessions[message.id]
+        terminate()
       }
       
     } else {
       // send wrapper that serializes attaches the session ID property
       const send = sendWrapper(serialize, socket, message.id)
-      const terminate = () => { delete sessions[message.id] }
 
       if(message.session === 'establish') {
         sessions[message.id] = sessionFactory.create(message, send, terminate)

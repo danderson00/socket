@@ -8,7 +8,7 @@ test("operation executes host API, returns result and terminates session", async
     type: 'operation',
     operation: 'hello'
   }, receivedFromHost, sessionTerminated)
-  await new Promise(r => setTimeout(r))
+  await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls[0][0]).toEqual({
     session: 'terminate',
     status: 'ok',
@@ -24,7 +24,7 @@ test("operation returns result of promise", async () => {
     type: 'operation',
     operation: 'hello'
   }, receivedFromHost, jest.fn())
-  await new Promise(r => setTimeout(r))
+  await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls).toEqual([[{
     session: 'terminate',
     status: 'ok',
@@ -72,7 +72,7 @@ test("operation returns error if API throws", async () => {
     type: 'operation',
     operation: 'hello'
   }, receivedFromHost, sessionTerminated)
-  await new Promise(r => setTimeout(r))
+  await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls[0][0]).toEqual({
     session: 'terminate',
     status: 'error',
@@ -89,7 +89,7 @@ test("operation returns error if API rejects promise", async () => {
     type: 'operation',
     operation: 'hello'
   }, receivedFromHost, sessionTerminated)
-  await new Promise(r => setTimeout(r))
+  await new Promise(setTimeout)
   expect(receivedFromHost.mock.calls[0][0]).toEqual({
     session: 'terminate',
     status: 'error',

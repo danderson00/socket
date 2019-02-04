@@ -1,4 +1,4 @@
-module.exports = ({ data }, { send, terminate, hostApi, responseTypes = [] }) => {
+module.exports = (observable, { send, terminate, hostApi, responseTypes = [] }) => {
   let responseTypeHandler
 
   const operation = hostApi[data.operation]
@@ -7,7 +7,13 @@ module.exports = ({ data }, { send, terminate, hostApi, responseTypes = [] }) =>
     throw new Error(`No operation '${data.operation}' on host API`)
   }
 
-  Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
+  observable.subscribe(message => { 
+    if(responseTypeHandler) { 
+      responseTypeHandler.messageHandler(message) 
+    } 
+  })
+
+  return Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
     .then(value => {
       responseType = responseTypes.find(handler => handler.test(value))
 
@@ -19,18 +25,6 @@ module.exports = ({ data }, { send, terminate, hostApi, responseTypes = [] }) =>
         terminate()
       }
     })
-    .catch(error => {
-      send.error(error)
-      terminate()
-    })
-
-  return {
-    messageHandler: message => { 
-      if(responseTypeHandler) { 
-        responseTypeHandler.messageHandler(message) 
-      } 
-    }
-  }
 }
 
 // JSON.stringify converts undefined array entries to null

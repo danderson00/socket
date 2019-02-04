@@ -1,4 +1,4 @@
-module.exports = ({ data }, { hostApi, send, terminate }) => {
+module.exports = ({ data }, { hostApi, send }) => {
   const requestIsValid = data.version === '0.0.1'
 
   if(requestIsValid) {
@@ -6,9 +6,6 @@ module.exports = ({ data }, { hostApi, send, terminate }) => {
       operations: Object.keys(hostApi).map(operation => ({ name: operation }))
     }, 'establish')
   } else {
-    send.error("Invalid handshake request")
-    terminate()
+    throw new Error("Invalid handshake request")
   }
-  
-  return { }
 }

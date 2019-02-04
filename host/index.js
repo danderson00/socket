@@ -1,3 +1,4 @@
+const xest = require('xest')
 const busModule = require('./bus')
 const sessionModule = require('./session')
 const responseTypes = require('./responseTypes')
@@ -16,15 +17,16 @@ module.exports = (server, hostApi, options = {}) => {
   const serializer = serializerModule()
 
   const handleConnection = socket => {
-    const bus = busModule(socket, sessionFactory, serializer)
+    const observable = xest.fromEventTarget(socket, 'message')
+    const bus = busModule(observable, sessionFactory, serializer)
 
     socket.on('close', (code, reason) => {
-      bus.close()
+      observable.disconnect()
       log.debug(`Socket closed: ${code} - ${reason}`)
     })
     
     socket.on('error', error => {
-      bus.close()
+      observable.disconnect()
       log.error('Socket error', error)
     })
   }

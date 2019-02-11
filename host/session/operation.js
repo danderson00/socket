@@ -1,4 +1,6 @@
-module.exports = (observable, { send, hostApi, responseTypes = [] }) => {
+const { isObservable, unwrap } = require('xest')
+
+module.exports = (observable, { send, hostApi }) => {
   const { data } = observable()
   const operation = hostApi[data.operation]
 
@@ -8,12 +10,21 @@ module.exports = (observable, { send, hostApi, responseTypes = [] }) => {
 
   return Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
     .then(value => {
-      const responseType = responseTypes.find(handler => handler.test(value))
-
-      if(responseType) {
-        responseTypeHandler = responseType.handler(observable, send)
+      if(isObservable(value)) {
+        const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))
+        send.ok({ type: 'observable', value: unwrap(value) }, 'persistent')
+    
+        observable.subscribe(({ session }) => {
+          if(session === 'terminate') {
+            resultSubscription.unsubscribe()
+            observable.disconnect()
+            if(value.disconnect) {
+              value.disconnect()
+            }
+          }
+        })
+    
       } else {
-        // default response is return the result and terminate the session
         send.ok({ type: 'static', value })   
         observable.disconnect()     
       }

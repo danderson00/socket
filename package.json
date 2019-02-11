@@ -5,7 +5,7 @@
   "main": "host/index.js",
   "browser": "consumer/index.js",
   "scripts": {
-    "test": "jest --no-cache"
+    "test": "jest"
   },
   "keywords": [],
   "author": "danderson00",

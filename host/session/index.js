@@ -16,16 +16,16 @@ module.exports = hostApi => ({
       }
       try {
         return Promise.resolve(sessions[type](sessionObservable, context))
-          .catch(error => {
-            send.error(error)
-            sessionObservable.disconnect()
-          })
-      } catch({ message }) {
-        send.error(message)
-        sessionObservable.disconnect()
+          .catch(handleError)
+      } catch(error) {
+        handleError(error)
       }
     } else {
-      send.error(`No session type '${type}'`)
+      handleError(`No session type '${type}'`)
+    }
+
+    function handleError(message) {
+      send.error(message)
       sessionObservable.disconnect()
     }
   }

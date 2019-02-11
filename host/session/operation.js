@@ -1,28 +1,21 @@
-module.exports = (observable, { send, terminate, hostApi, responseTypes = [] }) => {
-  let responseTypeHandler
-
+module.exports = (observable, { send, hostApi, responseTypes = [] }) => {
+  const { data } = observable()
   const operation = hostApi[data.operation]
 
   if(!operation) {
     throw new Error(`No operation '${data.operation}' on host API`)
   }
 
-  observable.subscribe(message => { 
-    if(responseTypeHandler) { 
-      responseTypeHandler.messageHandler(message) 
-    } 
-  })
-
   return Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
     .then(value => {
-      responseType = responseTypes.find(handler => handler.test(value))
+      const responseType = responseTypes.find(handler => handler.test(value))
 
       if(responseType) {
-        responseTypeHandler = responseType.handler(value, { send, terminate })
+        responseTypeHandler = responseType.handler(observable, send)
       } else {
         // default response is return the result and terminate the session
-        send.ok({ type: 'static', value })        
-        terminate()
+        send.ok({ type: 'static', value })   
+        observable.disconnect()     
       }
     })
 }

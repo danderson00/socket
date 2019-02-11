@@ -14,26 +14,20 @@ module.exports = (server, hostApi, options = {}) => {
   const config = { ...defaultOptions, ...options }
   const log = options.logger || loggerModule(config.log.level)
   const sessionFactory = sessionModule(hostApi, responseTypes)
-  const serializer = serializerModule()
+  const { serialize, deserialize } = serializerModule()
 
-  const handleConnection = socket => {
-    const observable = xest.fromEventTarget(socket, 'message')
-    const bus = busModule(observable, sessionFactory, serializer)
+  const serverObservable = xest.fromEventTarget(server, 'connection')
+  
+  serverObservable.subscribe(socket => {
+    const connectionObservable = xest.fromEventTarget(socket, 'message').map(deserialize)
+    connectionObservable.send = message => socket.send(serialize(message))
+    socket.on('close', code => log.info(`Connection closed: ${code}`)),
+    socket.on('error', error => log.error(`Connection error`, error))
 
-    socket.on('close', (code, reason) => {
-      observable.disconnect()
-      log.debug(`Socket closed: ${code} - ${reason}`)
-    })
-    
-    socket.on('error', error => {
-      observable.disconnect()
-      log.error('Socket error', error)
-    })
-  }
-
-  server.on('connection', handleConnection)
+    const sessions = busModule(connectionObservable, sessionFactory)
+  })
 
   return {
-    // close: () => server.removeEventListener('connection', handleConnection)
+    close: () => serverObservable.disconnect()
   }
 }

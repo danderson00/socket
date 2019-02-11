@@ -1,38 +1,33 @@
-const { proxy } = require('xest')
 const sessions = {
   operation: require('./operation'),
   handshake: require('./handshake')
 }
 
-module.exports = (observable, hostApi, responseTypes) => ({
-  create: (send, onTerminate) => {
-    if(sessions[message.type]) {
-      const id = message.id
-      const sessionObservable = proxy(observable).where(x => x.id === id)
-      const terminate = () => {
-        sessionObservable.disconnect()
-        onTerminate()
-      }
+module.exports = (hostApi, responseTypes) => ({
+  create: (sessionObservable, send) => {
+    const { type, id } = sessionObservable()
+
+    if(sessions[type]) {
       const context = {
         id,
         send,
-        terminate,
+        disconnect: sessionObservable.disconnect,
         hostApi,
         responseTypes
       }
       try {
-        return Promise.resolve(sessions[message.type](sessionObservable, context))
+        return Promise.resolve(sessions[type](sessionObservable, context))
           .catch(error => {
             send.error(error)
-            terminate()
+            sessionObservable.disconnect()
           })
       } catch({ message }) {
         send.error(message)
-        terminate()
+        sessionObservable.disconnect()
       }
     } else {
-      send.error(`No session type '${message.type}'`)
-      terminate()
+      send.error(`No session type '${type}'`)
+      sessionObservable.disconnect()
     }
   }
 })

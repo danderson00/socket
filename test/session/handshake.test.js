@@ -8,7 +8,7 @@ const setup = initialValue => {
   sentFromHost = jest.fn()
   source = subject({ initialValue })
   source.disconnect = jest.fn()
-  sessionFactory({ api: () => {} }).create(source, sendWrapper(x => x, { send: sentFromHost }, 1))
+  sessionFactory({ api: () => {} }).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 
@@ -20,7 +20,7 @@ test("handshake returns api functions", async () => {
   })
 
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'ok',
     data: { operations: [

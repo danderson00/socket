@@ -12,7 +12,7 @@ const setup = (api, data = {}) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory({ api }).create(source, sendWrapper(x => x, { send: sentFromHost }, 1))
+  sessionFactory({ api }).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 
@@ -20,7 +20,7 @@ test("operation executes host API, returns result and disconnects session", asyn
   await setup(() => 'world')
 
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'ok',
     data: { type: 'static', value: 'world' }
@@ -34,7 +34,7 @@ test("operation passes parameters to host API", async () => {
   })
 
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'ok',
     data: { type: 'static', value: 'wor1d' }
@@ -45,7 +45,7 @@ test("operation passes parameters to host API", async () => {
 test("operation returns result of promise", async () => {
   await setup(() => new Promise(r => setTimeout(() => r('world'))))
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'ok',
     data: { type: 'static', value: 'world' }
@@ -55,7 +55,7 @@ test("operation returns result of promise", async () => {
 test("operation returns error if API function does not exist", async () => {
   await setup()
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     status: 'error',
     session: 'terminate',
     data: { message: "No operation 'api' on host API" }
@@ -66,7 +66,7 @@ test("operation returns error if API function does not exist", async () => {
 test("operation returns error if API throws", async () => {
   await setup(() => { throw new Error('world') })
   expect(sentFromHost.mock.calls[0][0]).toEqual({
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'error',
     data: { message: 'world' }
@@ -77,7 +77,7 @@ test("operation returns error if API throws", async () => {
 test("operation returns error if API rejects promise", async () => {
   await setup(() => Promise.reject('world'), )
   expect(sentFromHost.mock.calls[0][0]).toMatchObject({
-    id: 1,
+    sessionId: 1,
     session: 'terminate',
     status: 'error',
     data: { message: 'world' }
@@ -89,7 +89,7 @@ test("operation returns persistent session if API returns observable", async () 
   const observable = subject({ initialValue: 'world' })
   await setup(() => observable)
   expect(sentFromHost.mock.calls).toEqual([[{
-    id: 1,
+    sessionId: 1,
     session: 'persistent',
     status: 'ok',
     data: { type: 'observable', value: 'world' }
@@ -98,7 +98,7 @@ test("operation returns persistent session if API returns observable", async () 
 
   observable.publish('update')
   expect(sentFromHost.mock.calls[1]).toEqual([{
-    id: 1,
+    sessionId: 1,
     status: 'update',
     data: { value: 'update' }
   }])

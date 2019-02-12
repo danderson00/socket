@@ -1,11 +1,12 @@
+const sessions = require('./sessions')
 const xest = require('xest')
-const sessions = require('./bus')
+const uuid = require('uuid').v4
 
 module.exports = (server, sessionFactory, { serialize, deserialize }, log) => (
   xest.fromEmitter(server, 'connection')
     .map(socket => ({ 
       connectionId: uuid(), 
-      messages: xest.fromEmitter(socket, 'message').map(deserialize),
+      messages: xest.fromEmitter(socket, 'message').map(message => deserialize(message.data)),
       events: xest.fromEmitter(socket, 'error', 'close'),
       send: message => socket.send(serialize(message))
     }))

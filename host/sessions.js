@@ -2,10 +2,9 @@ const sendWrapper = require('./sendWrapper')
 
 module.exports = ({ messages, send }, sessionFactory) => (
   messages.groupBy(
-      'sessionId',
-      sessionObservable => sessionObservable.reduce(
-        (session, message) => session(message),
-        sessionFactory.create(sessionObservable, sendWrapper(send, message.sessionId))
-      )
-    )
+    'sessionId',
+    sessionObservable => sessionObservable
+      .where(x => x.session === 'establish')
+      .map(() => sessionFactory.create(sessionObservable, sendWrapper(send, sessionObservable.key)))
+  )
 )

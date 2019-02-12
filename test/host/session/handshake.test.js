@@ -1,5 +1,5 @@
-const sessionFactory = require('../../host/session')
-const sendWrapper = require('../../host/sendWrapper')
+const sessionFactory = require('../../../host/session')
+const sendWrapper = require('../../../host/sendWrapper')
 const { subject } = require('xest')
 
 let sentFromHost, source

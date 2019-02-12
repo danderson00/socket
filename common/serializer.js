@@ -1,4 +1,8 @@
 module.exports = () => ({
-  serialize: data => JSON.stringify(data),
-  deserialize: data => JSON.parse(data)
+  serialize: data => {
+    return JSON.stringify(data)
+  },
+  deserialize: data => {
+    return JSON.parse(data)
+  }
 })

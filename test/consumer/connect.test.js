@@ -2,7 +2,7 @@ const connect = require('../../consumer/connect')
 
 test("connect returns wrapped api", async () => {
   const create = jest.fn().mockReturnValue(Promise.resolve(
-    { status: 'ok', data: { operations: [{ name: 'test' }] } }
+    { operations: [{ name: 'test' }] }
   ))
   
   const api = await connect({ create })

@@ -5,7 +5,7 @@
   "main": "host/index.js",
   "browser": "consumer/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "danderson00",

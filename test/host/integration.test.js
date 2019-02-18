@@ -109,7 +109,7 @@ test("observable API call returns result and updates", async () => {
 test("sending session terminate unsubscribes from observables", async () => {
   const source = subject({ initialValue: 'world' })
   await setup(() => source)
-  
+
   client.send(JSON.stringify({
     sessionId: 1,
     session: 'establish',
@@ -124,4 +124,58 @@ test("sending session terminate unsubscribes from observables", async () => {
   await(delay(10))
 
   expect(sentFromHost.mock.calls.length).toBe(1)
+})
+
+test("parameters are passed to API functions", async () => {
+  await setup((p1, empty, p2) => p1.a + p1.b + p2)
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api', parameters: [{ a: 'wor', b: 1 }, undefined, 'd'] } 
+  }))
+  await delay(10)
+
+  expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
+    status: 'ok',
+    data: { type: 'static', value: 'wor1d' },
+    session: 'terminate',
+    sessionId: 1
+  })]])
+})
+
+test("errors thrown from API functions are returned", async () => {
+  await setup(() => { throw new Error('test') })
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' } 
+  }))
+  await delay(10)
+
+  expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
+    status: 'error',
+    data: { message: "test" },
+    session: 'terminate',
+    sessionId: 1
+  })]])
+})
+
+test("rejected promises from API functions are returned", async () => {
+  await setup(() => Promise.reject(new Error('test')))
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' } 
+  }))
+  await delay(10)
+
+  expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
+    status: 'error',
+    data: { message: "test" },
+    session: 'terminate',
+    sessionId: 1
+  })]])
 })

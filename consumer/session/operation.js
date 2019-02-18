@@ -1,31 +1,35 @@
-module.exports = (data, { send, terminate, responseTypes }) => {
-  let messageHandler, responseHandler
+const { subject } = require('xest')
 
-  const responsePromise = new Promise((resolve, reject) => {
-    send.operation(data)
+module.exports = (messages, data, send) => new Promise((resolve, reject) => {
+  let observable
 
-    messageHandler = ({ status, data }) => {
-      if(status === 'ok') {
-        if(data.type === 'static') {
-          resolve(data.value)
-        } else {
-          const handler = responseTypes[data.type]
-          if(handler) {
-            responseHandler = handler.handler(data.value, { send, terminate })
-            resolve(responseHandler.value)
-          } else {
-            reject(new Error(`Unknown data type ${data.type}`))
-          }
+  send.operation(data)
+
+  messages.subscribe(({ status, data }) => {
+    if(status === 'ok') {
+      if(data.type === 'static') {
+        messages.disconnect()
+        resolve(data.value)
+
+      } else if(data.type === 'observable') {
+        observable = subject({ initialValue: data.value })
+        observable.disconnect = () => {
+          send.terminate()
+          messages.disconnect()
         }
-      
-      } else if(status === 'update') {
-        responseHandler.update(data)
+        resolve(observable)
 
-      } else if(status === 'error') {
-        reject(data)
+      } else {
+        messages.disconnect()
+        reject(new Error(`Unknown response data type ${data.type}`))
       }
+    
+    } else if(status === 'update') {
+      observable.publish(data.value)
+
+    } else if(status === 'error') {
+      messages.disconnect()
+      reject(data)
     }
   })
-
-  return { responsePromise, messageHandler }
-}
+})

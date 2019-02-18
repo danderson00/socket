@@ -1,19 +1,15 @@
-const busModule = require('./bus')
+const connect = require('./connect')
 const sessionFactory = require('./session')
-const responseTypes = require('./responseTypes')
-const serializer = require('../common/serializer')
+const { serialize, deserialize } = require('../common/serializer')
 
 module.exports = (socket, options = {}) => new Promise((resolve, reject) => {
   socket.on('open', () => {
-    busModule(socket, sessionFactory(), serializer(), responseTypes)
+    const messages = xest.fromEmitter(socket, 'message').map(deserialize)
+    const events = xest.fromEmitter(socket, 'error', 'close')
+    const send = message => socket.send(serialize(message))
+
+    connect(sessionFactory(messages, send))
       .then(api => resolve(api))
       .catch(error => reject(error))
-  })
-
-  socket.on('close', (code, reason) => { /* console.log(`Socket closed: ${code} - ${reason}`) */ })
-  
-  socket.on('error', error => {
-    console.error('Socket error', error)
-    reject(error)
   })
 })

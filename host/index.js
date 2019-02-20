@@ -13,9 +13,5 @@ module.exports = (server, hostApi, options = {}) => {
   const log = options.logger || loggerModule(config.log.level)
   const sessionFactory = sessionModule(hostApi, log)
   const serializer = serializerModule()
-
-  return {
-    connections: connectionsModule(server, sessionFactory, serializer, log),
-    close: () => serverObservable.disconnect()
-  }
+  return connectionsModule(server, sessionFactory, serializer, log)
 }

@@ -2,8 +2,9 @@ const sessions = require('./sessions')
 const xest = require('xest')
 const uuid = require('uuid').v4
 
-module.exports = (server, sessionFactory, { serialize, deserialize }, log) => (
-  xest.fromEmitter(server, 'connection')
+module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
+  const source = xest.fromEmitter(server, 'connection')
+  const result = source
     .map(socket => ({ 
       connectionId: uuid(), 
       messages: xest.fromEmitter(socket, 'message').map(message => deserialize(message.data)),
@@ -18,4 +19,6 @@ module.exports = (server, sessionFactory, { serialize, deserialize }, log) => (
       })
     )
   )
-)
+  result.disconnect = source.disconnect
+  return result
+}

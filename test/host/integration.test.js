@@ -152,7 +152,7 @@ test("errors thrown from API functions are returned", async () => {
     type: 'operation',
     data: { operation: 'api' } 
   }))
-  await delay(10)
+  await delay(20)
 
   expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
     status: 'error',

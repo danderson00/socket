@@ -48,7 +48,7 @@ test("async static API call returns result", async () => {
     type: 'operation',
     data: { operation: 'api' } 
   }))
-  await delay(10)
+  await delay(20)
 
   expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
     status: 'ok',

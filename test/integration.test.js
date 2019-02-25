@@ -1,13 +1,14 @@
-const host = require('../host')
-const consumer = require('../consumer')
+const hostModule = require('../host')
+const consumerModule = require('../consumer')
 const WebSocket = require('ws')
 
 let server
 
-const setup = async api => {
+const setup = async (...apis) => {
   server = new WebSocket.Server({ port: 1234 })
-  host(server).useApi(api)
-  return await consumer(new WebSocket('ws://localhost:1234'))
+  const host = hostModule(server)
+  apis.forEach(api => host.useApi(api))
+  return await consumerModule(new WebSocket('ws://localhost:1234'))
 }
 
 afterEach(() => server.close())
@@ -40,4 +41,10 @@ test("rejected promises are returned", async () => {
   const api = await setup({ hello: () => Promise.reject(new Error('world'))})
   const promise = api.hello()
   await expect(promise).rejects.toEqual({ message: 'world' })
+})
+
+test("multiple APIs", async () => {
+  const api = await setup({ hello: () => 'world' }, { echo: value => `'${value}'`})
+  expect(await api.hello()).toBe('world')
+  expect(await api.echo('test')).toBe("'test'")
 })

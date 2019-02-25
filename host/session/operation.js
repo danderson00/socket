@@ -2,13 +2,8 @@ const { isObservable, unwrap } = require('xest')
 
 module.exports = (observable, { send, hostApi }) => {
   const { data } = observable()
-  const operation = hostApi[data.operation]
 
-  if(!operation) {
-    throw new Error(`No operation '${data.operation}' on host API`)
-  }
-
-  return Promise.resolve(operation.apply(null, patchParameters(data.parameters)))
+  return hostApi.execute(data.operation, patchParameters(data.parameters))
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))

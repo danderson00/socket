@@ -1,14 +1,17 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
+const apiModule = require('../../../host/api')
 const { subject } = require('xest')
 
 let sentFromHost, source
 
 const setup = initialValue => {
+  const hostApi = apiModule()
+  hostApi.add({ api: () => {} })
   sentFromHost = jest.fn()
   source = subject({ initialValue })
   source.disconnect = jest.fn()
-  sessionFactory({ api: () => {} }).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(hostApi).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 

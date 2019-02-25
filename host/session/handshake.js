@@ -4,7 +4,7 @@ module.exports = (observable, { hostApi, send }) => {
 
   if(requestIsValid) {
     send.ok({ 
-      operations: Object.keys(hostApi).map(operation => ({ name: operation }))
+      operations: hostApi.operations()
     })
     observable.disconnect()
   } else {

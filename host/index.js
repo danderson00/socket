@@ -3,6 +3,8 @@ const connectionsModule = require('./connections')
 const serializerModule = require('../common/serializer')
 const loggerModule = require('./logger')
 const apiModule = require('./api')
+const middlewareModule = require('./middleware')
+const pipelineModule = require('./pipeline')
 
 const defaultOptions = {
   log: { level: 'warn' },
@@ -14,15 +16,20 @@ module.exports = (server, options = {}) => {
   const log = options.logger || loggerModule(options.log.level)
   const serializer = serializerModule()
   const api = apiModule(log)
-  const sessionFactory = sessionModule(api, log)
+  const middleware = middlewareModule(log)
+  const pipeline = pipelineModule(api, middleware, log)
+  const sessionFactory = sessionModule(pipeline, log)
   const connections = connectionsModule(server, sessionFactory, serializer, log)
+
+  const chainable = target => (...args) => {
+    target.apply(null, args)
+    return host
+  }
 
   const host = {
     connections,
-    useApi: (...args) => {
-      api.add.apply(null, args)
-      return host
-    }
+    useApi: chainable(api.add),
+    use: chainable(middleware.add)
   }
 
   return host

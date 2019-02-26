@@ -8,7 +8,12 @@ test("static operations resolve and disconnect from observable", async () => {
   source.disconnect = jest.fn()
   const sentFromConsumer = jest.fn()
 
-  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: sentFromConsumer }, middleware)
+  const promise = operation({ 
+    messages: source, 
+    data: { operation: 'hello', parameters: ['world'] }, 
+    send: { operation: sentFromConsumer }, 
+    middleware 
+  })
   await new Promise(setTimeout)
   expect(sentFromConsumer.mock.calls).toEqual([[{ operation: 'hello', parameters: ['world'] }]])
 
@@ -27,7 +32,12 @@ test("observable operations resolve to observable", async () => {
   source.disconnect = jest.fn()
   const terminateFromConsumer = jest.fn()
 
-  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: () => {}, terminate: terminateFromConsumer }, middleware)
+  const promise = operation({
+    messages: source, 
+    data: { operation: 'hello', parameters: ['world'] }, 
+    send: { operation: () => {}, terminate: terminateFromConsumer }, 
+    middleware
+  })
   await new Promise(setTimeout)
 
   source.publish({

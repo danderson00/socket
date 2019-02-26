@@ -12,11 +12,12 @@ module.exports = (messages, send, middleware) => ({
   create: (type, data) => {
     const id = nextId()
 
-    return sessions[type](
-      proxy(messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
+    return sessions[type]({
+      id,
+      messages: proxy(messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
       data, 
-      sendWrapper(send, id),
+      send: sendWrapper(send, id),
       middleware
-    )
+    })
   }
 })

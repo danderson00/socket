@@ -9,7 +9,7 @@ const setup = async (api, middleware) => {
   const host = hostModule(server)
   host.use(middleware)
   host.useApi(api)
-  return await consumerModule(new WebSocket('ws://localhost:1234'))
+  return await consumerModule(new WebSocket('ws://localhost:1234')).connect()
 }
 
 afterEach(() => server.close())

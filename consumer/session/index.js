@@ -13,7 +13,7 @@ module.exports = (messages, send) => ({
     const id = nextId()
 
     return sessions[type](
-      proxy(messages.where(x => x.sessionId === id)), // bit of a leak here
+      proxy(messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
       parameters, 
       sendWrapper(send, id)
     )

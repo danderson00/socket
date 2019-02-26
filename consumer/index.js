@@ -3,16 +3,36 @@ const sessionFactory = require('./session')
 const serializer = require('../common/serializer')
 const { fromEmitter } = require('xest')
 
-module.exports = (socket, options = {}) => new Promise((resolve, reject) => {
+module.exports = (socket, options = {}) => {
   const { serialize, deserialize } = serializer()
 
-  socket.on('open', () => {
-    const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
-    const events = fromEmitter(socket, 'error', 'close')
-    const send = message => socket.send(serialize(message))
+  return {
+    connect: () => new Promise((resolve, reject) => {
+      const initialize = () => {
+        const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
+        const events = fromEmitter(socket, 'error', 'close')
+        const send = message => socket.send(serialize(message))
 
-    connect(sessionFactory(messages, send))
-      .then(api => resolve(api))
-      .catch(error => reject(error))
-  })
-})
+        connect(sessionFactory(messages, send))
+          .then(api => resolve(api))
+          .catch(error => reject(error))
+      }
+
+      switch(socket.readyState) {
+        case 0:
+        case "connecting":
+          socket.on('open', initialize)
+          break
+        case 1:
+        case "open":
+          initialize()
+          break
+        case 2:
+        case 3:
+        case "closing":
+        case "closed":
+          throw new Error("Socket is already closed")
+      }
+    })
+  }
+}

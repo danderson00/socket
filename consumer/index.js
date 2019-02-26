@@ -7,6 +7,7 @@ const { fromEmitter } = require('xest')
 module.exports = (socket, options = {}) => {
   const { serialize, deserialize } = serializer()
   const middleware = middlewareModule()
+  const initializers = []
 
   const chainable = target => (...args) => {
     target.apply(null, args)
@@ -15,6 +16,12 @@ module.exports = (socket, options = {}) => {
 
   const consumer = {
     use: chainable(middleware.add),
+    useFeature: chainable(feature => {
+      middleware.add(feature.middleware)
+      if(feature.initialize) {
+        initializers.push(feature.initialize)
+      }
+    }),
     connect: () => new Promise((resolve, reject) => {
       const initialize = () => {
         const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
@@ -22,7 +29,11 @@ module.exports = (socket, options = {}) => {
         const send = message => socket.send(serialize(message))
 
         connect(sessionFactory(messages, send, middleware))
-          .then(api => resolve(api))
+          .then(api => (
+            // execute feature initializers - should be refactored out
+            Promise.all(initializers.map(x => Promise.resolve(x({ api }))))
+              .then(() => resolve(api))
+          ))
           .catch(error => reject(error))
       }
 

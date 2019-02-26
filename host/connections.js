@@ -6,13 +6,13 @@ module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
   const source = xest.fromEmitter(server, 'connection')
   const result = source
     .map(socket => ({ 
-      connectionId: uuid(), 
+      id: uuid(), 
       messages: xest.fromEmitter(socket, 'message').map(message => deserialize(message.data)),
       events: xest.fromEmitter(socket, 'error', 'close'),
       send: message => socket.send(serialize(message))
     }))
     .groupBy(
-      'connectionId',
+      'id',
       o => o.map(connection => ({
         ...connection,
         sessions: sessions(connection, sessionFactory)

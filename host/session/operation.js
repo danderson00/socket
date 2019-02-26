@@ -1,9 +1,10 @@
 const { isObservable, unwrap } = require('xest')
 
-module.exports = (observable, { send, hostApi }) => {
+module.exports = (observable, context) => {
+  const { send, hostApi } = context
   const { data } = observable()
 
-  return hostApi.execute(data.operation, patchParameters(data.parameters))
+  return hostApi.execute(data.operation, patchParameters(data.parameters), context)
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))

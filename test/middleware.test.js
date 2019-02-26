@@ -30,3 +30,17 @@ test("errors are returned from middleware", async () => {
   )
   await expect(api.echo('test')).rejects.toMatchObject({ message: 'test' })
 })
+
+test("connection is exposed to middleware", async () => {
+  const api = await setup(
+    { hello: () => 'world' },
+    { 
+      hello: ({ connection, next }) => {
+        // this might be a bit flaky
+        expect(Object.keys(connection)).toEqual(['id', 'messages', 'events', 'send'])
+        return next() 
+      }
+    }
+  )
+  expect(await api.hello()).toBe('world')
+})

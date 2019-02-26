@@ -3,16 +3,17 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = (hostApi, log) => ({
-  create: (sessionObservable, send) => {
+module.exports = (executor, log) => ({
+  create: (sessionObservable, send, connection) => {
     const { type, id } = sessionObservable()
 
     if(sessions[type]) {
       const context = {
         id,
         send,
+        connection,
         disconnect: sessionObservable.disconnect,
-        hostApi,
+        hostApi: executor,
         log
       }
       try {

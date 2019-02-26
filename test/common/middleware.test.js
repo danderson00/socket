@@ -1,4 +1,4 @@
-const middlewareModule = require('../../host/middleware')
+const middlewareModule = require('../../common/middleware')
 const log = require('../../host/logger')()
 
 test("middleware is added for each operation", () => {

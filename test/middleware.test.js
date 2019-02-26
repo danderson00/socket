@@ -4,12 +4,14 @@ const WebSocket = require('ws')
 
 let server
 
-const setup = async (api, middleware) => {
+const setup = async (api, hostMiddleware, consumerMiddleware) => {
   server = new WebSocket.Server({ port: 1234 })
-  const host = hostModule(server)
-  host.use(middleware)
-  host.useApi(api)
-  return await consumerModule(new WebSocket('ws://localhost:1234')).connect()
+  hostModule(server)
+    .use(hostMiddleware)
+    .useApi(api)
+  return await consumerModule(new WebSocket('ws://localhost:1234'))
+    .use(consumerMiddleware)
+    .connect()
 }
 
 afterEach(() => server.close())
@@ -56,4 +58,14 @@ test("context can be shared across calls using connection", async () => {
   )
   await api.authenticate('test')
   expect(await api.getUser()).toEqual({ username: 'test', id: 1 })
+})
+
+test("simple consumer middleware", async () => {
+  const api = await setup(
+    { echo: (text1, text2) => `${text1}${text2}` },
+    undefined,
+    { echo: ({ args, next }) => next(args[1], args[0]) }
+  )
+  const result = await api.echo('test1', 'test2')
+  expect(result).toBe('test2test1')
 })

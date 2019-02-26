@@ -1,4 +1,4 @@
-const pipelineModule = require('../../host/pipeline')
+const pipelineModule = require('../../common/pipeline')
 
 test("arguments are passed through middleware to api", async () => {
   const api = { handler: x => `(${x})` }

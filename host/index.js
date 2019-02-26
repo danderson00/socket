@@ -3,7 +3,7 @@ const connectionsModule = require('./connections')
 const serializerModule = require('../common/serializer')
 const loggerModule = require('./logger')
 const apiModule = require('./api')
-const middlewareModule = require('./middleware')
+const middlewareModule = require('../common/middleware')
 const executorModule = require('./executor')
 
 const defaultOptions = {

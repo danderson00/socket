@@ -1,19 +1,27 @@
 const connect = require('./connect')
 const sessionFactory = require('./session')
+const middlewareModule = require('../common/middleware')
 const serializer = require('../common/serializer')
 const { fromEmitter } = require('xest')
 
 module.exports = (socket, options = {}) => {
   const { serialize, deserialize } = serializer()
+  const middleware = middlewareModule()
 
-  return {
+  const chainable = target => (...args) => {
+    target.apply(null, args)
+    return consumer
+  }
+
+  const consumer = {
+    use: chainable(middleware.add),
     connect: () => new Promise((resolve, reject) => {
       const initialize = () => {
         const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
         const events = fromEmitter(socket, 'error', 'close')
         const send = message => socket.send(serialize(message))
 
-        connect(sessionFactory(messages, send))
+        connect(sessionFactory(messages, send, middleware))
           .then(api => resolve(api))
           .catch(error => reject(error))
       }
@@ -35,4 +43,6 @@ module.exports = (socket, options = {}) => {
       }
     })
   }
+
+  return consumer
 }

@@ -8,14 +8,15 @@ const sessions = {
 
 const nextId = (id => () => ++id)(0)
 
-module.exports = (messages, send) => ({
-  create: (type, parameters) => {
+module.exports = (messages, send, middleware) => ({
+  create: (type, data) => {
     const id = nextId()
 
     return sessions[type](
       proxy(messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
-      parameters, 
-      sendWrapper(send, id)
+      data, 
+      sendWrapper(send, id),
+      middleware
     )
   }
 })

@@ -1,4 +1,4 @@
-const pipeline = require('./pipeline')
+const pipeline = require('../common/pipeline')
 
 module.exports = (api, middleware) => ({
   operations: api.operations,

@@ -1,12 +1,14 @@
 const operation = require('../../consumer/session/operation')
 const { subject, isObservable } = require('xest')
 
+const middleware = { get: () => [] }
+
 test("static operations resolve and disconnect from observable", async () => {
   const source = subject()
   source.disconnect = jest.fn()
   const sentFromConsumer = jest.fn()
 
-  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: sentFromConsumer })
+  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: sentFromConsumer }, middleware)
   await new Promise(setTimeout)
   expect(sentFromConsumer.mock.calls).toEqual([[{ operation: 'hello', parameters: ['world'] }]])
 
@@ -25,7 +27,7 @@ test("observable operations resolve to observable", async () => {
   source.disconnect = jest.fn()
   const terminateFromConsumer = jest.fn()
 
-  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: () => {}, terminate: terminateFromConsumer })
+  const promise = operation(source, { operation: 'hello', parameters: ['world'] }, { operation: () => {}, terminate: terminateFromConsumer }, middleware)
   await new Promise(setTimeout)
 
   source.publish({

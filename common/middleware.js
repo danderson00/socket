@@ -1,8 +1,8 @@
-module.exports = log => {
+module.exports = () => {
   let middleware = []
 
   return {
-    add: newMiddleware => {
+    add: (newMiddleware = {}) => {
       if(typeof newMiddleware === 'function') {
         middleware = [...middleware, { 
           name: null, 

@@ -23,13 +23,11 @@ module.exports = log => {
         )
       }
     },
-    execute: (name, parameters) => {
+    get: name => {
       if(!api[name] || !api[name].handler) {
         throw new Error(`No operation '${name}' on host API`)
       }
-      return Promise.resolve(
-        api[name].handler.apply(api[name].hostObject, parameters)
-      )
+      return api[name]
     },
     operations: () => (
       Object.keys(api).map(operation => ({ name: operation }))

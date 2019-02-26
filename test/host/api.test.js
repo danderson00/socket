@@ -5,8 +5,8 @@ test("multiple APIs are merged", async () => {
   const api = apiModule(log)
   api.add({ hello: () => 'world' })
   api.add({ echo: text => `'${text}'` })
-  expect(await api.execute('hello')).toBe('world')
-  expect(await api.execute('echo', ['test'])).toBe("'test'")
+  expect(await api.get('hello').handler()).toBe('world')
+  expect(await api.get('echo').handler('test')).toBe("'test'")
 })
 
 test("operations returns API metadata", () => {

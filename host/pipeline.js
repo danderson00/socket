@@ -1,19 +1,20 @@
-module.exports = (api, middleware) => ({
-  operations: api.operations, 
-  execute: (name, parameters) => {
-    const normalizeParameters = supplied => (
-      (supplied && supplied.constructor === Array) ? supplied : [supplied]
+module.exports = (api, middleware, context) => (
+  middleware.reverse()
+    .reduce(
+      (next, current) => executor(current, next, context),
+      (...args) => Promise.resolve(api.handler.apply(api.hostObject, args))
     )
+)
 
-    return middleware.get(name)
-      .reduce(
-        (promise, currentMiddleware) => promise.then(
-          nextParameters => Promise.resolve(
-            currentMiddleware.handler.apply(null, normalizeParameters(nextParameters))
-          )
-        ),
-        Promise.resolve(parameters)
+const executor = (middleware, next, context) => (
+  (...args) => (
+    Promise.resolve(middleware.handler({ 
+      ...context,
+      args,
+      next: (...suppliedArgs) => next.apply(
+        null, 
+        suppliedArgs.length === 0 ? args : suppliedArgs
       )
-      .then(finalParameters => api.execute(name, normalizeParameters(finalParameters)))
-  }
-})
+    }))
+  )
+)

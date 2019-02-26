@@ -1,13 +1,13 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
-const apiModule = require('../../../host/api')
 const { subject } = require('xest')
 
 let sentFromHost, source
 
 const setup = (api, data = {}) => {
-  const hostApi = apiModule()
-  hostApi.add({ api })
+  const executor = {
+    execute: (name, parameters) => Promise.resolve(api.apply(null, parameters))
+  }
   sentFromHost = jest.fn()
   source = subject({ initialValue: {
     session: 'establish',
@@ -15,7 +15,7 @@ const setup = (api, data = {}) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory(hostApi).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(executor).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 
@@ -61,7 +61,7 @@ test("operation returns error if API function does not exist", async () => {
     sessionId: 1,
     status: 'error',
     session: 'terminate',
-    data: { message: "No operation 'api' on host API" }
+    data: { message: "Cannot read property 'apply' of undefined" }
   }]])
   expect(source.disconnect.mock.calls.length).toBe(1)
 })

@@ -17,7 +17,7 @@ afterEach(() => server.close())
 test("simple middleware", async () => {
   const api = await setup(
     { echo: (text1, text2) => `${text1}${text2}` },
-    { echo: (text1, text2) => [text2, text1] }
+    { echo: ({ args, next }) => next(args[1], args[0]) }
   )
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test2test1')
@@ -26,7 +26,7 @@ test("simple middleware", async () => {
 test("errors are returned from middleware", async () => {
   const api = await setup(
     { echo: text => `'${text}'` },
-    { echo: text => { throw new Error(text) } }
+    { echo: ({ args }) => { throw new Error(args[0]) } }
   )
   await expect(api.echo('test')).rejects.toMatchObject({ message: 'test' })
 })

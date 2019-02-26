@@ -4,7 +4,7 @@ const serializerModule = require('../common/serializer')
 const loggerModule = require('./logger')
 const apiModule = require('./api')
 const middlewareModule = require('./middleware')
-const pipelineModule = require('./pipeline')
+const executorModule = require('./executor')
 
 const defaultOptions = {
   log: { level: 'warn' },
@@ -17,8 +17,8 @@ module.exports = (server, options = {}) => {
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)
-  const pipeline = pipelineModule(api, middleware, log)
-  const sessionFactory = sessionModule(pipeline, log)
+  const executor = executorModule(api, middleware)
+  const sessionFactory = sessionModule(executor, log)
   const connections = connectionsModule(server, sessionFactory, serializer, log)
 
   const chainable = target => (...args) => {

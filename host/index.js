@@ -29,7 +29,11 @@ module.exports = (server, options = {}) => {
   const host = {
     connections,
     useApi: chainable(api.add),
-    use: chainable(middleware.add)
+    use: chainable(middleware.add),
+    useFeature: chainable(feature => {
+      api.add(feature.api)
+      middleware.add(feature.middleware)
+    })
   }
 
   return host

@@ -44,3 +44,16 @@ test("connection is exposed to middleware", async () => {
   )
   expect(await api.hello()).toBe('world')
 })
+
+test("context can be shared across calls using connection", async () => {
+  const api = await setup({ 
+      authenticate: username => ({ username, id: 1 }),
+      getUser: () => {}
+    }, {
+      authenticate: async ({ connection, next }) => connection.user = await next(),
+      getUser: ({ connection }) => connection.user
+    }
+  )
+  await api.authenticate('test')
+  expect(await api.getUser()).toEqual({ username: 'test', id: 1 })
+})

@@ -16,7 +16,7 @@ const setup = (api, data = {}) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory(executor, logger()).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(executor, logger('none')).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 

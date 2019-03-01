@@ -12,6 +12,7 @@ module.exports = (level = 1) => ({
 })
 
 const levels = { 
+  none: -1,
   error: 0, 
   warn: 1, 
   info: 2, 

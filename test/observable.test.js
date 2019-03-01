@@ -7,7 +7,7 @@ let server
 
 const setup = async api => {
   server = new WebSocket.Server({ port: 1234 })
-  host(server).useApi(api)
+  host(server, { log: { level: 'none' } }).useApi(api)
   return await consumer(() => new WebSocket('ws://localhost:1234')).connect()
 }
 

@@ -9,7 +9,7 @@ const setup = async (api, hostMiddleware, consumerMiddleware) => {
   hostModule(server)
     .use(hostMiddleware)
     .useApi(api)
-  return await consumerModule(new WebSocket('ws://localhost:1234'))
+  return await consumerModule(() => new WebSocket('ws://localhost:1234'))
     .use(consumerMiddleware)
     .connect()
 }
@@ -19,7 +19,7 @@ afterEach(() => server.close())
 test("simple middleware", async () => {
   const api = await setup(
     { echo: (text1, text2) => `${text1}${text2}` },
-    { echo: ({ args, next }) => next(args[1], args[0]) }
+    { echo: ({ next }, text1, text2) => next(text2, text1) }
   )
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test2test1')

@@ -27,6 +27,7 @@ module.exports = (executor, log) => ({
     }
 
     function handleError(message) {
+      log.error(message)
       send.error(message)
       sessionObservable.disconnect()
     }

@@ -8,7 +8,7 @@ const setup = async (...apis) => {
   server = new WebSocket.Server({ port: 1234 })
   const host = hostModule(server)
   apis.forEach(api => host.useApi(api))
-  return await consumerModule(new WebSocket('ws://localhost:1234')).connect()
+  return await consumerModule(() => new WebSocket('ws://localhost:1234')).connect()
 }
 
 afterEach(() => server.close())

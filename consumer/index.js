@@ -4,7 +4,7 @@ const middlewareModule = require('../common/middleware')
 const serializer = require('../common/serializer')
 const { fromEmitter } = require('xest')
 
-module.exports = (socket, options = {}) => {
+module.exports = (socketFactory, options = {}) => {
   const { serialize, deserialize } = serializer()
   const middleware = middlewareModule()
   const initializers = []
@@ -37,21 +37,9 @@ module.exports = (socket, options = {}) => {
           .catch(error => reject(error))
       }
 
-      switch(socket.readyState) {
-        case 0:
-        case "connecting":
-          socket.on('open', initialize)
-          break
-        case 1:
-        case "open":
-          initialize()
-          break
-        case 2:
-        case 3:
-        case "closing":
-        case "closed":
-          throw new Error("Socket is already closed")
-      }
+      const socket = socketFactory()
+      const addListener = socket.on || socket.addEventListener
+      addListener.call(socket, 'open', initialize)
     })
   }
 

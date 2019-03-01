@@ -17,7 +17,7 @@ module.exports = (server, options = {}) => {
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)
-  const executor = executorModule(api, middleware)
+  const executor = executorModule(api, middleware, log)
   const sessionFactory = sessionModule(executor, log)
   const connections = connectionsModule(server, sessionFactory, serializer, log)
 

@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
-  "browser": "dist/index.js",
+  "browser": "dist/consumer/index.js",
   "scripts": {
-    "build": "babel consumer --out-dir dist",
-    "prepublish": "babel consumer --source-maps false --out-dir dist",
+    "build": "babel consumer --presets env --out-dir dist/consumer && babel common --presets env --out-dir dist/common",
+    "prepublish": "babel consumer --presets env --source-maps false --out-dir dist/consumer && babel common --presets env --source-maps false --out-dir dist/common",
     "test": "jest --runInBand"
   },
   "keywords": [],

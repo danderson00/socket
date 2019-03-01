@@ -66,7 +66,7 @@ test("nonexistent API function returns error", async () => {
     type: 'operation',
     data: { operation: 'api' } 
   }))
-  await delay(10)
+  await delay(50)
 
   expect(sentFromHost.mock.calls).toEqual([[JSON.stringify({
     status: 'error',

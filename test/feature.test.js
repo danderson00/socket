@@ -7,7 +7,7 @@ let server
 const setup = async feature => {
   server = new WebSocket.Server({ port: 1234 })
   hostModule(server).useApi({ hello: () => 'world' })
-  return await consumerModule(new WebSocket('ws://localhost:1234')).useFeature(feature).connect()
+  return await consumerModule(() => new WebSocket('ws://localhost:1234')).useFeature(feature).connect()
 }
 
 afterEach(() => server.close())

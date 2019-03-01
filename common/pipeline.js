@@ -8,13 +8,16 @@ module.exports = (api, middleware, context) => (
 
 const executor = (middleware, next, context) => (
   (...args) => (
-    Promise.resolve(middleware.handler({ 
-      ...context,
-      args,
-      next: (...suppliedArgs) => next.apply(
-        null, 
-        suppliedArgs.length === 0 ? args : suppliedArgs
-      )
-    }))
+    Promise.resolve(middleware.handler.apply(null, [
+      { 
+        ...context,
+        args,
+        next: (...suppliedArgs) => next.apply(
+          null, 
+          suppliedArgs.length === 0 ? args : suppliedArgs
+        )
+      },
+      ...args
+    ]))
   )
 )

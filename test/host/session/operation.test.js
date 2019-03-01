@@ -1,5 +1,6 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
+const logger = require('../../../host/logger')
 const { subject } = require('xest')
 
 let sentFromHost, source
@@ -15,7 +16,7 @@ const setup = (api, data = {}) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory(executor).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(executor, logger()).create(source, sendWrapper(sentFromHost, 1))
   return new Promise(setTimeout)
 }
 

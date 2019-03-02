@@ -5,7 +5,7 @@ const { subject } = require('xest')
 
 let sentFromHost, source
 
-const setup = (api, data = {}) => {
+const setup = (api, data = {}, events) => {
   const executor = {
     execute: (name, parameters) => Promise.resolve(api.apply(null, parameters))
   }
@@ -16,7 +16,7 @@ const setup = (api, data = {}) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory(executor, logger('none')).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(executor, logger('none')).create(source, sendWrapper(sentFromHost, 1), { events: events || subject() })
   return new Promise(setTimeout)
 }
 
@@ -114,4 +114,24 @@ test("sending session terminate disconnects observable", async () => {
   source.publish({ session: 'terminate' })
   observable.publish('update')
   expect(sentFromHost.mock.calls.length).toBe(1)
+})
+
+test("operation disconnects from result observable when connection closes", async () => {
+  const result = subject()
+  result.disconnect = jest.fn()
+  const events = subject()
+  await setup(() => result, undefined, events)
+
+  events.publish({ topic: 'close' })
+  expect(result.disconnect.mock.calls.length).toBe(1)
+})
+
+test("operation disconnects from result observable when connection errors", async () => {
+  const result = subject()
+  result.disconnect = jest.fn()
+  const events = subject()
+  await setup(() => result, undefined, events)
+
+  events.publish({ topic: 'error' })
+  expect(result.disconnect.mock.calls.length).toBe(1)
 })

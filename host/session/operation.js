@@ -4,27 +4,42 @@ module.exports = (observable, context) => {
   const { send, hostApi } = context
   const { data } = observable()
 
-  return hostApi.execute(data.operation, patchParameters(data.parameters), context)
+  let cleanup
+  observable.subscribe(({ session }) => {
+    if(session === 'terminate') {
+      observable.disconnect()
+      if(cleanup) {
+        cleanup()
+      } else {
+        promise.then(() => cleanup && cleanup())
+      }
+    }
+  })
+
+  const promise = hostApi.execute(data.operation, patchParameters(data.parameters), context)
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))
         send.ok({ type: 'observable', value: unwrap(value) }, 'persistent')
     
-        observable.subscribe(({ session }) => {
-          if(session === 'terminate') {
-            resultSubscription.unsubscribe()
-            observable.disconnect()
-            if(value.disconnect) {
-              value.disconnect()
-            }
+        context.connection.events
+          .where(({ topic }) => topic === 'close' || topic === 'error')
+          .subscribe(() => value.disconnect && value.disconnect())
+
+        cleanup = () => {
+          resultSubscription.unsubscribe()
+          if(value.disconnect) {
+            value.disconnect()
           }
-        })
+        }
     
       } else {
         send.ok({ type: 'static', value })   
         observable.disconnect()     
       }
     })
+  
+  return promise
 }
 
 // JSON.stringify converts undefined array entries to null

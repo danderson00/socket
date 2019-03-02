@@ -11,7 +11,7 @@ const setup = initialValue => {
   sentFromHost = jest.fn()
   source = subject({ initialValue })
   source.disconnect = jest.fn()
-  sessionFactory(hostApi).create(source, sendWrapper(sentFromHost, 1))
+  sessionFactory(hostApi).create(source, sendWrapper(sentFromHost, 1), { events: subject() })
   return new Promise(setTimeout)
 }
 

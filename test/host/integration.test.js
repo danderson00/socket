@@ -1,8 +1,8 @@
 const hostModule = require('../../host')
-const { subject } = require('xest')
+const { subject, unwrap } = require('xest')
 const WebSocket = require('ws')
 
-let client, server, sentFromHost
+let client, host, server, sentFromHost
 
 const openSocket = () => new Promise(resolve => {
   const socket = new WebSocket('ws://localhost:1234')
@@ -11,7 +11,7 @@ const openSocket = () => new Promise(resolve => {
 
 const setup = async api => {
   server = new WebSocket.Server({ port: 1234 })
-  hostModule(server, { log: { level: 'none' } }).useApi({ api })
+  host = hostModule(server, { log: { level: 'none' } }).useApi({ api })
   client = await openSocket()
   sentFromHost = jest.fn()
   client.on('message', sentFromHost)
@@ -178,4 +178,44 @@ test("rejected promises from API functions are returned", async () => {
     session: 'terminate',
     sessionId: 1
   })]])
+})
+
+test("connections are available on result connections observable", async () => {
+  await setup(() => 'world')
+  const connections = unwrap(host.connections)
+  expect(connections.length).toBe(1)
+})
+
+test("sessions are available on result connections observable", async () => {
+  await setup(() => subject())
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' } 
+  }))
+  await delay(10)
+  const connections = unwrap(host.connections)
+  expect(connections.length).toBe(1)
+  expect(connections[0].sessions.length).toBe(1)
+})
+
+test("sessions are removed from sessions collection when terminated", async () => {
+  await setup(() => {
+    return subject()
+  })
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' } 
+  }))
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'terminate'
+  }))
+  await delay(20)
+  const connections = unwrap(host.connections)
+  expect(connections.length).toBe(1)
+  expect(connections[0].sessions.length).toBe(0)
 })

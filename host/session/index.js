@@ -16,7 +16,14 @@ module.exports = (executor, log) => ({
         hostApi: executor,
         log
       }
-      try {
+
+      connection.events.where({ topic: 'error' })
+        .subscribe(({ data }) => handleError(data))
+
+      connection.events.where({ topic: 'close' })
+        .subscribe(sessionObservable.disconnect)
+      
+      try {        
         return Promise.resolve(sessions[type](sessionObservable, context))
           .catch(handleError)
       } catch(error) {

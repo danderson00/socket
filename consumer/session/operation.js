@@ -1,15 +1,17 @@
 const { subject } = require('xest')
 const pipeline = require('../../common/pipeline')
 
-module.exports = context => new Promise((resolve, reject) => {
-  const { messages, data, send, middleware } = context
+module.exports = context => pipeline(
+  { handler: (...parameters) => executeOperation(context, parameters) },
+  context.middleware.get(context.data.operation),
+  { ...context }
+)(...context.data.parameters)
+
+const executeOperation = (context, parameters) => new Promise((resolve, reject) => {
+  const { messages, data, send } = context
   let observable
 
-  pipeline(
-    { handler: (...parameters) => send.operation({ ...data, parameters }) },
-    middleware.get(data.operation),
-    { ...context }
-  )(...data.parameters)
+  send.operation({ ...data, parameters })
 
   messages.subscribe(({ status, data }) => {
     if(status === 'ok') {

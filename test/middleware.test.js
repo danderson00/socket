@@ -64,8 +64,31 @@ test("simple consumer middleware", async () => {
   const api = await setup(
     { echo: (text1, text2) => `${text1}${text2}` },
     undefined,
-    { echo: ({ args, next }) => next(args[1], args[0]) }
+    { echo: ({ next }, text1, text2) => next(text2, text1) }
   )
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test2test1')
 })
+
+test("async consumer middleware", async () => {
+  const api = await setup(
+    { echo: (text1, text2) => `${text1}${text2}` },
+    undefined,
+    { echo: async ({ next }, text1, text2) => 
+        await new Promise(resolve => setTimeout(async () => resolve(await next(text2, text1)), 10)) 
+    }
+  )
+  const result = await api.echo('test1', 'test2')
+  expect(result).toBe('test2test1')
+})
+
+test("consumer middleware modifying result", async () => {
+  const api = await setup(
+    { echo: (text1, text2) => `${text1}${text2}` },
+    undefined,
+    { echo: async ({ next }) => `${await next()}!` }
+  )
+  const result = await api.echo('test1', 'test2')
+  expect(result).toBe('test1test2!')
+})
+

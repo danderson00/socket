@@ -4,10 +4,16 @@ module.exports = (observable, context) => {
   const { send, hostApi } = context
   const { data } = observable()
 
+  // *sigh* things start to rot pretty quickly
+  // we need to subscribe to the session observable immediately
+  // in case we get a terminate immediately after establish,
+  // but the host API call may not have finished, so wait for
+  // it to finish before attempting to clean up
   let cleanup
   observable.subscribe(({ session }) => {
     if(session === 'terminate') {
       observable.disconnect()
+      // clean up immediately if available
       if(cleanup) {
         cleanup()
       } else {

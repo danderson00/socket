@@ -2,14 +2,14 @@ const sessions = require('./sessions')
 const xest = require('xest')
 const uuid = require('uuid').v4
 
-module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
+module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {  
   const source = xest.fromEmitter(server, 'connection')
   const result = source
     .map(socket => ({ 
       id: uuid(), 
       messages: xest.fromEmitter(socket, 'message').map(message => deserialize(message.data)),
       events: xest.fromEmitter(socket, 'error', 'close'),
-      send: message => socket.send(serialize(message))
+      send: message => safeSend(socket, message)
     }))
     .groupBy(
       'id',
@@ -21,4 +21,12 @@ module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
   )
   result.disconnect = source.disconnect
   return result
+
+  function safeSend(socket, message) {
+    try {
+      return socket.send(serialize(message))
+    } catch(error) {
+      log.error(`Error sending message to socket`, error)
+    }
+  }
 }

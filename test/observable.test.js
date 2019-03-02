@@ -13,6 +13,8 @@ const setup = async api => {
 
 afterEach(() => server.close())
 
+const delay = delay => new Promise(resolve => setTimeout(resolve, delay))
+
 test("observable initial value", async () => {
   const api = await setup({ hello: () => subject({ initialValue: 'world' }) })
   const result = await api.hello()
@@ -24,7 +26,7 @@ test("observable publish", async () => {
   const api = await setup({ hello: () => source })
   const result = await api.hello()
   source.publish('world')
-  await new Promise(setTimeout)
+  await delay(10)
   expect(result()).toBe('world')
 })
 
@@ -34,6 +36,6 @@ test("unsubscribe", async () => {
   const result = await api.hello()
   result.disconnect()
   source.publish('world')
-  await new Promise(r => setTimeout(r, 10))
+  await delay(10)
   expect(result()).toBeUndefined()
 })

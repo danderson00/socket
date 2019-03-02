@@ -5,8 +5,8 @@
   "main": "host/index.js",
   "browser": "dist/consumer/index.js",
   "scripts": {
-    "build": "babel consumer --presets env --out-dir dist/consumer && babel common --presets env --out-dir dist/common",
-    "prepublish": "babel consumer --presets env --source-maps false --out-dir dist/consumer && babel common --presets env --source-maps false --out-dir dist/common",
+    "build": "babel consumer --presets @babel/preset-env --out-dir dist/consumer && babel common --presets @babel/preset-env --out-dir dist/common",
+    "prepublish": "babel consumer --presets @babel/preset-env --source-maps false --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps false --out-dir dist/common",
     "test": "jest --runInBand"
   },
   "keywords": [],

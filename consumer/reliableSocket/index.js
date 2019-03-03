@@ -6,7 +6,7 @@ const serializerModule = require('../../common/serializer')
 const { fromEmitter } = require('xest')
 
 const defaultOptions = { 
-  reconnectTimeout: 1000,
+  reconnectDelay: 1000,
   serializer: serializerModule()
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -31,7 +31,9 @@ module.exports = (options) => {
       queue.flush(socket, messages)
     })
 
-    addListener('close', () => delay(options.reconnectTimeout).then(connectNewSocket))
+    addListener('close', () => delay(options.reconnectDelay).then(connectNewSocket))
+
+    // TODO: add connect timeout
   }
 
   const api = {

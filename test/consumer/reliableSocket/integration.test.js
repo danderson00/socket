@@ -64,7 +64,7 @@ test("socket queues messages and awaits ack in order", async () => {
 
 test("socket continues sending with new socket after disconnect", async () => {
   const server = createServer()
-  const socket = reliableSocket({ serializer, socketFactory, reconnectTimeout: 0 })
+  const socket = reliableSocket({ serializer, socketFactory, reconnectDelay: 0 })
   const messages = jest.fn()
   socket.messages.subscribe(messages)
   socket.send({ value: 1 })
@@ -89,7 +89,7 @@ test("socket continues sending with new socket after disconnect", async () => {
 test("socket continues retrying to connect if server unavailable", async () => {
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234', { handshakeTimeout: 10 }))
-  const socket = reliableSocket({ serializer, socketFactory, reconnectTimeout: 50 })
+  const socket = reliableSocket({ serializer, socketFactory, reconnectDelay: 50 })
   const messages = jest.fn()
   socket.messages.subscribe(messages)
   socket.send({ value: 1 })

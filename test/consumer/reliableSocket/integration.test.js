@@ -85,6 +85,7 @@ test("socket continues sending with new socket after disconnect", async () => {
   ])
 })
 
+// this may be flaky depending on how fast your computer is
 test("socket continues retrying to connect if server unavailable", async () => {
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234', { handshakeTimeout: 10 }))

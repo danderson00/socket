@@ -1,6 +1,6 @@
 module.exports = options => {
   if(!options.url) {
-    throw new Error("You must specify a url")
+    throw new Error("You must specify a url or socketFactory")
   }
 
   if(typeof window === 'undefined' || window.WebSocket === undefined) {

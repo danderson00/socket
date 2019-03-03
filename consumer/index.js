@@ -2,11 +2,15 @@ const connect = require('./connect')
 const sessionFactory = require('./session')
 const middlewareModule = require('../common/middleware')
 const initializersModule = require('./initializers')
-const socketModule = require('./socket')
+const socketModule = require('./reliableSocket')
 const serializerModule = require('../common/serializer')
 
-module.exports = (socketFactory, options = {}) => {
-  const serializer = serializerModule()
+const defaultOptions = {
+  serializer: serializerModule()
+}
+
+module.exports = options => {
+  options = { ...defaultOptions, ...options }
   const middleware = middlewareModule()
   const initializers = initializersModule()
 
@@ -22,7 +26,7 @@ module.exports = (socketFactory, options = {}) => {
       initializers.add(feature.initialize)
     }),
     connect: async () => {
-      const socket = await socketModule(socketFactory, serializer, options)
+      const socket = await socketModule(options)
       const api = await connect(sessionFactory(socket, middleware, options))
       await initializers.execute({ api })
       return api

@@ -32,7 +32,6 @@ module.exports = (options) => {
     })
 
     addListener('close', () => delay(options.reconnectTimeout).then(connectNewSocket))
-    // addListener('error', () => delay(options.reconnectTimeout).then(connectNewSocket))
   }
 
   const api = {

@@ -1,9 +1,10 @@
-const { subject, observable } = require('xest')
+const xest = require('xest')
+const { subject, observable } = xest
 
 module.exports = (parent = subject(), options) => {
   let publish, subscription, source
 
-  const o = observable(p => publish = p, options)
+  const o = xest(observable(p => publish = p, options))
   o.swap = newSource => {
     if(subscription) {
       subscription.unsubscribe()

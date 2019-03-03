@@ -4,15 +4,18 @@ const middlewareModule = require('../common/middleware')
 const initializersModule = require('./initializers')
 const socketModule = require('./reliableSocket')
 const serializerModule = require('../common/serializer')
+const loggerModule = require('./logger')
 
 const defaultOptions = {
-  serializer: serializerModule()
+  serializer: serializerModule(),
+  log: { level: 'warn' }
 }
 
 module.exports = options => {
   options = { ...defaultOptions, ...options }
   const middleware = middlewareModule()
   const initializers = initializersModule()
+  const log = loggerModule(options.log.level)
 
   const chainable = target => (...args) => {
     target.apply(null, args)
@@ -26,7 +29,7 @@ module.exports = options => {
       initializers.add(feature.initialize)
     }),
     connect: async () => {
-      const socket = await socketModule(options)
+      const socket = await socketModule(options, log)
       const api = await connect(sessionFactory(socket, middleware, options))
       await initializers.execute({ api })
       return api

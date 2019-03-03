@@ -1,8 +1,9 @@
-module.exports = options => {
+module.exports = (options, log) => {
   const queue = []
 
   const api = {
     add: (command, socket, messages) => {
+      log.trace(`Enqueueing command ID ${command.id}`)
       queue.push(command)
       if(socket && messages) {
         return api.flush(socket, messages)

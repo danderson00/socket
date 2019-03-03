@@ -1,18 +1,22 @@
-module.exports = options => {
+module.exports = (options, log) => {
   const nextId = (next => () => ++next)(0)
 
   return message => {
-    const commandId = nextId()
+    const id = nextId()
     return {
+      id,
       trySend: (socket, messages) => new Promise((resolve, reject) => {
         try {
-          socket.send(options.serializer.serialize({ ...message, commandId }))
+          log.trace(`Sending command ID ${id}`)
+          socket.send(options.serializer.serialize({ ...message, commandId: id }))
           const subscription = messages.subscribe(message => {
-            if(message && message.commandId === commandId) { 
+            if(message && message.commandId === id) { 
               subscription.unsubscribe()
               if(message.status === 'ack') {
+                log.trace(`Received ack for command ID ${id}`)
                 resolve()
               } else {
+                log.trace(`Received error for command ID ${id} - ${message.message || 'unknown error'}`)
                 reject(new Error(message.message))
               }
             }

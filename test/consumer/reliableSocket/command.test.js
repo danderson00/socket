@@ -1,4 +1,5 @@
 const commandModule = require('../../../consumer/reliableSocket/command')
+const log = require('../../../host/logger')('none')
 const { subject } = require('xest')
 
 const options = { serializer: { serialize: x => x } }
@@ -6,7 +7,7 @@ const options = { serializer: { serialize: x => x } }
 test("commands resolve when ack is received", async () => {
   const socket = { send: jest.fn() }
   const messages = subject()
-  const commandFactory = commandModule(options)
+  const commandFactory = commandModule(options, log)
   const command = commandFactory(1)
   const promise = command.trySend(socket, messages)
   expect(socket.send.mock.calls).toEqual([[{ commandId: 1 }]])
@@ -16,7 +17,7 @@ test("commands resolve when ack is received", async () => {
 
 test("commands reject when send throws", async () => {
   const socket = { send: () => { throw new Error('test') } }
-  const commandFactory = commandModule(options)
+  const commandFactory = commandModule(options, log)
   const command = commandFactory(1)
   await expect(command.trySend(socket, subject())).rejects.toMatchObject({ message: 'test' })
 })
@@ -24,7 +25,7 @@ test("commands reject when send throws", async () => {
 test("commands reject when any other response is received", async () => {
   const socket = { send: jest.fn() }
   const messages = subject()
-  const commandFactory = commandModule(options)
+  const commandFactory = commandModule(options, log)
   const command = commandFactory(1)
   const promise = command.trySend(socket, messages)
   messages.publish({ commandId: 1, message: 'test' })

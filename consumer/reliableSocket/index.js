@@ -11,14 +11,15 @@ const defaultOptions = {
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = (options) => {
+module.exports = (options, log) => {
   options = { ...defaultOptions, ...options }
   const { deserialize } = options.serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)
-  const queue = queueModule(options)
-  const commandFactory = commandModule(options)
+  const queue = queueModule(options, log)
+  const commandFactory = commandModule(options, log)
 
   const connectNewSocket = () => {
+    log.info(`Connecting to ${options.url || 'host'}`)
     const socket = socketFactory()
     const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
     const events = fromEmitter(socket, 'error', 'close')
@@ -31,7 +32,12 @@ module.exports = (options) => {
       queue.flush(socket, messages)
     })
 
-    addListener('close', () => delay(options.reconnectDelay).then(connectNewSocket))
+    addListener('close', ({ code, reason }) => {
+      log.debug(`Socket closed, code: ${code}, reason: ${reason}`)
+      delay(options.reconnectDelay).then(connectNewSocket)
+    })
+
+    addListener('error', error => log.debug('Socket error', error))
 
     // TODO: add connect timeout
   }

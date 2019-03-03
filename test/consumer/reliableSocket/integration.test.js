@@ -1,0 +1,111 @@
+const reliableSocket = require('../../../consumer/reliableSocket')
+const serializerModule = require('../../../common/serializer')
+const WebSocket = require('ws')
+
+let servers = []
+afterEach(() => {
+  servers.forEach(x => x.close())
+  servers = []
+})
+
+const createServer = () => {
+  const server = new WebSocket.Server({ port: 1234 })
+  const connections = []
+  server.on('connection', socket => {
+    const messages = jest.fn()
+    socket.on('message', messages)
+    connections.push({
+      messages: messages.mock,
+      send: message => socket.send(message)
+    })
+  })
+  const result = { close: () => server.close(), connections }
+  servers.push(result)
+  return result
+}
+
+let lastWebSocket
+const socketFactory = () => lastWebSocket = new WebSocket('ws://localhost:1234')
+const serializer = serializerModule()
+const { deserialize } = serializer
+const delay = ms => new Promise(r => setTimeout(r, ms))
+
+test("socket immediately connects", async () => {
+  const server = createServer()
+  const socket = reliableSocket({ serializer, socketFactory })
+  await delay(50)
+  expect(server.connections.length).toBe(1)
+})
+
+test("socket queues messages and awaits ack in order", async () => {
+  const server = createServer()
+  const socket = reliableSocket({ serializer, socketFactory })
+  const messages = jest.fn()
+  socket.messages.subscribe(messages)
+  socket.send({ value: 1 })
+  socket.send({ value: 2 })
+  socket.send({ value: 3 })
+  await delay(50)
+  expect(server.connections[0].messages.calls.length).toBe(1)
+  expect(deserialize(server.connections[0].messages.calls[0][0])).toEqual({ value: 1, commandId: 1 })
+  server.connections[0].send(JSON.stringify({ commandId: 1, status: 'ack' }))
+  await delay(50)
+  expect(server.connections[0].messages.calls.length).toBe(2)
+  expect(deserialize(server.connections[0].messages.calls[1][0])).toEqual({ value: 2, commandId: 2 })
+  server.connections[0].send(JSON.stringify({ commandId: 2, status: 'ack' }))
+  await delay(50)
+  expect(server.connections[0].messages.calls.length).toBe(3)
+  expect(deserialize(server.connections[0].messages.calls[2][0])).toEqual({ value: 3, commandId: 3 })
+  expect(messages.mock.calls).toEqual([
+    [{ commandId: 1, status: 'ack'}],
+    [{ commandId: 2, status: 'ack'}]
+  ])
+})
+
+test("socket continues sending with new socket after disconnect", async () => {
+  const server = createServer()
+  const socket = reliableSocket({ serializer, socketFactory, reconnectTimeout: 0 })
+  const messages = jest.fn()
+  socket.messages.subscribe(messages)
+  socket.send({ value: 1 })
+  socket.send({ value: 2 })
+  await delay(50)
+  expect(server.connections[0].messages.calls.length).toBe(1)
+  expect(deserialize(server.connections[0].messages.calls[0][0])).toEqual({ value: 1, commandId: 1 })
+  server.connections[0].send(JSON.stringify({ commandId: 1, status: 'ack' }))
+  lastWebSocket.close()
+  await delay(50)
+  expect(server.connections[1].messages.calls.length).toBe(1)
+  expect(deserialize(server.connections[1].messages.calls[0][0])).toEqual({ value: 2, commandId: 2 })
+  server.connections[1].send(JSON.stringify({ commandId: 2, status: 'ack' }))
+  await delay(50)
+  expect(messages.mock.calls).toEqual([
+    [{ commandId: 1, status: 'ack'}],
+    [{ commandId: 2, status: 'ack'}]
+  ])
+})
+
+test("socket continues retrying to connect if server unavailable", async () => {
+  let server = createServer()
+  const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234', { handshakeTimeout: 10 }))
+  const socket = reliableSocket({ serializer, socketFactory, reconnectTimeout: 50 })
+  const messages = jest.fn()
+  socket.messages.subscribe(messages)
+  socket.send({ value: 1 })
+  socket.send({ value: 2 })
+  await delay(50)
+  server.connections[0].send(JSON.stringify({ commandId: 1, status: 'ack' }))
+  server.close()
+  await delay(150)
+  expect(socketFactory.mock.calls.length).toBe(3)
+  server = createServer()
+  await delay(100)
+  expect(server.connections[0].messages.calls.length).toBe(1)
+  expect(deserialize(server.connections[0].messages.calls[0][0])).toEqual({ value: 2, commandId: 2 })
+  server.connections[0].send(JSON.stringify({ commandId: 2, status: 'ack' }))
+  await delay(50)
+  expect(messages.mock.calls).toEqual([
+    [{ commandId: 1, status: 'ack'}],
+    [{ commandId: 2, status: 'ack'}]
+  ])
+})

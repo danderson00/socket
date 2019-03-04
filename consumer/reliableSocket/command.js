@@ -7,7 +7,7 @@ module.exports = (options, log) => {
       id,
       trySend: (socket, messages) => new Promise((resolve, reject) => {
         try {
-          log.trace(`Sending command ID ${id}`)
+          log.trace(`Sending command ID ${id} - ${JSON.stringify(message)}`)
           socket.send(options.serializer.serialize({ ...message, commandId: id }))
           const subscription = messages.subscribe(message => {
             if(message && message.commandId === id) { 
@@ -23,6 +23,7 @@ module.exports = (options, log) => {
           })
           // timeout?
         } catch(error) {
+          log.trace(`Error sending command ID ${id}`)
           reject(error)
         }
       })

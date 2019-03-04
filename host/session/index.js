@@ -3,26 +3,29 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = (executor, log) => ({
+module.exports = (hostApi, log) => ({
   create: (sessionObservable, send, connection) => {
-    const { type, id } = sessionObservable()
+    const { type, sessionId } = sessionObservable()
+    let disconnected = false
+
+    const eventSubscription = connection.events.subscribe(({ topic, data }) => {
+      if(topic === 'error') {
+        handleError(data)
+      } else if(topic === 'close') {
+        disconnect()
+      }
+    })
 
     if(sessions[type]) {
       const context = {
-        id,
+        id: sessionId,
         send,
         connection,
-        disconnect: sessionObservable.disconnect,
-        hostApi: executor,
+        disconnect,
+        hostApi,
         log
       }
 
-      connection.events.where({ topic: 'error' })
-        .subscribe(({ data }) => handleError(data))
-
-      connection.events.where({ topic: 'close' })
-        .subscribe(sessionObservable.disconnect)
-      
       try {        
         return Promise.resolve(sessions[type](sessionObservable, context))
           .catch(handleError)
@@ -33,10 +36,22 @@ module.exports = (executor, log) => ({
       handleError(`No session type '${type}'`)
     }
 
+    // trying to catch some unruly code disconnecting stuff more than once...
+    function disconnect() {
+      if(disconnected) {
+        log.warn(`Attempt to disconnect already disconnected session (${sessionId})`)
+      } else {
+        log.trace(`Disconnecting session ${sessionId}`)
+        sessionObservable.disconnect()
+        eventSubscription.unsubscribe()
+        disconnected = true
+      }
+    }
+
     function handleError(message) {
       log.error(message)
       send.error(message)
-      sessionObservable.disconnect()
+      disconnect()
     }
   }
 })

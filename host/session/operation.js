@@ -1,7 +1,7 @@
 const { isObservable, unwrap } = require('xest')
 
 module.exports = (observable, context) => {
-  const { send, hostApi } = context
+  const { send, hostApi, disconnect } = context
   const { data } = observable()
 
   // *sigh* things start to rot pretty quickly
@@ -12,7 +12,7 @@ module.exports = (observable, context) => {
   let cleanup
   observable.subscribe(({ session }) => {
     if(session === 'terminate') {
-      observable.disconnect()
+      disconnect()
       // clean up immediately if available
       if(cleanup) {
         cleanup()
@@ -21,6 +21,8 @@ module.exports = (observable, context) => {
       }
     }
   })
+
+  context.log.trace(`Establishing session ${context.id}`)
 
   const promise = hostApi.execute(data.operation, patchParameters(data.parameters), context)
     .then(value => {
@@ -33,6 +35,7 @@ module.exports = (observable, context) => {
           .subscribe(() => value.disconnect && value.disconnect())
 
         cleanup = () => {
+          context.log.trace(`Terminating session ${context.id}`)
           resultSubscription.unsubscribe()
           if(value.disconnect) {
             value.disconnect()
@@ -41,7 +44,7 @@ module.exports = (observable, context) => {
     
       } else {
         send.ok({ type: 'static', value })   
-        observable.disconnect()     
+        disconnect()     
       }
     })
   

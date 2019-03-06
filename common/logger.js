@@ -7,4 +7,4 @@ const defaultOptions = {
   prettyPrint: true
 }
 
-module.exports = (options = {}) => pino({ ...defaultOptions, ...options.log })
+module.exports = (options = {}) => pino({ ...defaultOptions, ...options }, options.destination)

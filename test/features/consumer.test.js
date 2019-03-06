@@ -1,5 +1,5 @@
-const hostModule = require('../host')
-const consumerModule = require('../consumer')
+const hostModule = require('../../host')
+const consumerModule = require('../../consumer')
 const WebSocket = require('ws')
 
 let server

@@ -12,7 +12,7 @@ const setup = initialValue => {
   sentFromHost = jest.fn()
   source = subject({ initialValue })
   source.disconnect = jest.fn()
-  sessionFactory(hostApi, loggerModule({ log: { level: 'trace' } }))
+  sessionFactory(hostApi, loggerModule({ level: 'trace' }))
     .create(source, sendWrapper(sentFromHost, 1), { events: subject() })
   return new Promise(setTimeout)
 }

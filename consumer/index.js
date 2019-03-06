@@ -15,7 +15,7 @@ module.exports = options => {
   options = { ...defaultOptions, ...options }
   const middleware = middlewareModule()
   const userConfiguration = userConfigurationModule(middleware)
-  const log = loggerModule(options)
+  const log = loggerModule(options.log)
 
   const chainable = target => (...args) => {
     target.apply(null, args)
@@ -29,7 +29,7 @@ module.exports = options => {
     connect: async () => {
       const socket = await socketModule(options, log)
       const api = await connect(sessionFactory(socket, middleware, options))
-      await userConfiguration.initialize({ socket, api })
+      await userConfiguration.initialize({ socket, api, log })
       return api
     }
   }

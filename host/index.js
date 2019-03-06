@@ -12,7 +12,7 @@ const defaultOptions = {
 }
 
 module.exports = (server, options = {}) => {
-  options = { ...defaultOptions, ...options }
+  options = { ...defaultOptions, ...options.log }
   const log = options.logger || loggerModule(options)
   const serializer = serializerModule()
   const api = apiModule(log)

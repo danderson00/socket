@@ -1,7 +1,7 @@
 const connect = require('./connect')
 const sessionFactory = require('./session')
 const middlewareModule = require('../common/middleware')
-const initializersModule = require('./initializers')
+const userConfigurationModule = require('./userConfiguration')
 const socketModule = require('./reliableSocket')
 const serializerModule = require('../common/serializer')
 const loggerModule = require('../common/logger')
@@ -14,8 +14,8 @@ const defaultOptions = {
 module.exports = options => {
   options = { ...defaultOptions, ...options }
   const middleware = middlewareModule()
-  const initializers = initializersModule()
-  const log = loggerModule(options.log.level)
+  const userConfiguration = userConfigurationModule(middleware)
+  const log = loggerModule(options)
 
   const chainable = target => (...args) => {
     target.apply(null, args)
@@ -23,15 +23,13 @@ module.exports = options => {
   }
 
   const consumer = {
-    use: chainable(middleware.add),
-    useFeature: chainable(feature => {
-      middleware.add(feature.middleware)
-      initializers.add(feature.initialize)
-    }),
+    use: chainable(userConfiguration.use),
+    useFeature: chainable(userConfiguration.useFeature),
+
     connect: async () => {
       const socket = await socketModule(options, log)
       const api = await connect(sessionFactory(socket, middleware, options))
-      await initializers.execute({ api })
+      await userConfiguration.initialize({ socket, api })
       return api
     }
   }

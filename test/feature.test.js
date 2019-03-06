@@ -13,8 +13,21 @@ const setup = async feature => {
 
 afterEach(() => server.close())
 
-test("feature initializers are passed returned API", async () => {
-  await setup({ 
-    initialize: ({ api }) => expect(api.hello).toBeInstanceOf(Function)
+test("consumer feature constructors are passed returned API", async () => {
+  await setup(({ api }) => {
+    expect(api.hello).toBeInstanceOf(Function)
+    return {}
   })
+})
+
+test("consumer feature constructors can be async to delay connect return", async () => {
+  let setupReturned = false
+  let setupExecuted = false
+  await setup(() => new Promise(resolve => setTimeout(() => {
+    expect(setupReturned).toBe(false)
+    setupExecuted = true
+    resolve({})
+  })))
+  setupReturned = true
+  expect(setupExecuted).toBe(true)
 })

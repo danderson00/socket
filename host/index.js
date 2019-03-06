@@ -31,8 +31,9 @@ module.exports = (server, options = {}) => {
     useApi: chainable(api.add),
     use: chainable(middleware.add),
     useFeature: chainable(feature => {
-      api.add(feature.api)
-      middleware.add(feature.middleware)
+      const constructed = feature({ log, executor, connections })
+      api.add(constructed.api)
+      middleware.add(constructed.middleware)
     })
   }
 

@@ -74,9 +74,7 @@ test("async consumer middleware", async () => {
   const api = await setup(
     { echo: (text1, text2) => `${text1}${text2}` },
     undefined,
-    { echo: async ({ next }, text1, text2) => 
-        await new Promise(resolve => setTimeout(async () => resolve(await next(text2, text1)), 10)) 
-    }
+    { echo: ({ next }, text1, text2) => new Promise(resolve => setTimeout(async () => resolve(await next(text2, text1)), 10)) }
   )
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test2test1')
@@ -91,4 +89,3 @@ test("consumer middleware modifying result", async () => {
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test1test2!')
 })
-

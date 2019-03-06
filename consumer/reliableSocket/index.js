@@ -22,7 +22,7 @@ module.exports = (options, log) => {
     log.info(`Connecting to ${options.url || 'host'}`)
     const socket = socketFactory()
     const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
-    const events = fromEmitter(socket, 'error', 'close')
+    const events = fromEmitter(socket, 'open', 'close', 'error')
     const addListener = (socket.on || socket.addEventListener).bind(socket)
 
     addListener('open', () => {

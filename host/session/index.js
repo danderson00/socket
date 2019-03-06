@@ -7,6 +7,7 @@ module.exports = (hostApi, log) => ({
   create: (sessionObservable, send, connection) => {
     const { type, sessionId } = sessionObservable()
     let disconnected = false
+    log = log.child({ sessionId })
 
     const eventSubscription = connection.events.subscribe(({ topic, data }) => {
       if(topic === 'error') {
@@ -39,9 +40,9 @@ module.exports = (hostApi, log) => ({
     // trying to catch some unruly code disconnecting stuff more than once...
     function disconnect() {
       if(disconnected) {
-        log.warn(`Attempt to disconnect already disconnected session (${sessionId})`)
+        log.warn(`Attempt to disconnect already disconnected session`)
       } else {
-        log.trace(`Disconnecting session ${sessionId}`)
+        log.trace(`Disconnecting session`)
         sessionObservable.disconnect()
         eventSubscription.unsubscribe()
         disconnected = true

@@ -4,7 +4,7 @@ module.exports = (options, log) => {
 
   const api = {
     add: (command, socket, messages) => {
-      log.trace(`Enqueueing command ID ${command.id}`)
+      log.trace({ commandId: command.id }, `Enqueueing command`)
       queue.push(command)
       if(currentFlushPromise) {
         return currentFlushPromise

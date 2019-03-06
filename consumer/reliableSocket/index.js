@@ -33,11 +33,11 @@ module.exports = (options, log) => {
     })
 
     addListener('close', ({ code, reason }) => {
-      log.debug(`Socket closed, code: ${code}, reason: ${reason}`)
+      log.debug({ code, reason }, `Socket closed`)
       delay(options.reconnectDelay).then(connectNewSocket)
     })
 
-    addListener('error', error => log.debug('Socket error', error))
+    addListener('error', error => log.debug(error, 'Socket error'))
 
     // TODO: add connect timeout
   }

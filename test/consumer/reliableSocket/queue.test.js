@@ -1,5 +1,5 @@
 const queue = require('../../../consumer/reliableSocket/queue')
-const log = require('../../../host/logger')('none')
+const log = require('../../../common/logger')('none')
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 

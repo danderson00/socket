@@ -1,6 +1,6 @@
 const reliableSocket = require('../../../consumer/reliableSocket')
 const serializerModule = require('../../../common/serializer')
-const log = require('../../../host/logger')('none')
+const log = require('../../../common/logger')('none')
 const WebSocket = require('ws')
 
 let servers = []

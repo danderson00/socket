@@ -7,7 +7,7 @@ let server
 
 const setup = async api => {
   server = new WebSocket.Server({ port: 1234 })
-  host(server, { log: { level: 'none' } }).useApi(api)
+  host(server, { log: { level: 'fatal' } }).useApi(api)
   return await createConsumer()
 }
 const delay = delay => new Promise(resolve => setTimeout(resolve, delay))

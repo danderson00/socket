@@ -1,5 +1,5 @@
 const commandModule = require('../../../consumer/reliableSocket/command')
-const log = require('../../../host/logger')('none')
+const log = require('../../../common/logger')('none')
 const { subject } = require('xest')
 
 const options = { serializer: { serialize: x => x } }

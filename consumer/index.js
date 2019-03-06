@@ -4,7 +4,7 @@ const middlewareModule = require('../common/middleware')
 const initializersModule = require('./initializers')
 const socketModule = require('./reliableSocket')
 const serializerModule = require('../common/serializer')
-const loggerModule = require('./logger')
+const loggerModule = require('../common/logger')
 
 const defaultOptions = {
   serializer: serializerModule(),

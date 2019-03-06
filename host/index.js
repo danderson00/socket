@@ -1,7 +1,7 @@
 const sessionModule = require('./session')
 const connectionsModule = require('./connections')
 const serializerModule = require('../common/serializer')
-const loggerModule = require('./logger')
+const loggerModule = require('../common/logger')
 const apiModule = require('./api')
 const middlewareModule = require('../common/middleware')
 const executorModule = require('./executor')
@@ -13,7 +13,7 @@ const defaultOptions = {
 
 module.exports = (server, options = {}) => {
   options = { ...defaultOptions, ...options }
-  const log = options.logger || loggerModule(options.log.level)
+  const log = options.logger || loggerModule(options)
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)

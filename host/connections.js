@@ -30,7 +30,7 @@ module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
     try {
       return socket.send(serialize(message))
     } catch(error) {
-      log.error(`Error sending message to socket`, error)
+      log.error(error, `Error sending message to socket`)
     }
   }
 }

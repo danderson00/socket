@@ -1,6 +1,7 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
 const apiModule = require('../../../host/api')
+const loggerModule = require('../../../common/logger')
 const { subject } = require('xest')
 
 let sentFromHost, source
@@ -11,7 +12,8 @@ const setup = initialValue => {
   sentFromHost = jest.fn()
   source = subject({ initialValue })
   source.disconnect = jest.fn()
-  sessionFactory(hostApi).create(source, sendWrapper(sentFromHost, 1), { events: subject() })
+  sessionFactory(hostApi, loggerModule({ log: { level: 'trace' } }))
+    .create(source, sendWrapper(sentFromHost, 1), { events: subject() })
   return new Promise(setTimeout)
 }
 

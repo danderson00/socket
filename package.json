@@ -1,6 +1,6 @@
 {
   "name": "xsocket",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "dist/consumer/index.js",
@@ -17,7 +17,7 @@
     "uuid": "^3.3.2",
     "verror": "^1.10.0",
     "ws": "^6.1.3",
-    "xest": "^0.0.5"
+    "xest": "^0.0.6"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

@@ -11,14 +11,12 @@ const setup = async () => {
   hostWrite = jest.fn()
   consumerWrite = jest.fn()
   hostModule(server, { log: { destination: { write: hostWrite }, level: 'warn' } })
-    // .useFeature(hostFeature())
     .useFeature('log')
 
   return await consumerModule({ 
     socketFactory: () => new WebSocket('ws://localhost:1234'),
     log: { destination: { write: consumerWrite }, level: 'warn' }
   })
-    // .useFeature(consumerFeature())
     .useFeature('log')
     .connect()
 }

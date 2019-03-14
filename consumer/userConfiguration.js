@@ -1,3 +1,5 @@
+const features = require('./features')
+
 // we want to delay construction of features until after we have connected
 // and retrieved the API so features can make use of other API functions
 // we still want middleware to be added in the same order the user specifies
@@ -6,7 +8,12 @@ module.exports = middleware => {
 
   return {
     use: middleware => configurationChain.push({ middleware }),
-    useFeature: feature => configurationChain.push({ feature }),
+    useFeature: (feature, options) => {
+      if(typeof feature === 'string') {
+        feature = builtInFeature(feature, options)
+      }
+      configurationChain.push({ feature })
+    },
     initialize: context => (
       configurationChain.reduce(
         async (previous, x) => {
@@ -25,4 +32,12 @@ module.exports = middleware => {
       )
     )
   }
+}
+
+const builtInFeature = (name, options) => {
+  const builtIn = features[name]
+  if(!builtIn) {
+    throw new Error(`No such built-in feature ${name}`)
+  }
+  return builtIn(options)
 }

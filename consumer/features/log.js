@@ -6,7 +6,7 @@ const defaultOptions = { unhandled: true }
 module.exports = options => ({ log, api }) => {
   options = { ...defaultOptions, ...options }
 
-  if(options.unhandled) {
+  if(options.unhandled && api.log) {
     logUncaught(error => api.log('error', error))
   }
 

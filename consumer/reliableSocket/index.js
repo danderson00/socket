@@ -13,48 +13,51 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = (options, onConnect, log) => {
   options = { ...defaultOptions, ...options }
+
+  let activeSocket
+  const messages = swappable()
+  const events = swappable()
+
   const { serialize, deserialize } = options.serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)
-  const queue = queueModule(options, log)
+  const queue = queueModule(options, messages, log)
   const commandFactory = commandModule(options, log)
-
-  const queueMessage = (socket, messages) => message => queue.add(commandFactory(message), socket, messages)
-  const sendDirect = socket => message => socket.send(serialize(message))
 
   const connectNewSocket = () => {
     log.info(`Connecting to ${options.url || 'host'}`)
+
     const socket = socketFactory()
-    const messages = fromEmitter(socket, 'message').map(({ data }) => deserialize(data))
-    const events = fromEmitter(socket, 'open', 'close', 'error')
     const addListener = (socket.on || socket.addEventListener).bind(socket)
 
+    messages.swap(fromEmitter(socket, 'message').map(({ data }) => deserialize(data)))
+    events.swap(fromEmitter(socket, 'open', 'close', 'error'))
+
     addListener('open', async () => {
-      api.messages.swap(messages)
-      api.events.swap(events)
-      api.send = queueMessage(socket, messages)
-      api.send.direct = sendDirect(socket)
-      await onConnect()         
-      queue.flush(socket, messages)
+      activeSocket = socket
+      await onConnect()
+      queue.flush(activeSocket)
     })
 
     addListener('close', ({ code, reason }) => {
-      log.debug({ code, reason }, `Socket closed`)
-      api.send = queueMessage()
-      api.send.direct = () => { throw new Error('Socket is closed') }
+      log.debug({ code, reason }, 'Socket closed')
+      activeSocket = undefined
       delay(options.reconnectDelay).then(connectNewSocket)
     })
 
-    addListener('error', error => log.debug(error, 'Socket error'))
+    addListener('error', error => {
+      log.debug(error, 'Socket error')
+      activeSocket = undefined
+    })
 
     // TODO: add connect timeout
   }
 
   const api = {
-    messages: swappable(),
-    events: swappable(),
-    send: queueMessage(),
+    messages,
+    events,
+    send: message => queue.add(commandFactory(message), activeSocket),
+    sendImmediate: message => activeSocket.send(serialize(message))
   }
-  api.send.direct = () => { throw new Error('Socket is closed') }
 
   connectNewSocket()
 

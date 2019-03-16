@@ -9,14 +9,14 @@ const sessions = {
 const nextId = (id => () => ++id)(0)
 
 module.exports = (socket, middleware) => ({
-  create: (type, data, direct) => {
+  create: (type, data, immediate) => {
     const id = nextId()
 
     return sessions[type]({
       id,
       messages: proxy(socket.messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
       data, 
-      send: sendWrapper(socket, id, direct),
+      send: sendWrapper(socket, id, immediate),
       middleware
     })
   }

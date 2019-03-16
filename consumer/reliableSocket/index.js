@@ -13,12 +13,13 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = (options, onConnect, log) => {
   options = { ...defaultOptions, ...options }
-  const { deserialize } = options.serializer
+  const { serialize, deserialize } = options.serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)
   const queue = queueModule(options, log)
   const commandFactory = commandModule(options, log)
 
   const queueMessage = (socket, messages) => message => queue.add(commandFactory(message), socket, messages)
+  const sendDirect = socket => message => socket.send(serialize(message))
 
   const connectNewSocket = () => {
     log.info(`Connecting to ${options.url || 'host'}`)
@@ -30,14 +31,16 @@ module.exports = (options, onConnect, log) => {
     addListener('open', async () => {
       api.messages.swap(messages)
       api.events.swap(events)
-      await onConnect()         
       api.send = queueMessage(socket, messages)
+      api.send.direct = sendDirect(socket)
+      await onConnect()         
       queue.flush(socket, messages)
     })
 
     addListener('close', ({ code, reason }) => {
       log.debug({ code, reason }, `Socket closed`)
       api.send = queueMessage()
+      api.send.direct = () => { throw new Error('Socket is closed') }
       delay(options.reconnectDelay).then(connectNewSocket)
     })
 
@@ -49,8 +52,9 @@ module.exports = (options, onConnect, log) => {
   const api = {
     messages: swappable(),
     events: swappable(),
-    send: queueMessage()
+    send: queueMessage(),
   }
+  api.send.direct = () => { throw new Error('Socket is closed') }
 
   connectNewSocket()
 

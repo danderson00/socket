@@ -9,5 +9,5 @@ test("connect returns wrapped api", async () => {
   expect(api.test).toBeInstanceOf(Function)
 
   api.test(1, 'test')
-  expect(create.mock.calls[1]).toEqual(['operation', { operation: 'test', parameters: [1, 'test'] }])
+  expect(create.mock.calls[1]).toEqual(['operation', { operation: 'test', parameters: [1, 'test'] }, undefined])
 })

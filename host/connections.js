@@ -9,7 +9,9 @@ module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {
       id: uuid(), 
       messages: xest.fromEmitter(socket, 'message').map(message => {
         const deserialized = deserialize(message.data)
-        safeSend(socket, { commandId: deserialized.commandId, status: 'ack' })
+        if(deserialized.commandId) {
+          safeSend(socket, { commandId: deserialized.commandId, status: 'ack' })
+        }
         return deserialized
       }),
       events: xest.fromEmitter(socket, 'error', 'close'),

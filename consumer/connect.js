@@ -1,11 +1,15 @@
 module.exports = sessionFactory => {
   return sessionFactory.create('handshake')
     .then(({ operations }) => {
-        const executeOperation = operation => (...parameters) => 
-          sessionFactory.create('operation', { operation, parameters })
+        const executeOperation = (operation, direct) => (...parameters) => 
+          sessionFactory.create('operation', { operation, parameters }, direct)
 
         return operations.reduce(
-          (api, operation) => ({ ...api, [operation.name]: executeOperation(operation.name) }),
+          (api, operation) => {
+            const result = { ...api, [operation.name]: executeOperation(operation.name) }
+            result[operation.name].direct = executeOperation(operation.name, true)
+            return result
+          },
           {}
         )
     })

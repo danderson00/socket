@@ -55,7 +55,6 @@ test("async static API call returns ack and result", async () => {
   await delay(20)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ status: 'ack' })],
     [JSON.stringify({
       status: 'ok',
       data: { type: 'static', value: 'world' },
@@ -76,7 +75,6 @@ test("nonexistent API function returns ack and error", async () => {
   await delay(50)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ status: 'ack' })],
     [JSON.stringify({
       status: 'error',
       data: { message: "No operation 'api' on host API" },
@@ -97,8 +95,8 @@ test("observable API call returns ack, result and updates", async () => {
   }))
   await delay(10)
 
-  expect(sentFromHost.mock.calls.length).toBe(2)
-  expect(sentFromHost.mock.calls[1]).toEqual([JSON.stringify({
+  expect(sentFromHost.mock.calls.length).toBe(1)
+  expect(sentFromHost.mock.calls[0]).toEqual([JSON.stringify({
     status: 'ok',
     data: { type: 'observable', value: 'world' },
     session: 'persistent',
@@ -108,8 +106,8 @@ test("observable API call returns ack, result and updates", async () => {
   source.publish('world2')
   await delay(10)
 
-  expect(sentFromHost.mock.calls.length).toBe(3)
-  expect(sentFromHost.mock.calls[2]).toEqual([JSON.stringify({
+  expect(sentFromHost.mock.calls.length).toBe(2)
+  expect(sentFromHost.mock.calls[1]).toEqual([JSON.stringify({
     status: 'update',
     data: { value: 'world2' },
     sessionId: 1
@@ -133,7 +131,7 @@ test("sending session terminate unsubscribes from observables", async () => {
   source.publish('world2')
   await(delay(10))
 
-  expect(sentFromHost.mock.calls.length).toBe(3)
+  expect(sentFromHost.mock.calls.length).toBe(1)
 })
 
 test("parameters are passed to API functions", async () => {
@@ -147,7 +145,6 @@ test("parameters are passed to API functions", async () => {
   await delay(10)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ status: 'ack' })],
     [JSON.stringify({
       status: 'ok',
       data: { type: 'static', value: 'wor1d' },
@@ -168,7 +165,6 @@ test("errors thrown from API functions are returned", async () => {
   await delay(20)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ status: 'ack' })],
     [JSON.stringify({
       status: 'error',
       data: { message: "test" },
@@ -189,7 +185,6 @@ test("rejected promises from API functions are returned", async () => {
   await delay(10)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ status: 'ack' })],
     [JSON.stringify({
       status: 'error',
       data: { message: "test" },

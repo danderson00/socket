@@ -22,10 +22,23 @@ module.exports = middleware => {
             middleware.add(x.middleware)
           }
           if(x.feature) {
-            const constructedFeature = await Promise.resolve(x.feature(context))
-            if(constructedFeature.middleware) {
-              middleware.add(constructedFeature.middleware)            
+            x.constructedFeature = await Promise.resolve(x.feature(context))
+            if(x.constructedFeature.middleware) {
+              middleware.add(x.constructedFeature.middleware)            
             }
+          }
+        },
+        Promise.resolve()
+      )
+    ),
+    // middleware connect functions are not executed on initial connect
+    // as they have not been constructed yet. rename -> reconnect?
+    connect: context => (
+      configurationChain.reduce(
+        async (previous, x) => {
+          await previous
+          if(x.constructedFeature && x.constructedFeature.connect) {
+            await Promise.resolve(x.constructedFeature.connect(context))
           }
         },
         Promise.resolve()

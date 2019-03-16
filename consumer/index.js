@@ -27,7 +27,7 @@ module.exports = options => {
     useFeature: chainable(userConfiguration.useFeature),
 
     connect: async () => {
-      const socket = await socketModule(options, log)
+      const socket = socketModule(options, userConfiguration.connect, log)
       const api = await connect(sessionFactory(socket, middleware, options))
       await userConfiguration.initialize({ socket, api, log })
       return api

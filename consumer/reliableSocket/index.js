@@ -56,8 +56,8 @@ module.exports = (options, onConnect, log) => {
     messages,
     events,
     send: message => queue.add(commandFactory(message), activeSocket),
-    sendImmediate: message => activeSocket.send(serialize(message))
   }
+  api.send.immediate = message => activeSocket.send(serialize(message))
 
   connectNewSocket()
 

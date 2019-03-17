@@ -10,16 +10,15 @@ module.exports = (options, log) => {
         try {
           log.trace({ data: JSON.stringify(message) }, `Sending command`)
           socket.send(options.serializer.serialize({ ...message, commandId: id }))
-          const subscription = messages.subscribe(message => {
-            if(message && message.commandId === id) { 
-              subscription.unsubscribe()
-              if(message.status === 'ack') {
-                log.trace(`Received ack`)
-                resolve()
-              } else {
-                log.trace(message.message, `Received error`)
-                reject(new Error(message.message))
-              }
+          
+          const subscription = messages.where(x => x.commandId === id).subscribe(message => {
+            subscription.unsubscribe()
+            if(message.status === 'ack') {
+              log.trace(`Received ack`)
+              resolve()
+            } else {
+              log.trace(message.message, `Received error`)
+              reject(new Error(message.message))
             }
           })
           // timeout?

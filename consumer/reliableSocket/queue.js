@@ -20,7 +20,10 @@ module.exports = (options, messages, log) => {
             queue.shift()
             return api.flush(socket)
           })
-          .catch(() => { /* ignore errors as commands are self contained and we'll be retrying (?) */ })
+          .catch(() => { 
+            // ignore errors as commands are self contained and we'll be retrying (?)
+            // should probably add a delay and retry here, otherwise the queue stalls until next action?
+          })
       } else {
         currentFlushPromise = undefined
       }

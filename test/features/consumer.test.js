@@ -4,10 +4,10 @@ const WebSocket = require('ws')
 
 let server
 
-const setup = async feature => {
+const setup = feature => {
   server = new WebSocket.Server({ port: 1234 })
   hostModule(server).useApi({ hello: () => 'world' })
-  return await consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') })
+  return consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') })
     .useFeature(feature).connect()
 }
 
@@ -30,4 +30,17 @@ test("consumer feature constructors can be async to delay connect return", async
   })))
   setupReturned = true
   expect(setupExecuted).toBe(true)
+})
+
+test("consumer feature constructors are passed sessions object", async () => {
+  let s
+  const consumer = await setup(({ sessions }) => {
+    s = sessions
+    return {}
+  })
+  expect(s.get().length).toBe(0)
+  const promise = consumer.hello()
+  expect(s.get().length).toBe(1)
+  await promise
+  expect(s.get().length).toBe(0)
 })

@@ -1,23 +1,17 @@
-const sendWrapper = require('../sendWrapper')
-const { proxy } = require('xest')
+const sessionsModule = require('./sessions')
 
 const sessions = {
   operation: require('./operation'),
   handshake: require('./handshake')
 }
 
-const nextId = (id => () => ++id)(0)
+module.exports = (socket, middleware, options) => {
+  const sessionFactory = sessionsModule(socket, middleware, options)
 
-module.exports = (socket, middleware) => ({
-  create: (type, data, immediate) => {
-    const id = nextId()
-
-    return sessions[type]({
-      id,
-      messages: proxy(socket.messages.where(x => x.sessionId === id)), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
-      data, 
-      send: sendWrapper(socket, id, immediate),
-      middleware
-    })
+  return {
+    get: sessionFactory.get,
+    create: (type, data, immediate) => {
+      return sessions[type](sessionFactory.create(type, data, immediate))
+    }
   }
-})
+}

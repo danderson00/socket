@@ -5,14 +5,15 @@ const middleware = { get: () => [] }
 
 test("static operations resolve and disconnect from observable", async () => {
   const source = subject()
-  source.disconnect = jest.fn()
+  const disconnect = jest.fn()
   const sentFromConsumer = jest.fn()
 
   const promise = operation({ 
     messages: source, 
     data: { operation: 'hello', parameters: ['world'] }, 
     send: { operation: sentFromConsumer }, 
-    middleware 
+    middleware,
+    disconnect
   })
   await new Promise(setTimeout)
   expect(sentFromConsumer.mock.calls).toEqual([[{ operation: 'hello', parameters: ['world'] }]])
@@ -24,19 +25,21 @@ test("static operations resolve and disconnect from observable", async () => {
   })
   await expect(promise).resolves.toBe('test')
 
-  expect(source.disconnect.mock.calls.length).toBe(1)
+  expect(disconnect.mock.calls.length).toBe(1)
 })
 
 test("observable operations resolve to observable", async () => {
   const source = subject()
-  source.disconnect = jest.fn()
-  const terminateFromConsumer = jest.fn()
+  const disconnect = jest.fn()
+  const terminate = jest.fn()
 
   const promise = operation({
     messages: source, 
     data: { operation: 'hello', parameters: ['world'] }, 
-    send: { operation: () => {}, terminate: terminateFromConsumer }, 
-    middleware
+    send: { operation: () => {}, terminate }, 
+    middleware,
+    disconnect,
+    terminate
   })
   await new Promise(setTimeout)
 
@@ -57,5 +60,5 @@ test("observable operations resolve to observable", async () => {
   expect(o()).toBe('test2')
 
   o.disconnect()
-  expect(terminateFromConsumer.mock.calls.length).toBe(1)
+  expect(terminate.mock.calls.length).toBe(1)
 })

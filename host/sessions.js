@@ -4,7 +4,7 @@ module.exports = (connection, sessionFactory) => (
   connection.messages.groupBy(
     'sessionId',
     sessionObservable => sessionObservable
-      .where(x => x.session === 'establish')
+      .where(x => x.session === 'establish' || x.session === 'reestablish')
       .map(() => sessionFactory.create(sessionObservable, sendWrapper(connection.send, sessionObservable.key), connection))
   )
 )

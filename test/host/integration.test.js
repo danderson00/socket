@@ -114,6 +114,27 @@ test("observable API call returns ack, result and updates", async () => {
   })])
 })
 
+test("session reestablish returns ack and update", async () => {
+  await setup(() => subject({ initialValue: 'world' }))
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'reestablish',
+    type: 'operation',
+    data: { operation: 'api' },
+    commandId: 1
+  }))
+  await delay(10)
+
+  expect(sentFromHost.mock.calls).toEqual([
+    [JSON.stringify({ commandId: 1, status: 'ack' })],
+    [JSON.stringify({
+      status: 'update',
+      data: { value: 'world' },
+      sessionId: 1
+    })]
+  ])
+})
+
 test("sending session terminate unsubscribes from observables", async () => {
   const source = subject({ initialValue: 'world' })
   await setup(() => source)

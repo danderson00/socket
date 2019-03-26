@@ -1,11 +1,11 @@
 const { subject } = require('xest')
 const pipeline = require('../../common/pipeline')
 
-module.exports = context => pipeline(
-  { handler: (...parameters) => executeOperation(context, parameters) },
-  context.middleware.get(context.data.operation),
-  { ...context }
-)(...context.data.parameters)
+module.exports = session => pipeline(
+  { handler: (...parameters) => executeOperation(session, parameters) },
+  session.middleware.get(session.data.operation),
+  { ...session }
+)(...session.data.parameters)
 
 const executeOperation = (session, parameters) => new Promise((resolve, reject) => {
   const { messages, data, send, disconnect, terminate } = session

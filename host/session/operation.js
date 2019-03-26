@@ -2,7 +2,9 @@ const { isObservable, unwrap } = require('xest')
 
 module.exports = (observable, context) => {
   const { send, hostApi, disconnect } = context
-  const { data } = observable()
+  const request = observable()
+  const { operation, parameters } = request.data
+  const reestablish = request.session === 'reestablish'
 
   // *sigh* things start to rot pretty quickly
   // we need to subscribe to the session observable immediately
@@ -24,11 +26,16 @@ module.exports = (observable, context) => {
 
   context.log.trace(`Establishing session`)
 
-  const promise = hostApi.execute(data.operation, patchParameters(data.parameters), context)
+  const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))
-        send.ok({ type: 'observable', value: unwrap(value) }, 'persistent')
+
+        if(reestablish) {
+          send.update({ value: unwrap(value) })
+        } else {
+          send.ok({ type: 'observable', value: unwrap(value) }, 'persistent')
+        }        
     
         context.connection.events
           .where(({ topic }) => topic === 'close' || topic === 'error')

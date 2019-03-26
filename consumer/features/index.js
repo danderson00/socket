@@ -1,3 +1,4 @@
 module.exports = {
-  log: require('./log')
+  log: require('./log'),
+  reestablishSessions: require('./reestablishSessions')
 }

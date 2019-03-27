@@ -13,8 +13,8 @@ const defaultOptions = {
 }
 
 module.exports = (server, options = {}) => {
-  options = { ...defaultOptions, ...options.log }
-  const log = options.logger || loggerModule(options)
+  options = { ...defaultOptions, ...options }
+  const log = options.logger || loggerModule(options.log)
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)

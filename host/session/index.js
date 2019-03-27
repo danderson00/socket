@@ -3,11 +3,11 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = (hostApi, log) => ({
+module.exports = (hostApi, parentLog) => ({
   create: (sessionObservable, send, connection) => {
     const { type, sessionId } = sessionObservable()
     let disconnected = false
-    log = log.child({ sessionId })
+    const log = parentLog.child({ sessionId })
 
     const eventSubscription = connection.events.subscribe(({ topic, data }) => {
       if(topic === 'error') {

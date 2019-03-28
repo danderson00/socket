@@ -24,7 +24,7 @@ module.exports = (observable, context) => {
     }
   })
 
-  context.log.trace(`Establishing session`)
+  context.log.trace(`${reestablish ? 'Ree' : 'E'}stablishing session`)
 
   const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {

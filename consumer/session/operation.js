@@ -11,7 +11,9 @@ const executeOperation = (session, parameters) => new Promise((resolve, reject) 
   const { messages, data, send, disconnect, terminate } = session
   let observable
 
-  send.operation({ ...data, parameters })
+  session.request = { ...data, parameters }
+
+  send.operation(session.request)
 
   messages.subscribe(({ status, data }) => {
     if(status === 'ok') {

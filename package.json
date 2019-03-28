@@ -5,7 +5,7 @@
   "main": "host/index.js",
   "browser": "dist/consumer/index.js",
   "scripts": {
-    "build": "babel consumer --presets @babel/preset-env --out-dir dist/consumer && babel common --presets @babel/preset-env --out-dir dist/common",
+    "build": "babel consumer --presets @babel/preset-env --source-maps both --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps both --out-dir dist/common",
     "prepublish": "babel consumer --presets @babel/preset-env --source-maps false --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps false --out-dir dist/common",
     "test": "jest --runInBand"
   },
@@ -25,7 +25,7 @@
     "@babel/preset-env": "^7.3.4",
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.4.2",
-    "jest": "^24.0.0",
+    "jest": "^24.5.0",
     "pino-pretty": "^2.5.0"
   },
   "resolutions": {

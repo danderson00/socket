@@ -15,7 +15,7 @@ module.exports = options => {
   options = { ...defaultOptions, ...options }
   const middleware = middlewareModule()
   const userConfiguration = userConfigurationModule(middleware)
-  const log = loggerModule({ ...options.log, scope: { source: 'consumer' } })
+  const log = loggerModule({ ...options.log, scope: { origin: 'consumer', source: 'xsocket.consumer' } })
 
   const chainable = target => (...args) => {
     target.apply(null, args)

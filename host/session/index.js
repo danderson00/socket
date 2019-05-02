@@ -42,7 +42,7 @@ module.exports = (hostApi, parentLog) => ({
       if(disconnected) {
         log.warn(`Attempt to disconnect already disconnected session`)
       } else {
-        log.trace(`Disconnecting session`)
+        log.debug(`Disconnecting session`)
         sessionObservable.disconnect()
         eventSubscription.unsubscribe()
         disconnected = true

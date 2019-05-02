@@ -8,22 +8,22 @@ module.exports = (options, log) => {
       id,
       trySend: (socket, messages) => new Promise((resolve, reject) => {
         try {
-          log.trace({ data: JSON.stringify(message) }, `Sending command`)
+          log.debug({ data: JSON.stringify(message) }, `Sending command`)
           socket.send(options.serializer.serialize({ ...message, commandId: id }))
           
           const subscription = messages.where(x => x.commandId === id).subscribe(message => {
             subscription.unsubscribe()
             if(message.status === 'ack') {
-              log.trace(`Received ack`)
+              log.debug(`Received ack`)
               resolve()
             } else {
-              log.trace(message.message, `Received error`)
+              log.debug(message.message, `Received error`)
               reject(new Error(message.message))
             }
           })
           // timeout?
         } catch(error) {
-          log.trace(`Error sending command`)
+          log.debug(`Error sending command`)
           reject(error)
         }
       })

@@ -4,7 +4,7 @@ module.exports = (options, messages, log) => {
 
   const api = {
     add: (command, socket) => {
-      log.trace({ commandId: command.id }, `Enqueueing command`)
+      log.debug({ commandId: command.id }, `Enqueueing command`)
       queue.push(command)
       if(currentFlushPromise) {
         return currentFlushPromise
@@ -14,7 +14,7 @@ module.exports = (options, messages, log) => {
     },
     flush: (socket) => {
       if(queue.length > 0) {
-        log.trace({ commandId: queue[0].id }, 'Dequeueing command')
+        log.debug({ commandId: queue[0].id }, 'Dequeueing command')
         return currentFlushPromise = queue[0].trySend(socket, messages)
           .then(() => {
             queue.shift()

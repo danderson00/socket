@@ -24,7 +24,7 @@ module.exports = (observable, context) => {
     }
   })
 
-  context.log.trace(`${reestablish ? 'Ree' : 'E'}stablishing session`)
+  context.log.debug(`${reestablish ? 'Ree' : 'E'}stablishing session`)
 
   const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {
@@ -42,7 +42,7 @@ module.exports = (observable, context) => {
           .subscribe(() => value.disconnect && value.disconnect())
 
         cleanup = () => {
-          context.log.trace(`Terminating session`)
+          context.log.debug(`Terminating session`)
           resultSubscription.unsubscribe()
           if(value.disconnect) {
             value.disconnect()

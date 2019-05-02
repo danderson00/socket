@@ -14,7 +14,7 @@ const defaultOptions = {
 
 module.exports = (server, options = {}) => {
   options = { ...defaultOptions, ...options }
-  const log = options.logger || loggerModule({ ...options.log, scope: { source: 'host' } })
+  const log = options.logger || loggerModule({ ...options.log, scope: { origin: 'host', source: 'xsocket.host' } })
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)

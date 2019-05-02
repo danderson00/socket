@@ -5,16 +5,16 @@ const defaultOptions = { unhandled: true }
 module.exports = options => ({ log }) => {
   options = { ...defaultOptions, ...options }
 
-  log = log.child({ source: 'api' })
-  
   if(options.unhandled) {
-    logUncaught(error => log.error(error))
+    logUncaught(error => log.child({ source: 'unhandled' }).error(error))
   }
 
+  const apiLog = log.child({ source: 'api' })
+  
   return {
     middleware: {
       log: (context, level, ...args) => {
-        log[level].apply(log, args)
+        apiLog[level].apply(apiLog, args)
       }
     },
     api: {

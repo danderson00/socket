@@ -24,7 +24,7 @@ module.exports = (options, onConnect, log) => {
   const commandFactory = commandModule(options, log)
 
   const connectNewSocket = () => {
-    log.info(`Connecting to ${options.url || 'host'}`)
+    log.debug(`Connecting to ${options.url || 'host'}`)
 
     const socket = socketFactory()
     const addListener = (socket.on || socket.addEventListener).bind(socket)

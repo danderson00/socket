@@ -1,12 +1,7 @@
-const pino = require('pino')
+const logger = require('@danderson00/log')
 
-const defaultOptions = {
-  level: 'warn',
-  messageKey: 'message',
-  base: { source: 'host' },
-  browser: {
-    write: { trace: o => console.debug(o) }
-  }
+const defaultOptions = { 
+  level: 'warn'
 }
 
-module.exports = (options = {}) => pino({ ...defaultOptions, ...options }, options.destination)
+module.exports = (options = {}) => logger({ ...defaultOptions, ...options })

@@ -1,5 +1,5 @@
 module.exports = logError => {
-  const logNormalized = error => logError(normalizeError(error))
+  const logNormalized = error => logError(normalizeEvent(error))
 
   if(typeof window !== 'undefined' && window.addEventListener) {
     window.addEventListener('unhandledrejection', logNormalized)
@@ -11,19 +11,20 @@ module.exports = logError => {
 }
 
 const normalizeError = error => {
-  if(typeof ErrorEvent !== 'undefined' && error instanceof ErrorEvent) {
-    return {
-      message: error.error.message,
-      stack: error.error.stack
-    }
-  } else if (error instanceof Error || (error && error.message)) {
-    return {
-      message: error.message,
-      stack: error.stack
-    }
+  if(error && error.message) {
+    return { message: error.message, stack: error.stack }
+  } else if(typeof error === 'string') {
+    return { message: error }
   } else {
-    return {
-      message: (error + '') || 'Unknown error'
-    }
+    return { message: JSON.stringify(error) }
   }
+}
+
+const normalizeEvent = event => {
+  if(typeof ErrorEvent !== 'undefined' && event instanceof ErrorEvent) {
+    return normalizeError(event.error)
+  } else if (event instanceof PromiseRejectionEvent) {
+    return normalizeError(event.reason)
+  }
+  return normalizeError(event)
 }

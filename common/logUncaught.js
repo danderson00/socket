@@ -21,7 +21,7 @@ const normalizeError = error => {
 }
 
 const normalizeEvent = event => {
-  if(typeof ErrorEvent !== 'undefined' && event instanceof ErrorEvent) {
+  if(event instanceof ErrorEvent) {
     return normalizeError(event.error)
   } else if (event instanceof PromiseRejectionEvent) {
     return normalizeError(event.reason)

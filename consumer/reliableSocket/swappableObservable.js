@@ -1,4 +1,4 @@
-const xest = require('xest')
+const xest = require('@xest/core')
 const { subject, observable } = xest
 
 module.exports = (parent = subject(), options) => {

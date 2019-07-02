@@ -1,7 +1,7 @@
 const host = require('../host')
 const consumer = require('../consumer')
 const WebSocket = require('ws')
-const { subject } = require('xest')
+const { subject } = require('@xest/core')
 
 let server
 

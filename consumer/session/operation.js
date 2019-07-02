@@ -1,4 +1,4 @@
-const { subject } = require('xest')
+const { subject } = require('@xest/core')
 const pipeline = require('../../common/pipeline')
 
 module.exports = session => pipeline(

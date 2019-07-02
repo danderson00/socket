@@ -1,5 +1,5 @@
 const swappable = require('../../../consumer/reliableSocket/swappableObservable')
-const { subject, proxy } = require('xest')
+const { subject, proxy } = require('@xest/core')
 
 test("swappable proxies supplied observable", () => {
   const source = subject()

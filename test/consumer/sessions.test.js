@@ -1,5 +1,5 @@
 const sessionsModule = require('../../consumer/session/sessions')
-const { subject } = require('xest')
+const { subject } = require('@xest/core')
 
 const socket = () => ({ messages: subject(), send: () => {} })
 

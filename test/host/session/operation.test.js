@@ -1,7 +1,7 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
 const logger = require('../../../common/logger')
-const { subject } = require('xest')
+const { subject } = require('@xest/core')
 
 let sentFromHost, source
 

@@ -1,5 +1,5 @@
 const sessions = require('./sessions')
-const xest = require('xest')
+const xest = require('@xest/core')
 const uuid = require('uuid').v4
 
 module.exports = (server, sessionFactory, { serialize, deserialize }, log) => {  

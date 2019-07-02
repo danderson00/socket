@@ -1,4 +1,4 @@
-const { isObservable, unwrap } = require('xest')
+const { isObservable, unwrap } = require('@xest/core')
 
 module.exports = (observable, context) => {
   const { send, hostApi, disconnect } = context

@@ -1,5 +1,5 @@
 const sendWrapper = require('../sendWrapper')
-const { proxy } = require('xest')
+const { proxy } = require('@xest/core')
 
 module.exports = (socket, middleware, options) => {
   const nextId = (id => () => ++id)(0)

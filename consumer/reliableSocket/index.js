@@ -3,7 +3,7 @@ const commandModule = require('./command')
 const queueModule = require('./queue')
 const swappable = require('./swappableObservable')
 const serializerModule = require('../../common/serializer')
-const { fromEmitter } = require('xest')
+const { fromEmitter } = require('@xest/core')
 
 const defaultOptions = { 
   reconnectDelay: 1000,

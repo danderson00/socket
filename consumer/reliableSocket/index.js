@@ -13,7 +13,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports = (options, onConnect, log) => {
   options = { ...defaultOptions, ...options }
-  log = log.child({ source: 'xsocket.consumer.reliableSocket'})
+  log = log.child({ source: 'socket.consumer.reliableSocket'})
 
   let activeSocket
   const messages = swappable()

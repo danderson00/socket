@@ -1,4 +1,4 @@
-const logger = require('@danderson00/log')
+const logger = require('@x/log')
 
 const defaultOptions = { 
   level: 'warn'

@@ -1,4 +1,4 @@
-# xsocket Protocol
+# socket Protocol
 
 ## Sessions
 

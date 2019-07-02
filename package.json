@@ -1,5 +1,5 @@
 {
-  "name": "xsocket",
+  "name": "@x/socket",
   "version": "0.0.10",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
@@ -13,7 +13,7 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@danderson00/log": "0.0.4",
+    "@x/log": "0.0.4",
     "uuid": "^3.3.2",
     "verror": "^1.10.0",
     "ws": "^6.1.3",

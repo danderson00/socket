@@ -229,7 +229,7 @@ test("sessions are available on result connections observable", async () => {
     type: 'operation',
     data: { operation: 'api' } 
   }))
-  await delay(10)
+  await delay(20)
   const connections = unwrap(host.connections)
   expect(connections.length).toBe(1)
   expect(connections[0].sessions.length).toBe(1)

@@ -1,6 +1,6 @@
 const defaultSocketFactory = require('./defaultSocketFactory')
 const commandModule = require('./command')
-const queueModule = require('./queue')
+const reliableSendModule = require('./reliableSend')
 const swappable = require('./swappableObservable')
 const serializerModule = require('../../common/serializer')
 const { fromEmitter } = require('@xest/core')
@@ -21,7 +21,7 @@ module.exports = (options, onConnect, log) => {
 
   const { serialize, deserialize } = options.serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)
-  const queue = queueModule(options, messages, log)
+  const reliableSend = reliableSendModule(options, messages, log)
   const commandFactory = commandModule(options, log)
 
   const connectNewSocket = () => {
@@ -36,7 +36,7 @@ module.exports = (options, onConnect, log) => {
     addListener('open', async () => {
       activeSocket = socket
       await onConnect()
-      queue.flush(activeSocket)
+      reliableSend.flush(activeSocket)
     })
 
     addListener('close', ({ code, reason }) => {
@@ -56,7 +56,7 @@ module.exports = (options, onConnect, log) => {
   const api = {
     messages,
     events,
-    send: message => queue.add(commandFactory(message), activeSocket),
+    send: message => reliableSend.send(commandFactory(message), activeSocket)
   }
   api.send.immediate = message => activeSocket.send(serialize(message))
 

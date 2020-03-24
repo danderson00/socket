@@ -29,8 +29,8 @@ module.exports = options => {
     connect: async () => {
       const socket = socketModule(options, userConfiguration.connect, log)
       const sessions = sessionFactory(socket, middleware, options)
-      const api = await connect(sessions)
-      await userConfiguration.initialize({ socket, api, log, sessions, middleware })
+      const { api, handshakeData } = await connect(sessions)
+      await userConfiguration.initialize({ socket, api, log, sessions, middleware, handshakeData })
       return api
     }
   }

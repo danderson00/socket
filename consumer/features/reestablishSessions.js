@@ -8,6 +8,7 @@ module.exports = options => ({ sessions, log }) => {
   }
 
   return {
+    name: 'reestablishSessions',
     connect: () => Promise.all(sessions.get().map(reestablishSession))
   }
 }

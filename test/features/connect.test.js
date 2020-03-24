@@ -16,7 +16,7 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 test("feature connect functions are executed on each reconnect", async () => {
   const connect = jest.fn()
-  await setup(() => ({ connect }))
+  await setup(() => ({ name: 'test', connect }))
   server.close()
   server = new WebSocket.Server({ port: 1234 })
   await(delay(50))

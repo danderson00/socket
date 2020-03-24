@@ -35,9 +35,14 @@ module.exports = middleware => {
         middleware.add(x.middleware)
       }
       if(x.feature) {
-        x.constructedFeature = await x.feature(context)
-        if(x.constructedFeature.middleware) {
-          middleware.add(x.constructedFeature.middleware)            
+        const constructed = x.constructedFeature = await x.feature(context)
+
+        if(!constructed.name) {
+          throw new Error('Feature must have a name')
+        }
+
+        if(constructed.middleware) {
+          middleware.add(constructed.middleware)
         }
       }
     }),

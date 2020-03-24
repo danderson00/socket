@@ -10,6 +10,7 @@ module.exports = options => ({ log, api }) => {
   }
 
   return {
+    name: 'log',
     middleware: {
       // it would be nicer to have a recursive host API structure to allow log.debug(), etc.
       // this places too much responsibility on the consumer to create the API

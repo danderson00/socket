@@ -16,7 +16,7 @@ afterEach(() => server.close())
 test("consumer feature constructors are passed returned API", async () => {
   await setup(({ api }) => {
     expect(api.hello).toBeInstanceOf(Function)
-    return {}
+    return { name: 'test' }
   })
 })
 
@@ -26,7 +26,7 @@ test("consumer feature constructors can be async to delay connect return", async
   await setup(() => new Promise(resolve => setTimeout(() => {
     expect(setupReturned).toBe(false)
     setupExecuted = true
-    resolve({})
+    resolve({ name: 'test' })
   })))
   setupReturned = true
   expect(setupExecuted).toBe(true)
@@ -36,7 +36,7 @@ test("consumer feature constructors are passed sessions object", async () => {
   let s
   const consumer = await setup(({ sessions }) => {
     s = sessions
-    return {}
+    return { name: 'test' }
   })
   expect(s.get().length).toBe(0)
   const promise = consumer.hello()

@@ -5,7 +5,7 @@ test("connect returns wrapped api", async () => {
     { operations: [{ name: 'test' }] }
   ))
   
-  const api = await connect({ create })
+  const { api } = await connect({ create })
   expect(api.test).toBeInstanceOf(Function)
 
   api.test(1, 'test')

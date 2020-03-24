@@ -1,7 +1,5 @@
 const hostModule = require('../../host')
-const hostFeature = require('../../host/features/log')
 const consumerModule = require('../../consumer')
-const consumerFeature = require('../../consumer/features/log')
 const WebSocket = require('ws')
 
 let server, hostWrite, consumerWrite

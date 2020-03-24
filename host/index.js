@@ -31,14 +31,21 @@ module.exports = (server, options = {}) => {
     connections,
     useApi: chainable(api.add),
     use: chainable(middleware.add),
+    // TODO: refactor this to features module
     useFeature: chainable((feature, options) => {
       if(typeof feature === 'string') {
         feature = builtInFeature(feature, options)
       }
 
       const constructed = feature({ log, executor, connections })
+
+      if(!constructed.name) {
+        throw new Error('Feature must have name')
+      }
+
       api.add(constructed.api)
       middleware.add(constructed.middleware)
+      sessionFactory.addHandshake(constructed.name, constructed.handshake)
     })
   }
 

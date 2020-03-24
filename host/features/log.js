@@ -12,6 +12,7 @@ module.exports = options => ({ log }) => {
   const apiLog = log.child({ source: 'api' })
   
   return {
+    name: 'log',
     middleware: {
       log: (context, level, ...args) => {
         apiLog[level].apply(apiLog, args)

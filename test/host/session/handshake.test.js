@@ -6,23 +6,24 @@ const { subject } = require('@xest/core')
 
 let sentFromHost, source
 
-const setup = initialValue => {
+const setup = callback => {
   const hostApi = apiModule()
   hostApi.add({ api: () => {} })
   sentFromHost = jest.fn()
-  source = subject({ initialValue })
+  source = subject({ initialValue: {
+    session: 'establish',
+    type: 'handshake',
+    data: { version: '0.0.1' }
+  } })
   source.disconnect = jest.fn()
-  sessionFactory(hostApi, loggerModule({ level: 'trace' }))
-    .create(source, sendWrapper(sentFromHost, 1), { events: subject() })
+  const sessions = sessionFactory(hostApi, loggerModule({ level: 'trace' }))
+  sessions.addHandshake('test', callback)
+  sessions.create(source, sendWrapper(sentFromHost, 1), { events: subject() })
   return new Promise(setTimeout)
 }
 
 test("handshake returns api functions", async () => {
-  await setup({
-    session: 'establish',
-    type: 'handshake',
-    data: { version: '0.0.1' } 
-  })
+  await setup()
 
   expect(sentFromHost.mock.calls).toEqual([[{
     sessionId: 1,
@@ -35,3 +36,27 @@ test("handshake returns api functions", async () => {
   expect(source.disconnect.mock.calls.length).toBe(1)
 })
 
+test("handshake returns callback data", async () => {
+  await setup(() => 'test')
+
+  expect(sentFromHost.mock.calls).toEqual([[{
+    sessionId: 1,
+    session: 'terminate',
+    status: 'ok',
+    data: {
+      operations: [
+        { name: 'api' }
+      ],
+      test: 'test'
+    }
+  }]])
+})
+
+test("handshake callback is passed context", async () => {
+  const spy = jest.fn()
+  await setup(spy)
+  expect(spy.mock.calls.length).toBe(1)
+  expect(spy.mock.calls[0][0]).toHaveProperty('send')
+  expect(spy.mock.calls[0][0]).toHaveProperty('hostApi')
+  expect(spy.mock.calls[0][0]).toHaveProperty('log')
+})

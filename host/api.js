@@ -5,7 +5,7 @@ module.exports = log => {
     add: newApi => {
       api = {
         ...api,
-        ...Object.keys(newApi).reduce(
+        ...Object.keys(newApi || {}).reduce(
           (mapped, name) => {
             if(api[name]) {
               log.warn(`Overriding API function '${name}'`)

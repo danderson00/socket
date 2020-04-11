@@ -3,7 +3,7 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = (hostApi, parentLog) => {
+module.exports = (hostApi, parentLog, options) => {
   const handshakeCallbacks = {}
 
   return {
@@ -37,7 +37,7 @@ module.exports = (hostApi, parentLog) => {
         }
 
         try {
-          return Promise.resolve(sessions[type](sessionObservable, context))
+          return Promise.resolve(sessions[type](sessionObservable, context, options))
             .catch(handleError)
         } catch (error) {
           handleError(error)

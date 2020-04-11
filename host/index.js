@@ -12,14 +12,14 @@ const defaultOptions = {
   timeout: 5000
 }
 
-module.exports = (server, options = {}) => {
+module.exports = (server, options) => {
   options = { ...defaultOptions, ...options }
   const log = options.logger || loggerModule({ ...options.log, scope: { origin: 'host', source: 'socket.host' } })
   const serializer = serializerModule()
   const api = apiModule(log)
   const middleware = middlewareModule(log)
   const executor = executorModule(api, middleware, log)
-  const sessionFactory = sessionModule(executor, log)
+  const sessionFactory = sessionModule(executor, log, options)
   const connections = connectionsModule(server, sessionFactory, serializer, log)
 
   const chainable = target => (...args) => {

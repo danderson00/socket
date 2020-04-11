@@ -1,6 +1,7 @@
 const { isObservable, unwrap } = require('@xest/core')
+const throttle = require('./throttle')
 
-module.exports = (observable, context) => {
+module.exports = (observable, context, options = {}) => {
   const { send, hostApi, disconnect } = context
   const request = observable()
   const { operation, parameters } = request.data
@@ -29,7 +30,10 @@ module.exports = (observable, context) => {
   const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {
       if(isObservable(value)) {
-        const resultSubscription = value.subscribe(newValue => send.update({ value: unwrap(newValue) }))
+        const resultSubscription = value.subscribe(throttle(
+          newValue => send.update({ value: unwrap(newValue) }),
+          options.throttle
+        ))
 
         if(reestablish) {
           send.update({ value: unwrap(value) })

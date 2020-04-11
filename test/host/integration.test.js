@@ -9,9 +9,9 @@ const openSocket = () => new Promise(resolve => {
   socket.on('open', () => resolve(socket))
 })
 
-const setup = async api => {
+const setup = async (api, options) => {
   server = new WebSocket.Server({ port: 1234 })
-  host = hostModule(server, { log: { level: 'fatal' } }).useApi({ api })
+  host = hostModule(server, { log: { level: 'fatal' }, ...options }).useApi({ api })
   client = await openSocket()
   sentFromHost = jest.fn()
   client.on('message', sentFromHost)
@@ -236,9 +236,7 @@ test("sessions are available on result connections observable", async () => {
 })
 
 test("sessions are removed from sessions collection when terminated", async () => {
-  await setup(() => {
-    return subject()
-  })
+  await setup(() => subject())
   client.send(JSON.stringify({
     sessionId: 1,
     session: 'establish',
@@ -253,4 +251,58 @@ test("sessions are removed from sessions collection when terminated", async () =
   const connections = unwrap(host.connections)
   expect(connections.length).toBe(1)
   expect(connections[0].sessions.length).toBe(0)
+})
+
+test("sessions are throttled", async () => {
+  const source = subject()
+  await setup(() => source, { throttle: { timeout: 20 } })
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' }
+  }))
+  await delay(10)
+
+  source.publish(1)
+  source.publish(2)
+  source.publish(3)
+  source.publish(4)
+  source.publish(5)
+
+  await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(4)
+
+  await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(5)
+
+  source.publish(5)
+  source.publish(6)
+
+  await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(5)
+
+  await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(6)
+})
+
+test("throttling can be turned off", async () => {
+  const source = subject()
+  await setup(() => source, { throttle: false })
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' }
+  }))
+  await delay(10)
+
+  source.publish(1)
+  source.publish(2)
+  source.publish(3)
+  source.publish(4)
+  source.publish(5)
+
+  await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(6)
 })

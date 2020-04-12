@@ -12,8 +12,8 @@ const defaultOptions = {
   timeout: 5000
 }
 
-module.exports = (server, options) => {
-  options = { ...defaultOptions, ...options }
+module.exports = (server, userOptions) => {
+  const options = { ...defaultOptions, ...userOptions }
   const log = options.logger || loggerModule({ ...options.log, scope: { origin: 'host', source: 'socket.host' } })
   const serializer = serializerModule()
   const api = apiModule(log)

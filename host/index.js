@@ -8,7 +8,7 @@ const executorModule = require('./executor')
 const features = require('./features')
 
 const defaultOptions = {
-  log: { level: 'warn' },
+  log: { level: 'info' },
   timeout: 5000
 }
 

@@ -2,7 +2,7 @@ const hostModule = require('../../host')
 const { subject, unwrap } = require('@xest/core')
 const WebSocket = require('ws')
 
-let client, host, server, sentFromHost
+let client, host, server, sentFromHost, connections
 
 const openSocket = () => new Promise(resolve => {
   const socket = new WebSocket('ws://localhost:1234')
@@ -12,6 +12,7 @@ const openSocket = () => new Promise(resolve => {
 const setup = async (api, options) => {
   server = new WebSocket.Server({ port: 1234 })
   host = hostModule(server, { log: { level: 'fatal' }, ...options }).useApi({ api })
+  connections = host.connections.groupBy('id')
   client = await openSocket()
   sentFromHost = jest.fn()
   client.on('message', sentFromHost)
@@ -217,8 +218,7 @@ test("rejected promises from API functions are returned", async () => {
 
 test("connections are available on result connections observable", async () => {
   await setup(() => 'world')
-  const connections = unwrap(host.connections)
-  expect(connections.length).toBe(1)
+  expect(connections().length).toBe(1)
 })
 
 test("sessions are available on result connections observable", async () => {
@@ -230,9 +230,8 @@ test("sessions are available on result connections observable", async () => {
     data: { operation: 'api' } 
   }))
   await delay(20)
-  const connections = unwrap(host.connections)
-  expect(connections.length).toBe(1)
-  expect(connections[0].sessions.length).toBe(1)
+  expect(connections().length).toBe(1)
+  expect(unwrap(connections)[0].sessions.length).toBe(1)
 })
 
 test("sessions are removed from sessions collection when terminated", async () => {
@@ -248,9 +247,8 @@ test("sessions are removed from sessions collection when terminated", async () =
     session: 'terminate'
   }))
   await delay(20)
-  const connections = unwrap(host.connections)
-  expect(connections.length).toBe(1)
-  expect(connections[0].sessions.length).toBe(0)
+  expect(connections().length).toBe(1)
+  expect(unwrap(connections)[0].sessions.length).toBe(0)
 })
 
 test("sessions are throttled", async () => {
@@ -273,7 +271,7 @@ test("sessions are throttled", async () => {
   await delay(10)
   expect(sentFromHost.mock.calls.length).toBe(4)
 
-  await delay(10)
+  await delay(15)
   expect(sentFromHost.mock.calls.length).toBe(5)
 
   source.publish(5)

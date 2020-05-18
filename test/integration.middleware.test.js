@@ -2,14 +2,14 @@ const hostModule = require('../host')
 const consumerModule = require('../consumer')
 const WebSocket = require('ws')
 
-let server
+let server, currentSocket
 
 const setup = async (api, hostMiddleware, consumerMiddleware) => {
   server = new WebSocket.Server({ port: 1234 })
   hostModule(server, { log: { level: 'fatal' } })
     .use(hostMiddleware)
     .useApi(api)
-  return await consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') })
+  return await consumerModule({ socketFactory: () => currentSocket = new WebSocket('ws://localhost:1234') })
     .use(consumerMiddleware)
     .connect()
 }
@@ -38,8 +38,7 @@ test("connection is exposed to middleware", async () => {
     { hello: () => 'world' },
     { 
       hello: ({ connection, next }) => {
-        // this might be a bit flaky
-        expect(Object.keys(connection)).toEqual(['id', 'messages', 'events', 'send'])
+        expect(Object.keys(connection)).toEqual(['id', 'messages', 'events', 'send', 'observables'])
         return next() 
       }
     }
@@ -88,4 +87,19 @@ test("consumer middleware modifying result", async () => {
   )
   const result = await api.echo('test1', 'test2')
   expect(result).toBe('test1test2!')
+})
+
+test("connection observables are disconnected when socket closes", async () => {
+  const disconnect = jest.fn()
+  const api = await setup(
+    { test: () => {} },
+    { test: ({ next, connection }) => {
+      connection.observables.attach('test', { disconnect })
+      next()
+    } }
+  )
+  await api.test()
+  currentSocket.close()
+  await new Promise(r => setTimeout(r, 10))
+  expect(disconnect.mock.calls.length).toBe(1)
 })

@@ -8,7 +8,7 @@ module.exports = (options, log) => {
       id,
       trySend: (socket, messages) => new Promise((resolve, reject) => {
         try {
-          log.debug({ data: JSON.stringify(message) }, `Sending command`)
+          log.debug({ data: message }, `Sending command`)
           socket.send(options.serializer.serialize({ ...message, commandId: id }))
           
           const subscription = messages.where(x => x.commandId === id).subscribe(message => {

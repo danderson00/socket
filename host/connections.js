@@ -25,6 +25,7 @@ module.exports = (server, sessionFactory, serializer, log) => {
 
   function safeSend(socket, message) {
     try {
+      log.debug('Sending message', message)
       return socket.send(serialize(message))
     } catch(error) {
       log.error(error, `Error sending message to socket`)

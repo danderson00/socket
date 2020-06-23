@@ -5,6 +5,10 @@ module.exports = (connection, sessionFactory) => (
     'sessionId',
     sessionObservable => sessionObservable
       .where(x => x.session === 'establish' || x.session === 'reestablish')
-      .map(() => sessionFactory.create(sessionObservable, sendWrapper(connection.send, sessionObservable.key), connection))
+      .map(() => sessionFactory.create(
+        sessionObservable,
+        sendWrapper(connection.send, sessionObservable.key),
+        connection
+      ))
   )
 )

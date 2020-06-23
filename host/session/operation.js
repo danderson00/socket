@@ -30,10 +30,12 @@ module.exports = (observable, context, options = {}) => {
   const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {
       if(isObservable(value)) {
-        const resultSubscription = value.subscribe(throttle(
+        const resultSubscription = value.subscribe(
+          //throttle(
           newValue => send.update({ value: unwrap(newValue) }),
-          options.throttle
-        ))
+          //options.throttle
+          //)
+        )
 
         if(reestablish) {
           send.update({ value: unwrap(value) })

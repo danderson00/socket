@@ -13,7 +13,7 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/log": "0.2.0",
+    "@x/log": "0.2.12",
     "uuid": "^3.3.2",
     "verror": "^1.10.0",
     "ws": "^6.1.3",

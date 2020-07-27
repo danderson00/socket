@@ -31,10 +31,10 @@ module.exports = (observable, context, options = {}) => {
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(
-          //throttle(
-          newValue => send.update({ value: unwrap(newValue) }),
-          //options.throttle
-          //)
+          throttle(
+            newValue => send.update({ value: unwrap(newValue) }),
+            options.throttle
+          )
         )
 
         if(reestablish) {

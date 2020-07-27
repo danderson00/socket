@@ -251,7 +251,7 @@ test("sessions are removed from sessions collection when terminated", async () =
   expect(unwrap(connections)[0].sessions.length).toBe(0)
 })
 
-test("sessions are throttled", async () => {
+test("sessions are throttled if option set", async () => {
   const source = subject()
   await setup(() => source, { throttle: { timeout: 20 } })
   client.send(JSON.stringify({
@@ -261,6 +261,7 @@ test("sessions are throttled", async () => {
     data: { operation: 'api' }
   }))
   await delay(10)
+  expect(sentFromHost.mock.calls.length).toBe(1)
 
   source.publish(1)
   source.publish(2)
@@ -269,24 +270,24 @@ test("sessions are throttled", async () => {
   source.publish(5)
 
   await delay(10)
-  expect(sentFromHost.mock.calls.length).toBe(4)
+  expect(sentFromHost.mock.calls.length).toBe(2)
 
   await delay(15)
-  expect(sentFromHost.mock.calls.length).toBe(5)
+  expect(sentFromHost.mock.calls.length).toBe(3)
 
   source.publish(5)
   source.publish(6)
 
   await delay(10)
-  expect(sentFromHost.mock.calls.length).toBe(5)
+  expect(sentFromHost.mock.calls.length).toBe(3)
 
   await delay(10)
-  expect(sentFromHost.mock.calls.length).toBe(6)
+  expect(sentFromHost.mock.calls.length).toBe(4)
 })
 
-test("throttling can be turned off", async () => {
+test("throttling is off by default", async () => {
   const source = subject()
-  await setup(() => source, { throttle: false })
+  await setup(() => source)
   client.send(JSON.stringify({
     sessionId: 1,
     session: 'establish',

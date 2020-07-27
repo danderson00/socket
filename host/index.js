@@ -9,6 +9,7 @@ const features = require('./features')
 
 const defaultOptions = {
   log: { level: 'info' },
+  throttle: false,
   timeout: 5000
 }
 

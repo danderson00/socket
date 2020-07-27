@@ -12,7 +12,7 @@ test("fires leading execution immediately", async () => {
 
 test("fires second execution after timeout", async () => {
   const spy = jest.fn((x, y) => x + y)
-  const t = throttle(spy, { triggerCount: 2, timeout: 10 })
+  const t = throttle(spy, { timeout: 10 })
   const r1 = t(1, 2)
   const r2 = t(3, 4)
   expect(await r1).toBe(3)
@@ -25,7 +25,7 @@ test("fires second execution after timeout", async () => {
 
 test("fires only once per timeout, using the most recent arguments", async () => {
   const spy = jest.fn((x, y) => x + y)
-  const t = throttle(spy, { triggerCount: 2, timeout: 10 })
+  const t = throttle(spy, { timeout: 10 })
   const r1 = t(1, 2)
   const r2 = t(3, 4)
   const r3 = t(5, 6)
@@ -40,7 +40,7 @@ test("fires only once per timeout, using the most recent arguments", async () =>
 
 test("timeout has a tail", async () => {
   const spy = jest.fn()
-  const t = throttle(spy, { triggerCount: 2, timeout: 10 })
+  const t = throttle(spy, { timeout: 10 })
   t(1)
   t(2)
   t(3)
@@ -55,14 +55,23 @@ test("timeout has a tail", async () => {
   t(6)
   t(7)
   expect(spy.mock.calls).toEqual([[1], [3], [5]])
-  await delay(10)
+  await delay(15)
   expect(spy.mock.calls).toEqual([[1], [3], [5], [7]])
   await delay(10)
   expect(spy.mock.calls).toEqual([[1], [3], [5], [7]])
 })
 
+test("timeout resets", async () => {
+  const spy = jest.fn()
+  const t = throttle(spy, { timeout: 10 })
+  t(1)
+  await delay(20)
+  t(2)
+  expect(spy.mock.calls).toEqual([[1], [2]])
+})
+
 test("exceptions are flowed", async () => {
-  const t = throttle(x => { throw new Error(x) }, { triggerCount: 2, timeout: 0 })
+  const t = throttle(x => { throw new Error(x) }, { timeout: 0 })
   const r1 = t(1)
   const r2 = t(2)
   const r3 = t(3)

@@ -27,8 +27,5 @@
   },
   "resolutions": {
     "write-file-atomic": "2.3.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@x/socket",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "dist/consumer/index.js",
@@ -13,11 +13,11 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/log": "0.2.12",
+    "@x/log": "^0.2.13",
     "uuid": "^3.3.2",
     "verror": "^1.10.0",
     "ws": "^6.1.3",
-    "@xest/core": "^0.2.12"
+    "@xest/core": "^0.2.13"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

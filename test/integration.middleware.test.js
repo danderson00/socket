@@ -6,7 +6,7 @@ let server, currentSocket
 
 const setup = async (api, hostMiddleware, consumerMiddleware) => {
   server = new WebSocket.Server({ port: 1234 })
-  hostModule(server, { log: { level: 'fatal' } })
+  hostModule({ server }, { log: { level: 'fatal' } })
     .use(hostMiddleware)
     .useApi(api)
   return await consumerModule({ socketFactory: () => currentSocket = new WebSocket('ws://localhost:1234') })

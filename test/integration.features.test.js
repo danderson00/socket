@@ -6,7 +6,7 @@ let server
 
 const setup = async (hostFeature, consumerFeature) => {
   server = new WebSocket.Server({ port: 1234 })
-  const host = hostModule(server, { log: { level: 'fatal' } }).useFeature(hostFeature)
+  const host = hostModule({ server }, { log: { level: 'fatal' } }).useFeature(hostFeature)
   return await consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') })
     .useFeature(consumerFeature)
     .connect()

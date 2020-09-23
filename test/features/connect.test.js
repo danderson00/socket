@@ -6,7 +6,7 @@ let server
 
 const setup = async feature => {
   server = new WebSocket.Server({ port: 1234 })
-  hostModule(server).useApi({ hello: () => 'world' })
+  hostModule({ server }).useApi({ hello: () => 'world' })
   return await consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234'), reconnectDelay: 0 })
     .useFeature(feature).connect()
 }

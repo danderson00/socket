@@ -3,10 +3,11 @@ const observables = require('./observables')
 const xest = require('@xest/core')
 const uuid = require('uuid').v4
 
-module.exports = (server, sessionFactory, serializer, log) => {
+module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const { serialize, deserialize } = serializer
   const source = xest.fromEmitter(server, 'connection')
 
+  // this is rather nasty and needs to be refactored...
   return source
     .map(socket => ({
       id: uuid(),
@@ -21,6 +22,7 @@ module.exports = (server, sessionFactory, serializer, log) => {
       send: message => safeSend(socket, message)
     }))
     .map(connection => ({ ...connection, observables: observables(connection) }))
+    // the sessions module expects the observables property to be populated
     .map(connection => ({ ...connection, sessions: sessions(connection, sessionFactory) }))
 
   function safeSend(socket, message) {

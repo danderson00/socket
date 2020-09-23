@@ -13,7 +13,7 @@ const defaultOptions = {
   timeout: 5000
 }
 
-module.exports = (server, userOptions) => {
+module.exports = ({ server, socket }, userOptions) => {
   const options = { ...defaultOptions, ...userOptions }
   const log = options.logger
     ? options.logger.child({ origin: 'host', source: 'socket.host' })
@@ -23,7 +23,7 @@ module.exports = (server, userOptions) => {
   const middleware = middlewareModule(log)
   const executor = executorModule(api, middleware, log)
   const sessionFactory = sessionModule(executor, log, options)
-  const connections = connectionsModule(server, sessionFactory, serializer, log)
+  const connections = connectionsModule({ server, socket }, sessionFactory, serializer, log)
 
   const chainable = target => (...args) => {
     target.apply(null, args)

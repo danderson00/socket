@@ -13,7 +13,7 @@ const defaultOptions = {
   timeout: 5000
 }
 
-module.exports = ({ server, socket }, userOptions) => {
+module.exports = ({ server, socket }, userOptions = {}) => {
   const options = { ...defaultOptions, ...userOptions }
   const log = options.logger
     ? options.logger.child({ origin: 'host', source: 'socket.host' })

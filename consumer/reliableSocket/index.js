@@ -39,8 +39,8 @@ module.exports = (options, onConnect, log) => {
       reliableSend.flush(activeSocket)
     })
 
-    addListener('close', ({ code, reason }) => {
-      log.debug({ code, reason }, 'Socket closed')
+    addListener('close', e => {
+      log.debug(e, 'Socket closed')
       activeSocket = undefined
       delay(options.reconnectDelay).then(connectNewSocket)
     })

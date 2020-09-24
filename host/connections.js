@@ -5,14 +5,17 @@ const uuid = require('uuid').v4
 
 module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const { serialize, deserialize } = serializer
-  const source = xest.fromEmitter(server, 'connection')
+  const source = server
+    ? xest.fromEmitter(server, 'connection')
+    : xest.subject()
 
   // this is rather nasty and needs to be refactored...
-  return source
+  const connections = source
     .map(socket => ({
       id: uuid(),
       messages: xest.fromEmitter(socket, 'message').map(message => {
-        const deserialized = deserialize(message.data)
+        // websocket package returns payload in `data` property, child process does not - could be flaky!
+        const deserialized = deserialize(message.data || message)
         if (deserialized.commandId) {
           safeSend(socket, { commandId: deserialized.commandId, status: 'ack' })
         }
@@ -24,6 +27,12 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
     .map(connection => ({ ...connection, observables: observables(connection) }))
     // the sessions module expects the observables property to be populated
     .map(connection => ({ ...connection, sessions: sessions(connection, sessionFactory) }))
+
+  if(socket) {
+    source.publish(socket)
+  }
+
+  return connections
 
   function safeSend(socket, message) {
     try {

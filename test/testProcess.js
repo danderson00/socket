@@ -1,5 +1,7 @@
 const hostModule = require('../host')
-const host = hostModule({ socket: process })
-host.useApi({ hello: () => 'world' })
+const integrationApi = require('./integration.api')
 
-setInterval(() => {}, 1000 * 60 * 60)
+const host = hostModule({ socket: process }, { log: { level: 'fatal' } })
+integrationApi.forEach(api => host.useApi(api))
+
+new Promise(() => {})

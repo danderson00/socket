@@ -11,7 +11,7 @@
   },
   "keywords": [],
   "author": "danderson00",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "@x/log": "0.3.0-private",
     "uuid": "^3.4.0",

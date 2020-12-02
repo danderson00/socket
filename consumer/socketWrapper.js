@@ -1,6 +1,5 @@
-const swappable = require('./reliableSocket/swappableObservable')
 const serializerModule = require('../common/serializer')
-const { fromEmitter } = require('@xest/core')
+const { fromEmitter, swappable, subject } = require('@xest/core')
 
 const defaultOptions = { 
   serializer: serializerModule()
@@ -11,8 +10,8 @@ module.exports = (options, onConnect, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
 
   const socket = options.socket
-  const messages = swappable()
-  const events = swappable()
+  const messages = swappable(subject())
+  const events = swappable(subject())
 
   const { serialize, deserialize } = options.serializer
 

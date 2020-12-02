@@ -15,8 +15,8 @@ module.exports = (options, onConnect, log) => {
   log = log.child({ source: 'socket.consumer.reliableSocket'})
 
   let activeSocket
-  const messages = swappable(subject())
-  const events = swappable(subject())
+  const messages = swappable()
+  const events = swappable()
 
   const { serialize, deserialize } = options.serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)

@@ -10,8 +10,8 @@ module.exports = (options, onConnect, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
 
   const socket = options.socket
-  const messages = swappable(subject())
-  const events = swappable(subject())
+  const messages = swappable()
+  const events = swappable()
 
   const { serialize, deserialize } = options.serializer
 

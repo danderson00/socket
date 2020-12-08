@@ -35,12 +35,12 @@ module.exports = ({ server, socket }, userOptions = {}) => {
     useApi: chainable(api.add),
     use: chainable(middleware.add),
     // TODO: refactor this to features module
-    useFeature: chainable((feature, options) => {
+    useFeature: chainable((feature, featureOptions) => {
       if(typeof feature === 'string') {
-        feature = builtInFeature(feature, options)
+        feature = builtInFeature(feature, featureOptions)
       }
 
-      const constructed = feature({ log, executor, connections })
+      const constructed = feature({ log, executor, connections, hostOptions: options })
 
       if(!constructed.name) {
         throw new Error('Feature must have name')

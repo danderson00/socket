@@ -8,12 +8,13 @@ const serializerModule = require('../common/serializer')
 const loggerModule = require('../common/logger')
 
 const defaultOptions = {
-  serializer: serializerModule(),
+  serializer: { errorDetail: 'full' },
   log: { level: 'warn' }
 }
 
 module.exports = options => {
   options = { ...defaultOptions, ...options }
+  const serializer = serializerModule(options.serializer)
   const middleware = middlewareModule()
   const userConfiguration = userConfigurationModule(middleware)
   const log = loggerModule({ ...options.log, scope: { origin: 'consumer', source: 'socket.consumer' } })
@@ -29,8 +30,8 @@ module.exports = options => {
 
     connect: async () => {
       const socket = options.socket
-        ? socketWrapper(options, userConfiguration.connect, log)
-        : socketModule(options, userConfiguration.connect, log)
+        ? socketWrapper(options, userConfiguration.connect, serializer, log)
+        : socketModule(options, userConfiguration.connect, serializer, log)
 
       const sessions = sessionFactory(socket, middleware, options)
       const { api, handshakeData } = await connect(sessions)

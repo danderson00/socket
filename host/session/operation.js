@@ -37,10 +37,22 @@ module.exports = (observable, context, options = {}) => {
           )
         )
 
+        const errorSubscription = value.errorObservable && value.errorObservable.subscribe(
+          throttle(
+            error => send.update({ type: 'error', error }),
+            options.throttle
+          )
+        )
+
         if(reestablish) {
-          send.update({ value: unwrap(value) })
+          send.update({ value: unwrap(value), error: value.errorObservable && value.errorObservable() })
         } else {
-          send.ok({ type: 'observable', value: unwrap(value) }, 'persistent')
+          send.ok({
+            type: 'observable',
+            value: unwrap(value),
+            hasErrorObservable: !!value.errorObservable,
+            error: value.errorObservable && value.errorObservable()
+          }, 'persistent')
         }        
     
         context.connection.events
@@ -50,6 +62,7 @@ module.exports = (observable, context, options = {}) => {
         cleanup = () => {
           context.log.debug(`Terminating session`)
           resultSubscription.unsubscribe()
+          errorSubscription && errorSubscription.unsubscribe()
           if(value.disconnect) {
             value.disconnect()
           }

@@ -1,16 +1,14 @@
 const defaultSocketFactory = require('./defaultSocketFactory')
 const commandModule = require('./command')
 const reliableSendModule = require('./reliableSend')
-const serializerModule = require('../../common/serializer')
-const { fromEmitter, swappable, subject } = require('@xest/core')
+const { fromEmitter, swappable } = require('@xest/core')
 
 const defaultOptions = { 
-  reconnectDelay: 1000,
-  serializer: serializerModule()
+  reconnectDelay: 1000
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = (options, onConnect, log) => {
+module.exports = (options, onConnect, serializer, log) => {
   options = { ...defaultOptions, ...options }
   log = log.child({ source: 'socket.consumer.reliableSocket'})
 
@@ -18,10 +16,10 @@ module.exports = (options, onConnect, log) => {
   const messages = swappable()
   const events = swappable()
 
-  const { serialize, deserialize } = options.serializer
+  const { serialize, deserialize } = serializer
   const socketFactory = options.socketFactory || defaultSocketFactory(options)
   const reliableSend = reliableSendModule(options, messages, log)
-  const commandFactory = commandModule(options, log)
+  const commandFactory = commandModule(serializer, log)
 
   const connectNewSocket = () => {
     log.debug(`Connecting to ${options.url || 'host'}`)

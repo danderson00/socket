@@ -1,5 +1,6 @@
 const hostModule = require('../../host')
-const { subject, unwrap } = require('@xest/core')
+const { unwrap } = require('@xest/core')
+const { subject } = require('@xest/core/src/observable')
 const WebSocket = require('ws')
 
 let client, host, server, sentFromHost, connections
@@ -99,7 +100,7 @@ test("observable API call returns ack, result and updates", async () => {
   expect(sentFromHost.mock.calls.length).toBe(1)
   expect(sentFromHost.mock.calls[0]).toEqual([JSON.stringify({
     status: 'ok',
-    data: { type: 'observable', value: 'world' },
+    data: { type: 'observable', value: 'world', hasErrorObservable: false },
     session: 'persistent',
     sessionId: 1
   })])

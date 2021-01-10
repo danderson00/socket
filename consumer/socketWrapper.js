@@ -1,19 +1,13 @@
-const serializerModule = require('../common/serializer')
-const { fromEmitter, swappable, subject } = require('@xest/core')
+const { fromEmitter, swappable } = require('@xest/core')
 
-const defaultOptions = { 
-  serializer: serializerModule()
-}
-
-module.exports = (options, onConnect, log) => {
-  options = { ...defaultOptions, ...options }
+module.exports = (options, onConnect, serializer, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
 
   const socket = options.socket
   const messages = swappable()
   const events = swappable()
 
-  const { serialize, deserialize } = options.serializer
+  const { serialize, deserialize } = serializer
 
   const addListener = (socket.on || socket.addEventListener).bind(socket)
 

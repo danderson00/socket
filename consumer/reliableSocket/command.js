@@ -1,4 +1,4 @@
-module.exports = (options, log) => {
+module.exports = (serializer, log) => {
   const nextId = (next => () => ++next)(0)
 
   return message => {
@@ -9,7 +9,7 @@ module.exports = (options, log) => {
       trySend: (socket, messages) => new Promise((resolve, reject) => {
         try {
           log.debug({ data: message }, `Sending command`)
-          socket.send(options.serializer.serialize({ ...message, commandId: id }))
+          socket.send(serializer.serialize({ ...message, commandId: id }))
           
           const subscription = messages.where(x => x.commandId === id).subscribe(message => {
             subscription.unsubscribe()

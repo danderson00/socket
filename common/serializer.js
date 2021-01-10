@@ -1,6 +1,19 @@
-module.exports = () => ({
+module.exports = options => ({
   serialize: data => {
-    return JSON.stringify(data)
+    const serializeError = error => {
+      switch(options.errorDetail) {
+        case 'full': return { ...error }
+        case 'minimal': return { message: error.message }
+        case 'none':
+        default: return { message: 'An error occurred' }
+      }
+    }
+
+    return JSON.stringify(data,
+      (key, value) => value instanceof Error
+        ? serializeError(value)
+        : value
+    )
   },
   deserialize: data => {
     return JSON.parse(data)

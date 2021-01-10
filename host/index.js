@@ -10,7 +10,8 @@ const features = require('./features')
 const defaultOptions = {
   log: { level: 'info' },
   throttle: false,
-  timeout: 5000
+  timeout: 5000,
+  serializer: { errorDetail: 'minimal' }
 }
 
 module.exports = ({ server, socket }, userOptions = {}) => {
@@ -18,7 +19,7 @@ module.exports = ({ server, socket }, userOptions = {}) => {
   const log = options.logger
     ? options.logger.child({ origin: 'host', source: 'socket.host' })
     : loggerModule({ ...options.log, scope: { origin: 'host', source: 'socket.host' } })
-  const serializer = serializerModule()
+  const serializer = serializerModule(options.serializer)
   const api = apiModule(log)
   const middleware = middlewareModule(log)
   const executor = executorModule(api, middleware, log)

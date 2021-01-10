@@ -62,7 +62,7 @@ test("operation returns error if API function does not exist", async () => {
     sessionId: 1,
     status: 'error',
     session: 'terminate',
-    data: { message: "Cannot read property 'apply' of undefined" }
+    data: new Error("Cannot read property 'apply' of undefined")
   }]])
   expect(source.disconnect.mock.calls.length).toBe(1)
 })
@@ -73,7 +73,7 @@ test("operation returns error if API throws", async () => {
     sessionId: 1,
     session: 'terminate',
     status: 'error',
-    data: { message: 'world' }
+    data: new Error('world')
   })
   expect(source.disconnect.mock.calls.length).toBe(1)
 })
@@ -84,7 +84,7 @@ test("operation returns error if API rejects promise", async () => {
     sessionId: 1,
     session: 'terminate',
     status: 'error',
-    data: { message: 'world' }
+    data: 'world'
   })
   expect(source.disconnect.mock.calls.length).toBe(1)
 })
@@ -96,7 +96,7 @@ test("operation returns persistent session if API returns observable", async () 
     sessionId: 1,
     session: 'persistent',
     status: 'ok',
-    data: { type: 'observable', value: 'world' }
+    data: { type: 'observable', value: 'world', hasErrorObservable: true, error: undefined }
   }]])
   expect(source.disconnect.mock.calls.length).toBe(0)
 

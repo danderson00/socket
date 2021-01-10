@@ -33,7 +33,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms))
 
 test("socket immediately connects", async () => {
   const server = createServer()
-  const socket = reliableSocket({ serializer, socketFactory }, () => {}, log)
+  const socket = reliableSocket({ socketFactory }, () => {}, serializer, log)
   await delay(50)
   expect(server.connections.length).toBe(1)
 })
@@ -66,7 +66,7 @@ test("socket immediately connects", async () => {
 
 test("socket continues sending with new socket after disconnect", async () => {
   const server = createServer()
-  const socket = reliableSocket({ serializer, socketFactory, reconnectDelay: 0 }, () => {}, log)
+  const socket = reliableSocket({ socketFactory, reconnectDelay: 0 }, () => {}, serializer, log)
   const messages = jest.fn()
   socket.messages.subscribe(messages)
   const promise1 = socket.send({ value: 1 })
@@ -99,7 +99,7 @@ test("socket continues sending with new socket after disconnect", async () => {
 test("socket continues retrying to connect if server unavailable", async () => {
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234', { handshakeTimeout: 10 }))
-  const socket = reliableSocket({ serializer, socketFactory, reconnectDelay: 50 }, () => {}, log)
+  const socket = reliableSocket({ socketFactory, reconnectDelay: 50 }, () => {}, serializer, log)
   const messages = jest.fn()
   socket.messages.subscribe(messages)
   const promise1 = socket.send({ value: 1 })
@@ -121,7 +121,7 @@ test("socket calls onConnect function and awaits promise on each connect", async
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234'))
   const onConnect = jest.fn(() => delay(10))
-  const socket = reliableSocket({ serializer, socketFactory, reconnectDelay: 0 }, onConnect, log)  
+  const socket = reliableSocket({ socketFactory, reconnectDelay: 0 }, onConnect, serializer, log)
   await delay(50)
   expect(socketFactory.mock.calls.length).toBe(1)
   expect(onConnect.mock.calls.length).toBe(1)

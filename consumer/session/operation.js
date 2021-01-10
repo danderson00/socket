@@ -1,4 +1,6 @@
-const { subject } = require('@xest/core')
+const { errorObservable } = require('@xest/core/src/observable')
+
+const { subject } = require('@xest/core/src/observable')
 const pipeline = require('../../common/pipeline')
 
 module.exports = session => pipeline(
@@ -24,6 +26,11 @@ const executeOperation = (session, parameters) => new Promise((resolve, reject) 
       } else if(data.type === 'observable') {
         observable = subject({ initialValue: data.value })
         observable.disconnect = terminate
+
+        if(data.hasErrorObservable) {
+          observable.errorObservable = errorObservable(undefined, { initialValue: data.error })
+        }
+
         resolve(observable)
 
       } else {
@@ -32,7 +39,11 @@ const executeOperation = (session, parameters) => new Promise((resolve, reject) 
       }
     
     } else if(status === 'update') {
-      observable.publish(data.value)
+      if(data.type === 'error') {
+        observable.errorObservable.publish(data.error)
+      } else {
+        observable.publish(data.value)
+      }
 
     } else if(status === 'error') {
       disconnect()

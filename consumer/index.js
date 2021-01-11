@@ -33,7 +33,7 @@ module.exports = options => {
         ? socketWrapper(options, userConfiguration.connect, serializer, log)
         : socketModule(options, userConfiguration.connect, serializer, log)
 
-      const sessions = sessionFactory(socket, middleware, options)
+      const sessions = sessionFactory(options, socket, middleware, log)
       const { api, handshakeData } = await connect(sessions)
       await userConfiguration.initialize({ socket, api, log, sessions, middleware, handshakeData })
       return api

@@ -5,13 +5,13 @@ const sessions = {
   handshake: require('./handshake')
 }
 
-module.exports = (socket, middleware, options) => {
+module.exports = (options, socket, middleware, log) => {
   const sessionFactory = sessionsModule(socket, middleware, options)
 
   return {
     get: sessionFactory.get,
     create: (type, data, immediate) => {
-      return sessions[type](sessionFactory.create(type, data, immediate))
+      return sessions[type](sessionFactory.create(type, data, immediate), log)
     }
   }
 }

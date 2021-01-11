@@ -11,7 +11,10 @@ const setup = async (api, options) => {
   return await createConsumer()
 }
 const delay = delay => new Promise(resolve => setTimeout(resolve, delay))
-const createConsumer = () => consumer({ socketFactory: () => new WebSocket('ws://localhost:1234') }).connect()
+const createConsumer = () => consumer({
+  socketFactory: () => new WebSocket('ws://localhost:1234'),
+  log: { level: 'fatal' }
+}).connect()
 afterEach(() => server.close())
 
 test("observable initial value", async () => {

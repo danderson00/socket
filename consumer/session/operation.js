@@ -3,13 +3,13 @@ const { errorObservable } = require('@xest/core/src/observable')
 const { subject } = require('@xest/core/src/observable')
 const pipeline = require('../../common/pipeline')
 
-module.exports = session => pipeline(
-  { handler: (...parameters) => executeOperation(session, parameters) },
+module.exports = (session, log) => pipeline(
+  { handler: (...parameters) => executeOperation(session, parameters, log) },
   session.middleware.get(session.data.operation),
   { ...session }
 )(...session.data.parameters)
 
-const executeOperation = (session, parameters) => new Promise((resolve, reject) => {
+const executeOperation = (session, parameters, log) => new Promise((resolve, reject) => {
   const { messages, data, send, disconnect, terminate } = session
   let observable
 
@@ -29,6 +29,9 @@ const executeOperation = (session, parameters) => new Promise((resolve, reject) 
 
         if(data.hasErrorObservable) {
           observable.errorObservable = errorObservable(undefined, { initialValue: data.error })
+          if(data.error) {
+            log.error(data.error)
+          }
         }
 
         resolve(observable)
@@ -40,6 +43,7 @@ const executeOperation = (session, parameters) => new Promise((resolve, reject) 
     
     } else if(status === 'update') {
       if(data.type === 'error') {
+        log.error(data.error)
         observable.errorObservable.publish(data.error)
       } else {
         observable.publish(data.value)

@@ -30,7 +30,7 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
         if(data.hasErrorObservable) {
           observable.errorObservable = errorObservable(undefined, undefined, { initialValue: data.error })
           if(data.error) {
-            log.error(data.error)
+            log.error(`An error occurred in the ${session.data.operation} operation observable`, data.error.error, { frames: data.error.frames })
           }
         }
 

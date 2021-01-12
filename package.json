@@ -3,7 +3,7 @@
   "version": "0.3.0-private",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
-  "browser": "dist/consumer/index.js",
+  "browser": "consumer/index.js",
   "scripts": {
     "build": "babel consumer --presets @babel/preset-env --source-maps both --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps both --out-dir dist/common",
     "prepublish": "babel consumer --presets @babel/preset-env --source-maps false --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps false --out-dir dist/common",

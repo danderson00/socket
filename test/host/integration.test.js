@@ -100,7 +100,7 @@ test("observable API call returns ack, result and updates", async () => {
   expect(sentFromHost.mock.calls.length).toBe(1)
   expect(sentFromHost.mock.calls[0]).toEqual([JSON.stringify({
     status: 'ok',
-    data: { type: 'observable', value: 'world', hasErrorObservable: false },
+    data: { type: 'observable', value: 'world', hasErrorObservable: true },
     session: 'persistent',
     sessionId: 1
   })])

@@ -28,7 +28,7 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
         observable.disconnect = terminate
 
         if(data.hasErrorObservable) {
-          observable.errorObservable = errorObservable(undefined, { initialValue: data.error })
+          observable.errorObservable = errorObservable(undefined, undefined, { initialValue: data.error })
           if(data.error) {
             log.error(data.error)
           }

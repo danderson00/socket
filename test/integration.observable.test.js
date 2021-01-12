@@ -59,9 +59,10 @@ test("initial errorObservable value is populated", async () => {
   source.errorObservable.report(new Error('test'))
   const api = await setup({ hello: () => source })
   const result = await api.hello()
-  expect(result.errorObservable()).toEqual([
-    { error: { message: 'test' } }
-  ])
+  expect(result.errorObservable()).toEqual({
+    error: { message: 'test' },
+    frames: [null]
+  })
 })
 
 test("published errorObservable value is populated", async () => {
@@ -70,9 +71,10 @@ test("published errorObservable value is populated", async () => {
   const result = await api.hello()
   source.errorObservable.report(new Error('test'))
   await delay(50)
-  expect(result.errorObservable()).toEqual([
-    { error: { message: 'test' } }
-  ])
+  expect(result.errorObservable()).toEqual({
+    error: { message: 'test' },
+    frames: [null]
+  })
 })
 
 test("serializer.errorDetail option controls error serialization", async () => {
@@ -80,7 +82,8 @@ test("serializer.errorDetail option controls error serialization", async () => {
   source.errorObservable.report(new Error('test'))
   const api = await setup({ hello: () => source }, { serializer: { errorDetail: 'none' } })
   const result = await api.hello()
-  expect(result.errorObservable()).toEqual([
-    { error: { message: 'An error occurred' } }
-  ])
+  expect(result.errorObservable()).toEqual({
+    error: { message: 'An error occurred' },
+    frames: [null]
+  })
 })

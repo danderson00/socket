@@ -4,7 +4,7 @@ const reliableSendModule = require('./reliableSend')
 const { fromEmitter, swappable } = require('@xest/core')
 
 const defaultOptions = { 
-  reconnectDelay: 1000
+  reconnectDelay: 500
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 

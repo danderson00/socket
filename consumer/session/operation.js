@@ -30,6 +30,7 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
         if(data.hasErrorObservable) {
           observable.errorObservable = errorObservable(undefined, undefined, { initialValue: data.error })
           if(data.error) {
+            // TODO: this is not the right place to log expression errors, it should be done higher up in the stack, i.e. xest.react
             log.error(`An error occurred in the ${session.data.operation} operation observable`, data.error.error, { frames: data.error.frames })
           }
         }
@@ -43,7 +44,7 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
     
     } else if(status === 'update') {
       if(data.type === 'error') {
-        log.error(data.error)
+        log.error(`An error occurred in the ${session.data.operation} operation observable`, data.error.error, { frames: data.error.frames })
         observable.errorObservable.publish(data.error)
       } else {
         observable.publish(data.value)

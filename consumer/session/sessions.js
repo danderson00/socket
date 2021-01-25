@@ -25,6 +25,10 @@ module.exports = (socket, middleware, options) => {
         send: sendWrapper(socket, id, immediate),
         middleware
       }
+      // TODO: there is a memory leak here - if the operation never actually executes
+      //       e.g. the xest subscriptions module shares an observable,
+      //       this session never gets removed from the sessions collection
+      //       by having disconnect called
       sessions = [...sessions, session]
       return session
     }

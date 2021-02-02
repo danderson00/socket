@@ -30,13 +30,17 @@ module.exports = options => {
 
     connect: async () => {
       const socket = options.socket
-        ? socketWrapper(options, userConfiguration.connect, serializer, log)
-        : socketModule(options, userConfiguration.connect, serializer, log)
+        ? socketWrapper(options, reconnect, serializer, log)
+        : socketModule(options, reconnect, serializer, log)
 
       const sessions = sessionFactory(options, socket, middleware, log)
       const { api, handshakeData } = await connect(sessions)
       await userConfiguration.initialize({ socket, api, log, sessions, middleware, handshakeData })
       return api
+
+      function reconnect() {
+        connect(sessions).then(userConfiguration.connect)
+      }
     }
   }
 

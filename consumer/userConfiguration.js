@@ -48,10 +48,12 @@ module.exports = middleware => {
     }),
     // middleware connect functions are not executed on initial connect
     // as they have not been constructed yet. rename -> reconnect?
-    connect: context => configurationSeries(async x => {
-      if(x.constructedFeature && x.constructedFeature.connect) {
-        await x.constructedFeature.connect(context)
-      }
-    })
+    connect: context => {
+      return configurationSeries(async x => {
+        if(x.constructedFeature && x.constructedFeature.connect) {
+          await x.constructedFeature.connect(context)
+        }
+      })
+    }
   }
 }

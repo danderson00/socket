@@ -1,11 +1,14 @@
 module.exports = log => {
   let api = {}
 
+  const resolveApi = newApi => typeof newApi === 'function' ? newApi({ log }) : newApi
+
   return {
     add: newApi => {
+      const resolvedApi = resolveApi(newApi)
       api = {
         ...api,
-        ...Object.keys(newApi || {}).reduce(
+        ...Object.keys(resolvedApi || {}).reduce(
           (mapped, name) => {
             if(api[name]) {
               log.warn(`Overriding API function '${name}'`)
@@ -15,7 +18,7 @@ module.exports = log => {
               ...mapped,
               [name]: {
                 name,
-                handler: newApi[name],
+                handler: resolvedApi[name],
                 hostObject: api
               }
             }

@@ -20,3 +20,15 @@ test("operations returns API metadata", () => {
     { name: 'echo' }
   ])
 })
+
+test("APIs can be specified as function", async () => {
+  const logStub = {}
+  const api = apiModule(logStub)
+  api.add(({ log }) => {
+    expect(log).toBe(logStub)
+    return { hello: () => 'world' }
+  })
+  api.add(() => ({ echo: text => `'${text}'` }))
+  expect(await api.get('hello').handler()).toBe('world')
+  expect(await api.get('echo').handler('test')).toBe("'test'")
+})

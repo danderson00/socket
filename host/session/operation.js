@@ -1,4 +1,4 @@
-const { isObservable, unwrap } = require('@xest/core')
+const { isObservable, unwrap } = require('@x/expressions')
 const throttle = require('./throttle')
 
 module.exports = (observable, context, options = {}) => {

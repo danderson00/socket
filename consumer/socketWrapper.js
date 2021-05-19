@@ -1,4 +1,4 @@
-const { fromEmitter, swappable } = require('@xest/core')
+const { fromEmitter, swappable } = require('@x/expressions')
 
 module.exports = (options, onConnect, serializer, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})

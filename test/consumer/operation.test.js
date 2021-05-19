@@ -1,5 +1,5 @@
 const operation = require('../../consumer/session/operation')
-const { subject, isObservable } = require('@xest/core')
+const { subject, isObservable } = require('@x/expressions')
 
 const middleware = { get: () => [] }
 

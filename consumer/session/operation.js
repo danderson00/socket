@@ -1,6 +1,6 @@
-const { errorObservable } = require('@xest/core/src/observable')
+const { errorObservable } = require('@x/expressions/src/observable')
 
-const { subject } = require('@xest/core/src/observable')
+const { subject } = require('@x/expressions/src/observable')
 const pipeline = require('../../common/pipeline')
 
 module.exports = (session, log) => pipeline(

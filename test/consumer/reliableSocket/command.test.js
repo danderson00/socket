@@ -1,6 +1,6 @@
 const commandModule = require('../../../consumer/reliableSocket/command')
 const log = require('../../../common/logger')('none')
-const { subject } = require('@xest/core')
+const { subject } = require('@x/expressions')
 
 const serializer = { serialize: x => x }
 

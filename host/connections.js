@@ -1,6 +1,6 @@
 const sessions = require('./sessions')
 const observables = require('./observables')
-const xest = require('@xest/core')
+const xest = require('@x/expressions')
 const uuid = require('uuid').v4
 
 module.exports = ({ server, socket }, sessionFactory, serializer, log) => {

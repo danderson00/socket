@@ -1,7 +1,7 @@
 const defaultSocketFactory = require('./defaultSocketFactory')
 const commandModule = require('./command')
 const reliableSendModule = require('./reliableSend')
-const { fromEmitter, swappable } = require('@xest/core')
+const { fromEmitter, swappable } = require('@x/expressions')
 
 const defaultOptions = { 
   reconnectDelay: 500

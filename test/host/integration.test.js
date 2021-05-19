@@ -1,6 +1,6 @@
 const hostModule = require('../../host')
-const { unwrap } = require('@xest/core')
-const { subject } = require('@xest/core/src/observable')
+const { unwrap } = require('@x/expressions')
+const { subject } = require('@x/expressions/src/observable')
 const WebSocket = require('ws')
 
 let client, host, server, sentFromHost, connections

@@ -1,7 +1,7 @@
 module.exports = connection => {
   const attached = {}
 
-  connection.events.topic('close').subscribe(() =>
+  connection.events.topic('close', 'error').subscribe(() =>
     Object.values(attached).forEach(o => o.disconnect())
   )
 

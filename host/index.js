@@ -6,6 +6,7 @@ const apiModule = require('./api')
 const middlewareModule = require('../common/middleware')
 const executorModule = require('./executor')
 const features = require('./features')
+const { writers } = require('@x/log')
 
 const defaultOptions = {
   log: { level: 'info' },
@@ -63,3 +64,5 @@ const builtInFeature = (name, options) => {
   }
   return builtIn(options)
 }
+
+module.exports.logWriters = writers

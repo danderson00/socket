@@ -26,7 +26,7 @@ module.exports = (socket, middleware, options) => {
         middleware
       }
       // TODO: there is a memory leak here - if the operation never actually executes
-      //       e.g. the xest subscriptions module shares an observable,
+      //       e.g. the serverless subscriptions module shares an observable,
       //       this session never gets removed from the sessions collection
       //       by having disconnect called
       sessions = [...sessions, session]

@@ -1,19 +1,19 @@
 const sessions = require('./sessions')
 const observables = require('./observables')
-const xest = require('@x/expressions')
+const expressions = require('@x/expressions')
 const uuid = require('uuid').v4
 
 module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const { serialize, deserialize } = serializer
   const source = server
-    ? xest.fromEmitter(server, 'connection')
-    : xest.subject()
+    ? expressions.fromEmitter(server, 'connection')
+    : expressions.subject()
 
   // this is rather nasty and needs to be refactored...
   const connections = source
     .map(socket => ({
       id: uuid(),
-      messages: xest.fromEmitter(socket, 'message').map(message => {
+      messages: expressions.fromEmitter(socket, 'message').map(message => {
         // websocket package returns payload in `data` property, child process does not - could be flaky!
         const deserialized = deserialize(message.data || message)
         if (deserialized.commandId) {
@@ -21,7 +21,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
         }
         return deserialized
       }),
-      events: xest.fromEmitter(socket, 'error', 'close'),
+      events: expressions.fromEmitter(socket, 'error', 'close'),
       send: message => safeSend(socket, message)
     }))
     .map(connection => ({ ...connection, observables: observables(connection) }))

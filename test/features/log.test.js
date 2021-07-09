@@ -11,7 +11,7 @@ const setup = async () => {
   hostModule({ server }, { log: { writers: [() => hostWrite], level: 'warn' } })
     .useFeature('log')
 
-  return await consumerModule({ 
+  return await consumerModule({
     socketFactory: () => new WebSocket('ws://localhost:1234'),
     log: { writers: [() => consumerWrite], level: 'warn' }
   })

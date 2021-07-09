@@ -48,6 +48,10 @@ module.exports = ({ server, socket }, userOptions = {}) => {
         throw new Error('Feature must have name')
       }
 
+      if(constructed.onConnect) {
+        connections.registerConnectCallback(constructed.onConnect)
+      }
+
       api.add(constructed.api)
       middleware.add(constructed.middleware)
       sessionFactory.addHandshake(constructed.name, constructed.handshake)

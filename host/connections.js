@@ -8,6 +8,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const source = server
     ? expressions.fromEmitter(server, 'connection')
     : expressions.subject()
+  const connectCallbacks = []
 
   // this is rather nasty and needs to be refactored...
   const connections = source
@@ -24,13 +25,18 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       events: expressions.fromEmitter(socket, 'error', 'close'),
       send: message => safeSend(socket, message)
     }))
-    .map(connection => ({ ...connection, observables: observables(connection) }))
-    // the sessions module expects the observables property to be populated
-    .map(connection => ({ ...connection, sessions: sessions(connection, sessionFactory) }))
+      .map(connection => ({ ...connection, observables: observables(connection) }))
+      .map(connection => {
+        // this is the nastiest - needs to be the same instance that is exposed to middleware...
+        connectCallbacks.forEach(callback => callback(connection))
+        return { ...connection, sessions: sessions(connection, sessionFactory) }
+      })
 
   if(socket) {
     source.publish(socket)
   }
+
+  connections.registerConnectCallback = callback => connectCallbacks.push(callback)
 
   return connections
 

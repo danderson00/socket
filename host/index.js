@@ -15,7 +15,7 @@ const defaultOptions = {
   serializer: { errorDetail: 'minimal' }
 }
 
-module.exports = ({ server, socket }, userOptions = {}) => {
+module.exports = ({ server, socket, httpServer }, userOptions = {}) => {
   const options = { ...defaultOptions, ...userOptions }
   const log = options.logger
     ? options.logger.child({ origin: 'host', source: 'socket.host' })
@@ -42,7 +42,7 @@ module.exports = ({ server, socket }, userOptions = {}) => {
         feature = builtInFeature(feature, featureOptions)
       }
 
-      const constructed = feature({ log, executor, connections, hostOptions: options })
+      const constructed = feature({ log, executor, connections, hostOptions: options, server, httpServer })
 
       if(!constructed.name) {
         throw new Error('Feature must have name')

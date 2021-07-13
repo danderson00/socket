@@ -38,7 +38,7 @@ test("connection is exposed to middleware", async () => {
     { hello: () => 'world' },
     { 
       hello: ({ connection, next }) => {
-        expect(Object.keys(connection)).toEqual(['id', 'messages', 'events', 'send', 'observables'])
+        expect(Object.keys(connection)).toEqual(['id', 'socket', 'request', 'messages', 'events', 'send', 'observables'])
         return next() 
       }
     }

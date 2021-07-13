@@ -12,9 +12,9 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
 
   // this is rather nasty and needs to be refactored...
   const connections = source
-    .map(socket => ({
+    .map(({ data: socket }) => ({
       id: uuid(),
-      messages: expressions.fromEmitter(socket, 'message').map(message => {
+      messages: expressions.fromEmitter(socket, 'message').map(({ data: message }) => {
         // websocket package returns payload in `data` property, child process does not - could be flaky!
         const deserialized = deserialize(message.data || message)
         if (deserialized.commandId) {

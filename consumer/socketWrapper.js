@@ -12,7 +12,7 @@ module.exports = (options, onConnect, serializer, log) => {
   const addListener = (socket.on || socket.addEventListener).bind(socket)
 
   // websocket package returns payload in `data` property, child process does not - could be flaky!
-  messages.swap(fromEmitter(socket, 'message').map(message => deserialize(message.data || message)))
+  messages.swap(fromEmitter(socket, 'message').map(({ data }) => deserialize(data.data || data)))
   events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
   addListener('close', e => log.debug(e, 'Socket closed'))

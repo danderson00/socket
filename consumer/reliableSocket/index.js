@@ -27,7 +27,7 @@ module.exports = (options, onConnect, serializer, log) => {
     const socket = socketFactory()
     const addListener = (socket.on || socket.addEventListener).bind(socket)
 
-    messages.swap(fromEmitter(socket, 'message').map(({ data }) => deserialize(data)))
+    messages.swap(fromEmitter(socket, 'message').map(({ data }) => deserialize(data.data || data)))
     events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
     addListener('open', async () => {

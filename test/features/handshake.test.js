@@ -1,5 +1,4 @@
 const hostModule = require('../../host')
-const { subject, unwrap } = require('@x/expressions')
 const WebSocket = require('ws')
 
 let client, host, server, sentFromHost

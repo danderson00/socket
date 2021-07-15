@@ -52,11 +52,12 @@ test("handshake returns callback data", async () => {
   }]])
 })
 
-test("handshake callback is passed context", async () => {
+test("handshake callback is passed data and context", async () => {
   const spy = jest.fn()
   await setup(spy)
   expect(spy.mock.calls.length).toBe(1)
-  expect(spy.mock.calls[0][0]).toHaveProperty('send')
-  expect(spy.mock.calls[0][0]).toHaveProperty('hostApi')
-  expect(spy.mock.calls[0][0]).toHaveProperty('log')
+  expect(spy.mock.calls[0][0]).toEqual({ version: '0.0.1' })
+  expect(spy.mock.calls[0][1]).toHaveProperty('send')
+  expect(spy.mock.calls[0][1]).toHaveProperty('hostApi')
+  expect(spy.mock.calls[0][1]).toHaveProperty('log')
 })

@@ -4,7 +4,7 @@ module.exports = (observable, context) => {
   const requestIsValid = data.version === '0.0.1'
 
   const handshakeData = Object.keys(handshakeCallbacks).reduce(
-    (data, key) => ({ ...data, [key]: handshakeCallbacks[key](context) }),
+    (result, key) => ({ ...result, [key]: handshakeCallbacks[key](data, context) }),
     { operations: hostApi.operations() }
   )
 

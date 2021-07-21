@@ -1,4 +1,4 @@
-const cipher = require('./cipher')
+const cipher = require('../utilities/cipher')
 const { v4: uuid } = require('uuid')
 
 module.exports = ({ cipherKey: password } = {}) => {

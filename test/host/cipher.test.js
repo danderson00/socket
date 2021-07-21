@@ -1,4 +1,4 @@
-const cipher = require('../../host/features/cipher')()
+const cipher = require('../../host/utilities/cipher')()
 
 const plainText = 'my message text'
 

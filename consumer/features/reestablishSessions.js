@@ -1,4 +1,4 @@
-module.exports = options => ({ sessions, log }) => {
+module.exports = () => ({ sessions, log }) => {
   const reestablishSession = ({ id, send, request }) => {
     if(request) {
       log.debug(`Reestablishing session ${id} - ${request.operation}`)
@@ -9,6 +9,7 @@ module.exports = options => ({ sessions, log }) => {
 
   return {
     name: 'reestablishSessions',
-    connect: () => Promise.all(sessions.get().map(reestablishSession))
+    connect: () => Promise.all(sessions.get().map(reestablishSession)),
+    initialise: () => ({})
   }
 }

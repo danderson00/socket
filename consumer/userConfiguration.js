@@ -30,19 +30,23 @@ module.exports = middleware => {
       }
       configurationChain.push({ feature })
     },
-    initialize: context => configurationSeries(async x => {
+    construct: context => configurationSeries(async x => {
+      if(x.feature) {
+        x.constructedFeature = await x.feature(context)
+        if(!x.constructedFeature.name) {
+          throw new Error('Feature must have a name')
+        }
+      }
+    }),
+    initialise: context => configurationSeries(async x => {
       if(x.middleware) {
         middleware.add(x.middleware)
       }
       if(x.feature) {
-        const constructed = x.constructedFeature = await x.feature(context)
+        const initialised = x.constructedFeature.initialise(context)
 
-        if(!constructed.name) {
-          throw new Error('Feature must have a name')
-        }
-
-        if(constructed.middleware) {
-          middleware.add(constructed.middleware)
+        if(initialised.middleware) {
+          middleware.add(initialised.middleware)
         }
       }
     }),

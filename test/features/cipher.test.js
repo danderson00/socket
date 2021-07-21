@@ -1,4 +1,4 @@
-const cipher = require('../../host/features/cipher')
+const cipher = require('../../host/features/cipher')()
 
 const plainText = 'my message text'
 
@@ -18,9 +18,17 @@ it('text matches after encrypt/decrypt with a key generated from a password', ()
   expect(decryptOutput.toString('utf8')).toEqual(plainText)
 })
 
+it('text matches after encrypt/decrypt with a key generated from a password with no salt', () => {
+  const key = cipher.getKeyFromPassword(Buffer.from('mysecretpassword'))
+  const cipherText = cipher.encrypt(plainText, key)
+  const decryptOutput = cipher.decrypt(cipherText, key)
+
+  expect(decryptOutput.toString('utf8')).toEqual(plainText)
+})
+
 it('throws on invalid decrypt', () => {
   const key = cipher.getRandomKey()
   const cipherText = cipher.encrypt(plainText, key)
-  expect(() => cipher.decrypt(Buffer.concat([new Buffer(cipherText), new Buffer('a')]), key)).toThrow()
+  expect(() => cipher.decrypt(Buffer.concat([Buffer.from(cipherText), Buffer.from('a')]), key)).toThrow()
 })
 

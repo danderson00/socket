@@ -10,7 +10,7 @@ module.exports = options => ({
     }
 
     return JSON.stringify(data,
-      (key, value) => value instanceof Error
+      (key, value) => (value && (value instanceof Error || value.constructor.name === 'Error'))
         ? serializeError(value)
         : value
     )

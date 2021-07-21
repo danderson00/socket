@@ -1,5 +1,5 @@
-module.exports = ({ messages, send, disconnect }) => new Promise((resolve, reject) => {
-  send.handshake({ version: '0.0.1'})
+module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve, reject) => {
+  send.handshake({ version: '0.0.1', data })
 
   messages.subscribe(({ status, data }) => {
     disconnect()

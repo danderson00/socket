@@ -1,5 +1,5 @@
-module.exports = sessionFactory => {
-  return sessionFactory.create('handshake')
+module.exports = (sessionFactory, constructResult) => {
+  return sessionFactory.create('handshake', constructResult.handshakeData)
     .then(handshakeData => {
       const executeOperation = (operation, immediate) => (...parameters) =>
         sessionFactory.create('operation', { operation, parameters }, immediate)

@@ -1,6 +1,6 @@
 const userConfiguration = require('../../consumer/userConfiguration')
 
-test("userConfiguration adds middleware in order when initialized", async () => {
+test("middleware is added in order when initialized", async () => {
   const middleware = { add: jest.fn() }
   const config = userConfiguration(middleware)
   config.use({ a: 1 })
@@ -21,7 +21,7 @@ test("userConfiguration adds middleware in order when initialized", async () => 
   ])
 })
 
-test("userConfiguration passes context to feature constructor", async () => {
+test("context is passed to constructor", async () => {
   const middleware = { add: jest.fn() }
   const config = userConfiguration(middleware)
   config.useFeature(context => {
@@ -31,7 +31,7 @@ test("userConfiguration passes context to feature constructor", async () => {
   await config.construct({ a: 1 })
 })
 
-test("userConfiguration passes context to feature initialiser", async () => {
+test("context is passed to initialiser", async () => {
   const middleware = { add: jest.fn() }
   const config = userConfiguration(middleware)
   config.useFeature(() => ({ name: 'test', initialise: context => {
@@ -40,4 +40,18 @@ test("userConfiguration passes context to feature initialiser", async () => {
   } }))
   await config.construct()
   await config.initialise({ a: 1 })
+})
+
+test("construct returns merged handshakeData", async () => {
+  const middleware = { add: jest.fn() }
+  const config = userConfiguration(middleware)
+  config.useFeature(() => ({ name: 'test1', initialise: () => ({}), handshakeData: { p1: 1 } }))
+  config.useFeature(() => ({ name: 'test2', initialise: () => ({}), handshakeData: 'test' }))
+
+  expect(await config.construct()).toEqual({
+    handshakeData: {
+      test1: { p1: 1 },
+      test2: 'test'
+    }
+  })
 })

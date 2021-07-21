@@ -7,10 +7,9 @@ module.exports = middleware => {
   const configurationChain = []
 
   const configurationSeries = generator => configurationChain.reduce(
-    async (previous, x) => {
-      await previous
-      return generator(x)
-    },
+    (previous, x) => previous.then(
+      existing => generator(x).then(current => ({ ...existing, ...current }))
+    ),
     Promise.resolve()
   )
 
@@ -36,8 +35,10 @@ module.exports = middleware => {
         if(!x.constructedFeature.name) {
           throw new Error('Feature must have a name')
         }
+        // a bit brittle to explicitly return handshakeData here but no requirement to generalise yet
+        return { [x.constructedFeature.name]: x.constructedFeature.handshakeData }
       }
-    }),
+    }).then(handshakeData => ({ handshakeData })),
     initialise: context => configurationSeries(async x => {
       if(x.middleware) {
         middleware.add(x.middleware)

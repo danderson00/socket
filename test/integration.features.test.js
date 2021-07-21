@@ -27,12 +27,19 @@ test("simple feature", async () => {
   expect(result).toBe('world!')
 })
 
-// test("feature with handshake data", async () => {
-//   await setup(
-//     () => ({ name: 'test', handshake: () => 'test2' }),
-//     ({ handshakeData }) => {
-//       expect(handshakeData.test).toBe('test2')
-//       return { name: 'test' }
-//     }
-//   )
-// })
+test("feature with handshake data", async () => {
+  await setup(
+    () => ({ name: 'test', handshake: ({ data }) => {
+      expect(data.test).toBe('testFromConsumer')
+      return 'testFromHost'
+    } }),
+    () => ({
+      name: 'test',
+      handshakeData: 'testFromConsumer',
+      initialise: ({ handshakeData }) => {
+        expect(handshakeData.test).toBe('testFromHost')
+        return {}
+      }
+    })
+  )
+}, 100000000)

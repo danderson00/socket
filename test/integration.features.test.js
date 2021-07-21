@@ -42,4 +42,4 @@ test("feature with handshake data", async () => {
       }
     })
   )
-}, 100000000)
+})

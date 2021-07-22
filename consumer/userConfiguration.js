@@ -44,9 +44,9 @@ module.exports = middleware => {
         middleware.add(x.middleware)
       }
       if(x.feature) {
-        const initialised = x.constructedFeature.initialise(context)
-
-        if(initialised.middleware) {
+        const initialised = x.constructedFeature.initialise && await x.constructedFeature.initialise(context)
+        x.initialisedFeature = initialised
+        if(initialised && initialised.middleware) {
           middleware.add(initialised.middleware)
         }
       }
@@ -55,8 +55,8 @@ module.exports = middleware => {
     // as they have not been constructed yet. rename -> reconnect?
     connect: context => {
       return configurationSeries(async x => {
-        if(x.constructedFeature && x.constructedFeature.connect) {
-          await x.constructedFeature.connect(context)
+        if(x.initialisedFeature && x.initialisedFeature.connect) {
+          await x.initialisedFeature.connect(context)
         }
       })
     }

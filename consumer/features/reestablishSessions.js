@@ -10,7 +10,7 @@ module.exports = () => ({ sessions, log }) => {
   return {
     name: 'reestablishSessions',
     initialise: () => ({
-      connect: () => Promise.all(sessions.get().map(reestablishSession)),
+      reconnect: () => Promise.all(sessions.get().map(reestablishSession)),
     })
   }
 }

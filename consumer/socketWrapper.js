@@ -1,6 +1,6 @@
 const { fromEmitter, swappable } = require('@x/expressions')
 
-module.exports = (options, onConnect, serializer, log) => {
+module.exports = (options, onConnect, onDisconnect, serializer, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
 
   const socket = options.socket
@@ -15,7 +15,10 @@ module.exports = (options, onConnect, serializer, log) => {
   messages.swap(fromEmitter(socket, 'message').map(({ data }) => deserialize(data.data || data)))
   events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
-  addListener('close', e => log.debug(e, 'Socket closed'))
+  addListener('close', e => {
+    onDisconnect()
+    log.debug(e, 'Socket closed')
+  })
   addListener('error', error => log.debug(error, 'Socket error'))
 
   onConnect()

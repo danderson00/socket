@@ -8,7 +8,7 @@ const defaultOptions = {
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = (options, onConnect, serializer, log) => {
+module.exports = (options, onConnect, onDisconnect, serializer, log) => {
   options = { ...defaultOptions, ...options }
   log = log.child({ source: 'socket.consumer.reliableSocket'})
 
@@ -36,9 +36,10 @@ module.exports = (options, onConnect, serializer, log) => {
       reliableSend.flush(activeSocket)
     })
 
-    addListener('close', e => {
+    addListener('close', async e => {
       log.debug(e, 'Socket closed')
       activeSocket = undefined
+      await onDisconnect()
       delay(options.reconnectDelay).then(connectNewSocket)
     })
 

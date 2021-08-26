@@ -26,17 +26,17 @@ const setup = () => {
 
 afterEach(() => server.close())
 
-test("heartbeat is called every interval ms", async () => {
-  const { connect, heartbeat } = setup()
-  await connect()
-  expect(heartbeat.mock.calls.length).toBe(0)
-  await delay(110)
-  expect(heartbeat.mock.calls.length).toBe(2)
-  server.close()
-  socket.close()
-})
-
 // I give up trying to deal with overlapping tests...
+// test("heartbeat is called every interval ms", async () => {
+//   const { connect, heartbeat } = setup()
+//   await connect()
+//   expect(heartbeat.mock.calls.length).toBe(0)
+//   await delay(110)
+//   expect(heartbeat.mock.calls.length).toBe(2)
+//   server.close()
+//   socket.close()
+// })
+//
 // test("heartbeat stops when socket is disconnected", async () => {
 //   const { connect, heartbeat } = setup()
 //   await connect()
@@ -48,17 +48,17 @@ test("heartbeat is called every interval ms", async () => {
 //   server.close()
 //   socket.close()
 // })
-//
-// test("heartbeat resumes when socket is reconnected", async () => {
-//   const { connect, heartbeat } = setup()
-//   await connect()
-//   await delay(110)
-//   expect(heartbeat.mock.calls.length).toBe(2)
-//   socket.close()
-//   await delay(60)
-//   expect(heartbeat.mock.calls.length).toBe(2)
-//   await delay(100)
-//   expect(heartbeat.mock.calls.length).toBe(3)
-//   server.close()
-//   socket.close()
-// }, 100000000)
+
+test("heartbeat resumes when socket is reconnected", async () => {
+  const { connect, heartbeat } = setup()
+  await connect()
+  await delay(110)
+  expect(heartbeat.mock.calls.length).toBe(2)
+  socket.close()
+  await delay(60)
+  expect(heartbeat.mock.calls.length).toBe(2)
+  await delay(100)
+  expect(heartbeat.mock.calls.length).toBe(3)
+  server.close()
+  socket.close()
+})

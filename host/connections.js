@@ -31,6 +31,8 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       connection.observables = observables(connection)
       connection.sessions = sessions(connection, sessionFactory)
       connectCallbacks.forEach(callback => callback(connection))
+      log.info('Connection established', { connectionId: connection.id })
+      socket.on('close', () => log.info('Connection closed', { connectionId: connection.id }))
       return connection
     })
 

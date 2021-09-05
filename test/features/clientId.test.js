@@ -6,7 +6,7 @@ let server
 
 const setup = () => {
   server = new WebSocket.Server({ port: 1234 })
-  hostModule({ server })
+  hostModule({ server }, { log: { level: 'fatal' } })
     .useFeature('clientId', { cipherKey: 'secret' })
     .useApi({ getClientId: clientId => clientId })
     .use({

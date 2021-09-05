@@ -9,7 +9,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms))
 const setup = () => {
   server = new WebSocket.Server({ port: 1234 })
   const heartbeat = jest.fn(({ next }) => next())
-  hostModule({ server })
+  hostModule({ server }, { log: { level: 'fatal' } })
     .useFeature('heartbeat')
     .use({ heartbeat })
 

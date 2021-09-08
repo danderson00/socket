@@ -5,19 +5,30 @@ const WebSocket = require('ws')
 
 const delay = ms => new Promise(r => setTimeout(r, ms))
 
-const setup = target => async () => {
+const setup = (feature, options, target) => async () => {
+  if(!target) {
+    target = feature
+    feature = undefined
+  }
   const server = new WebSocket.Server({ port: 1234 })
 
   try {
     const log = jest.fn()
-    hostModule({ server }, { log: { level: 'info', writers: [() => log] } })
+    const host = hostModule({ server }, { log: { level: 'info', writers: [() => log] } })
       .useApi({
         hello: () => new Promise(r => setTimeout(() => r('world'), 10)),
         observableHello:  () => new Promise(r => setTimeout(() => r(subject({ initialValue: 'world' })), 10))
       })
 
+    if(feature) {
+      host.useFeature(feature, options)
+    }
+
     let socket
     const consumer = await consumerModule({ socketFactory: () => socket = new WebSocket('ws://localhost:1234') })
+    if(feature) {
+      consumer.useFeature(feature)
+    }
     const connect = async () => {
       const api = await consumer.connect()
       return { socket, api }
@@ -72,4 +83,20 @@ test("observable calls log session establish and terminate", setup(async ({ conn
 
   const terminate = lastLog()
   expect(terminate).toMatchObject({ operation: 'observableHello', message: 'Session terminated', sessionId: establish.sessionId, connectionId: establish.connectionId })
+}))
+
+test("clientId feature attaches clientId to logs", setup('clientId', { cipherKey: 'abc123' }, async ({ connect, lastLog }) => {
+  const { api } = await connect()
+  const promise = api.hello()
+  await delay()
+  const clientId = lastLog().clientId
+  expect(clientId).not.toBeUndefined()
+
+  await promise
+  expect(lastLog().clientId).toBe(clientId)
+
+  await api.observableHello()
+  await delay()
+  expect(lastLog().operation).toBe('observableHello')
+  expect(lastLog().clientId).toBe(clientId)
 }))

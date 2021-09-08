@@ -16,8 +16,11 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   // this is rather nasty and needs to be refactored... the order properties are attached is significant
   const connections = source
     .map(({ args: [socket, request] }) => {
+      const connectionId = uuid()
+      const connectionLog = log.child({ connectionId })
       const connection = {
-        id: uuid(),
+        id: connectionId,
+        log: connectionLog,
         socket,
         request,
         messages: expressions.fromEmitter(socket, 'message').map(({ data: message }) => {
@@ -35,8 +38,8 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       connection.sessions = sessions(connection, sessionFactory)
       connectCallbacks.forEach(callback => callback(connection))
 
-      log.info('Connection established', { connectionId: connection.id, connectionCount: ++connectionCount })
-      socket.on('close', () => log.info('Connection closed', { connectionId: connection.id, connectionCount: --connectionCount }))
+      connectionLog.info('Connection established', { connectionCount: ++connectionCount })
+      socket.on('close', () => connectionLog.info('Connection closed', { connectionCount: --connectionCount }))
       return connection
     })
 

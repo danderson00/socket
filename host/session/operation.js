@@ -6,6 +6,7 @@ module.exports = (observable, context, options = {}) => {
   const request = observable()
   const { operation, parameters } = request.data
   const reestablish = request.session === 'reestablish'
+  const log = context.log.child({ operation })
 
   // *sigh* things start to rot pretty quickly
   // we need to subscribe to the session observable immediately
@@ -25,7 +26,7 @@ module.exports = (observable, context, options = {}) => {
     }
   })
 
-  context.log.debug(`${reestablish ? 'Ree' : 'E'}stablishing session`)
+  log.info(`Session ${reestablish ? 're' : ''}established`, { reestablish })
 
   const promise = hostApi.execute(operation, patchParameters(parameters), context)
     .then(value => {
@@ -60,7 +61,7 @@ module.exports = (observable, context, options = {}) => {
           .subscribe(() => value.disconnect && value.disconnect())
 
         cleanup = () => {
-          context.log.debug(`Terminating session`)
+          log.info(`Session terminated`)
           resultSubscription.unsubscribe()
           errorSubscription && errorSubscription.unsubscribe()
           if(value.disconnect) {
@@ -70,7 +71,8 @@ module.exports = (observable, context, options = {}) => {
     
       } else {
         send.ok({ type: 'static', value })   
-        disconnect()     
+        disconnect()
+        log.info(`Session terminated`)
       }
     })
   

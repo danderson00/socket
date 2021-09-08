@@ -57,7 +57,7 @@ test("heartbeat resumes when socket is reconnected", async () => {
   socket.close()
   await delay(60)
   expect(heartbeat.mock.calls.length).toBe(2)
-  await delay(100)
+  await delay(60)
   expect(heartbeat.mock.calls.length).toBe(3)
   server.close()
   socket.close()

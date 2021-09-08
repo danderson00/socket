@@ -52,6 +52,7 @@ module.exports = ({ server, socket, httpServer }, userOptions = {}) => {
         connections.registerConnectCallback(constructed.onConnect)
       }
 
+      log.debug('Registering feature', { name: constructed.name })
       api.add(constructed.api)
       middleware.add(constructed.middleware)
       sessionFactory.addHandshake(constructed.name, constructed.handshake)

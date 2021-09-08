@@ -15,7 +15,7 @@ module.exports = (hostApi, parentLog, options) => {
     create: (sessionObservable, send, connection) => {
       const { type, sessionId } = sessionObservable()
       let disconnected = false
-      const log = parentLog.child({ sessionId })
+      const log = connection.log.child({ sessionId })
 
       const eventSubscription = connection.events.subscribe(({ topic, data }) => {
         if (topic === 'error') {

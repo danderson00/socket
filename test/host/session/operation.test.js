@@ -16,7 +16,8 @@ const setup = (api, data = {}, events) => {
     data: { operation: 'api', ...data } 
   }})
   source.disconnect = jest.fn()
-  sessionFactory(executor, logger({ level: 'fatal' })).create(source, sendWrapper(sentFromHost, 1), { events: events || subject() })
+  const log = logger({ level: 'fatal' })
+  sessionFactory(executor, log).create(source, sendWrapper(sentFromHost, 1), { events: events || subject(), log })
   return new Promise(setTimeout)
 }
 

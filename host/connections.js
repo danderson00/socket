@@ -10,6 +10,9 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
     : expressions.subject()
   const connectCallbacks = []
 
+  // just count connections for now - eventually maintain a list of active connections
+  let connectionCount = 0
+
   // this is rather nasty and needs to be refactored... the order properties are attached is significant
   const connections = source
     .map(({ args: [socket, request] }) => {
@@ -31,8 +34,9 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       connection.observables = observables(connection)
       connection.sessions = sessions(connection, sessionFactory)
       connectCallbacks.forEach(callback => callback(connection))
-      log.info('Connection established', { connectionId: connection.id })
-      socket.on('close', () => log.info('Connection closed', { connectionId: connection.id }))
+
+      log.info('Connection established', { connectionId: connection.id, connectionCount: ++connectionCount })
+      socket.on('close', () => log.info('Connection closed', { connectionId: connection.id, connectionCount: --connectionCount }))
       return connection
     })
 

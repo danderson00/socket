@@ -21,7 +21,7 @@ module.exports = ({ cipherKey: password } = {}) => {
     handshake: ({ data }, context) => {
       const clientId = data.clientId ? decryptClientId(data.clientId) : uuid()
       context.connection.clientId = clientId
-      context.connection.log = context.connection.log.child({ clientId })
+      context.connection.log.setScope({ clientId })
       return encrypt(clientId, cipherKey).toString('base64')
     }
   })

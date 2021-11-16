@@ -1,6 +1,6 @@
 {
   "name": "@x/socket",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "consumer/index.js",
@@ -13,8 +13,8 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/expressions": "0.4.17",
-    "@x/log": "0.4.17",
+    "@x/expressions": "0.4.18",
+    "@x/log": "0.4.18",
     "uuid": "^3.4.0"
   },
   "devDependencies": {

@@ -1,5 +1,5 @@
 module.exports = (observable, context) => {
-  const { hostApi, send, handshakeCallbacks } = context
+  const { hostApi, send, handshakeCallbacks, connection } = context
   const { data } = observable()
   const requestIsValid = data.version === '0.0.1'
 
@@ -11,6 +11,7 @@ module.exports = (observable, context) => {
   if(requestIsValid) {
     send.ok(handshakeData)
     observable.disconnect()
+    connection.log.info('Connection handshake complete', { userAgent: data.userAgent })
   } else {
     throw new Error("Invalid handshake request")
   }

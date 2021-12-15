@@ -1,5 +1,7 @@
+const getUserAgent = require('../userAgent')
+
 module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve, reject) => {
-  send.handshake({ version: '0.0.1', data })
+  send.handshake({ version: '0.0.1', data, userAgent: getUserAgent() })
 
   messages.subscribe(({ status, data }) => {
     disconnect()

@@ -40,19 +40,20 @@ const setup = (feature, options, target) => async () => {
   }
 }
 
-test("connection count is logged", setup(async ({ connect, lastLog }) => {
+test("connection count is logged", setup(async ({ connect, log }) => {
   const { socket: socket1 } = await connect()
-  expect(Object.keys(lastLog())).toEqual(['timestamp', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
-  expect(lastLog().connectionCount).toBe(1)
+  const previousLog = behind => log.mock.calls[log.mock.calls.length - behind - 1][0]
+  expect(Object.keys(previousLog(2))).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
+  expect(previousLog(2).connectionCount).toBe(1)
   const { socket: socket2 } = await connect()
-  expect(lastLog().connectionCount).toBe(2)
+  expect(previousLog(2).connectionCount).toBe(2)
   socket1.close()
   await delay(10)
-  expect(Object.keys(lastLog())).toEqual(['timestamp', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
-  expect(lastLog().connectionCount).toBe(1)
+  expect(Object.keys(previousLog(0))).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
+  expect(previousLog(0).connectionCount).toBe(1)
   socket2.close()
   await delay(10)
-  expect(lastLog().connectionCount).toBe(0)
+  expect(previousLog(0).connectionCount).toBe(0)
 }))
 
 test("static calls log session establish and terminate", setup(async ({ connect, lastLog }) => {
@@ -60,7 +61,7 @@ test("static calls log session establish and terminate", setup(async ({ connect,
   const promise = api.hello()
   await delay()
   const establish = lastLog()
-  expect(Object.keys(establish)).toEqual(['timestamp', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
+  expect(Object.keys(establish)).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
   expect(establish).toMatchObject({ operation: 'hello', message: 'Session established' })
 
   await promise
@@ -73,7 +74,7 @@ test("observable calls log session establish and terminate", setup(async ({ conn
   const promise = api.observableHello()
   await delay()
   const establish = lastLog()
-  expect(Object.keys(establish)).toEqual(['timestamp', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
+  expect(Object.keys(establish)).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
   expect(establish).toMatchObject({ operation: 'observableHello', message: 'Session established' })
 
   const observable = await promise
@@ -99,4 +100,9 @@ test("clientId feature attaches clientId to logs", setup('clientId', { cipherKey
   await delay()
   expect(lastLog().operation).toBe('observableHello')
   expect(lastLog().clientId).toBe(clientId)
+}))
+
+test("userAgent is logged", setup(async ({ connect, lastLog }) => {
+  await connect()
+  expect(lastLog().userAgent).toContain('jsdom')
 }))

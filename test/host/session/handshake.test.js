@@ -16,7 +16,7 @@ const setup = callback => {
     data: { version: '0.0.1' }
   } })
   source.disconnect = jest.fn()
-  const log = loggerModule({ level: 'trace' })
+  const log = loggerModule({ level: 0 })
   const sessions = sessionFactory(hostApi, log)
   sessions.addHandshake('test', callback)
   sessions.create(source, sendWrapper(sentFromHost, 1), { events: subject(), log })

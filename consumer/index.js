@@ -39,9 +39,9 @@ module.exports = options => {
       await userConfiguration.initialise(connectResult)
       return connectResult.api
 
-      // TODO: this is called twice on connect due to it being called above and as per the on open from reliableSocket
-      // this was introduced to enable the two stage construct / initialise for features but was not properly tested
-      // the main consequence is that the handshake occurs twice on first connect
+      // TODO: this is called twice on first connect due to it being called above and from the on('open') from reliableSocket
+      //       this was introduced to enable the two stage construct / initialise for features but was not properly tested
+      //       the main consequence is that the handshake occurs twice on first connect
       function reconnect() {
         connect(sessions, constructResult).then(userConfiguration.reconnect)
       }

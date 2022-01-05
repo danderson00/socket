@@ -66,15 +66,15 @@ The default export from the `@x/socket` package is the host factory function. It
 being object containing connection options as follows. At least one of `server` or `socket` must be provided.
 
 Name|Description
--|-
+---|---
 server|A socket server that accepts incoming connections through the `open` event
-socket|An active socket, such as a child process or Websocket
-httpServer|The underlying HTTP server object. This is used to enable access from features, as described below.
+socket|An active socket, such as a child process object
+httpServer|The underlying HTTP server object. This is used to enable access from features, as described below
 
 The second parameter is an object containing configuration options as follows.
 
 Name|Description
--|-
+---|---
 log|Options passed to the [`@x/log`](https://www.npmjs.com/package/@x/log) logger facility. Ignored if `logger` is provided
 logger|[`@x/log`](https://www.npmjs.com/package/@x/log) instance
 serializer|An object containing options for the serializer, currently only `errorDetail`, set to `full`, `minimal` or `none`

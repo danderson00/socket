@@ -8,8 +8,8 @@ const defaultOptions = {
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-module.exports = (options, onConnect, onDisconnect, serializer, log) => {
-  options = { ...defaultOptions, ...options }
+module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
+  const options = { ...defaultOptions, ...userOptions }
   log = log.child({ source: 'socket.consumer.reliableSocket'})
 
   let activeSocket

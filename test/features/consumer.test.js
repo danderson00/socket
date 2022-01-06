@@ -6,7 +6,7 @@ let server
 
 const setup = feature => {
   server = new WebSocket.Server({ port: 1234 })
-  hostModule({ server }, { log: { level: 'fatal' } }).useApi({ hello: () => 'world' })
+  hostModule({ server, log: { level: 'fatal' } }).useApi({ hello: () => 'world' })
   return consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') })
     .useFeature(feature).connect()
 }

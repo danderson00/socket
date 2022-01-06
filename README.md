@@ -1,13 +1,14 @@
 # @x/socket
 
-Lightweight observable APIs over any socket
+Lightweight, reliable observable APIs over any socket
 
 `x/socket` allows you to expose APIs transparently over any transport medium that implements the `send(message)` and 
 `on('message', callback)` functions, such as Websockets, WebWorkers, WebRTC connections, child processes, etc. 
 [Observable](https://www.npmjs.com/package/@x/observable) return values are automatically kept in sync.
 
-A middleware layer is provided to allow functions to be enhanced with concerns such as authentication or caching. 
-For more complete control over the function invocation, powerful "features" can be implemented.
+Connections over unreliable networks will automatically be reconnected after disconnection. A middleware layer is 
+provided to allow functions to be enhanced with concerns such as authentication or caching. For more complete control 
+over the function invocation, powerful "features" can be implemented.
 
 ## Installation
 
@@ -42,9 +43,7 @@ const api = {
   timer: () => timer
 }
 
-host({ server: new Websocket.Server({ port: 3001 }) })
-  .useApi(api)
-  .useFeature('reestablishSessions') // automatically reestablish observable sessions if disconnected
+host({ server: new Websocket.Server({ port: 3001 }) }).useApi(api)
 ```
 
 The API is exposed to the consumer after making a successful connection:
@@ -52,47 +51,152 @@ The API is exposed to the consumer after making a successful connection:
 ```javascript
 const consumer = require('@x/socket')
 
-consumer().connect().then(async api => {
-  console.log(await api.capitalize('hello, world')) // logs 'HELLO, WORLD'
-  
-  const timer = await api.timer()
-  timer.subscribe(count => console.log(`Timer has pulsed ${count} times`))
-})
+consumer()
+  .useFeature('reestablishSessions') // automatically reestablish observable sessions if disconnected
+  .connect().then(async api => {
+    console.log(await api.capitalize('hello, world')) // logs 'HELLO, WORLD'
+    
+    const timer = await api.timer()
+    timer.subscribe(count => console.log(`Timer has pulsed ${count} times`))
+  })
 ```
 
 ## Host Configuration
 
-The default export from the `@x/socket` package is the host factory function. It accepts a two parameters, the first 
-being object containing connection options as follows. At least one of `server` or `socket` must be provided.
+```javascript
+const host = require('@x/socket')
+
+host(options)
+```
+
+The default export from the `@x/socket` package is the host factory function. To explicitly reference the host 
+factory function, such as creating a host object in the browser, you can import the `@x/socket/host` namespace. 
+
+The host factory function accepts a single parameter, an object containing options as follows. At least one of 
+`server` or `socket` must be provided.
 
 Name|Description
 ---|---
 server|A socket server that accepts incoming connections through the `open` event
 socket|An active socket, such as a child process object
 httpServer|The underlying HTTP server object. This is used to enable access from features, as described below
-
-The second parameter is an object containing configuration options as follows.
-
-Name|Description
----|---
 log|Options passed to the [`@x/log`](https://www.npmjs.com/package/@x/log) logger facility. Ignored if `logger` is provided
 logger|[`@x/log`](https://www.npmjs.com/package/@x/log) instance
 serializer|An object containing options for the serializer, currently only `errorDetail`, set to `full`, `minimal` or `none`
 throttle|An object containing API call throttling options, currently only a `timeout` value in milliseconds 
 
-The factory function returns an object with functions as described below.
-
-### `useApi`
-
-Any functions attached to objects passed to the `useApi` function are added to the functions exposed on the consumer. 
-
-### `use`
-
-
-
-### `useFeature`
-
-
-
 ## Consumer Configuration
 
+```javascript
+const consumer = require('@x/socket')
+
+consumer(options)
+```
+
+The default browser export from the `@x/socket` package is the consumer factory function. To explicitly reference 
+the consumer factory function, such as creating a consumer object from a Node.js module, you can import the 
+`@x/socket/consumer` namespace.
+
+The consumer factory function accepts a single parameter, an object containing options as follows.
+
+Name|Description
+---|---
+url|The URL of the host to connect to. Defaults to the current window host and port or `ws://localhost:3001` if the current window host is `localhost`
+socket|An active socket, such as a child process or WebWorker object
+socketFactory|Provide an alternative socket factory for when `window.WebSocket` is not available, such as from a Node.js process
+reconnectDelay|Milliseconds to wait before attempting to reconnect
+timeout|Milliseconds to wait before attempting to retransmit a failed command
+log|Options passed to the [`@x/log`](https://www.npmjs.com/package/@x/log) logger facility. Ignored if `logger` is provided
+serializer|An object containing options for the serializer, currently only `errorDetail`, set to `full`, `minimal` or `none`
+
+The consumer object also exposes an asynchronous function named `connect` that initiates the connection process.
+
+## Attaching Behavior
+
+The factory functions return an object with functions as described below. All are chainable.
+
+### `useApi(apiFunctions)`
+
+Add functions attached to the provided object to the API exposed on the consumer. Only available on the host.
+
+If a function returns an [observable](https://www.npmjs.com/package/@x/observable) object, the function exposed on the
+consumer will also return an observable that will be updated as new values are emitted by the host observable.
+Calling the `disconnect` function on the consumer observable will cause subscriptions to be cleaned up.
+
+### `use(middlewareFunctions)`
+
+Add a middleware layer to the execution stack.
+
+### `useFeature(feature, options)`
+
+Add a feature to the execution stack. The `feature` parameter should either be the name of a built in feature or a
+feature factory function.
+
+## Middleware
+
+Middleware is added to the execution stack by using the `use` function. This function accepts either a single 
+function or an object with multiple functions attached. Passing a single function will cause the middleware to be 
+executed for all API functions ("global" middleware). Passing an object will cause middleware to be executed only 
+when the API function with the corresponding name is executed.
+
+Middleware functions take the following form:
+
+```javascript
+(context, ...args) => {}
+```
+
+The first parameter contains properties described below. Subsequent parameters correspond with the parameters 
+passed to the API function.
+
+Name|Location|Description
+---|---|---
+id|Both|The operation session identifier
+
+
+## Features
+
+The following built-in features are available.
+
+### `clientId`
+
+Attaches a unique, per client UUID identifier named `clientId` to the connection object. The identifier is 
+encrypted on the client to hide the value and prevent tampering. The value is also attached to relevant log entries.
+
+Requires both host and consumer features to be enabled.
+
+#### Options
+
+Name|Location|Type|Description
+---|---|---
+cipherKey|Host|Required. A `String` or `Buffer` used as the encryption key
+
+### `heartbeat`
+
+Periodically perform a network request to prevent disconnection by proxies, load balancers, etc.
+
+Requires both host and consumer features to be enabled.
+
+#### Options
+
+Name|Location|Description
+---|---|---
+interval|Consumer|Milliseconds between requests. Default: 30000
+
+### `log`
+
+Adds a `log` function to the consumer API that appends entries to the system log with relevant context information 
+attached. Unhandled exceptions that occur on both consumer and host are also logged. 
+
+Requires both host and consumer features to be enabled.
+
+#### Options
+
+Name|Location|Description
+---|---|---
+unhandled|Both|Set to false to disable logging of unhandled exceptions
+
+### `reestablishSessions`
+
+Automatically reestablish subscriptions to active observables if the socket is disconnected and reconnected.
+
+The feature is only required to be enabled on the consumer.

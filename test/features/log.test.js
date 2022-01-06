@@ -8,7 +8,7 @@ const setup = async () => {
   server = new WebSocket.Server({ port: 1234 })
   hostWrite = jest.fn()
   consumerWrite = jest.fn()
-  hostModule({ server }, { log: { writers: [() => hostWrite], level: 'warn' } })
+  hostModule({ server, log: { writers: [() => hostWrite], level: 'warn' } })
     .useFeature('log')
 
   return await consumerModule({

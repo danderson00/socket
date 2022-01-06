@@ -1,7 +1,7 @@
 const defaultOptions = { timeout: 1000 }
 
-module.exports = (options, messages, log) => {
-  options = { ...defaultOptions, ...options }
+module.exports = (userOptions, messages, log) => {
+  const options = { ...defaultOptions, ...userOptions }
 
   const inFlightCommands = []
 
@@ -38,7 +38,7 @@ module.exports = (options, messages, log) => {
     return { promise, retry }
   }
 
-  const api = {
+  return {
     send: (command, socket) => {
       const inFlight = commandPromise(command, socket)
       inFlightCommands.push(inFlight)
@@ -48,6 +48,4 @@ module.exports = (options, messages, log) => {
     flush: socket => inFlightCommands.forEach(x => x.retry(socket)),
     length: () => inFlightCommands.length
   }
-
-  return api
 }

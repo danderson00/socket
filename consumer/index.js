@@ -12,8 +12,9 @@ const defaultOptions = {
   log: { level: 'warn' }
 }
 
-module.exports = options => {
-  options = { ...defaultOptions, ...options }
+module.exports = userOptions => {
+  const options = { ...defaultOptions, ...userOptions }
+
   const serializer = serializerModule(options.serializer)
   const middleware = middlewareModule()
   const userConfiguration = userConfigurationModule(middleware)

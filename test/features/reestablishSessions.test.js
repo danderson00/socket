@@ -8,7 +8,7 @@ let server, socket, source
 const setup = () => {
   server = new WebSocket.Server({ port: 1234 })
   source = subject({ initialValue: 'world' })
-  hostModule({ server }, { log: { level: 'fatal' } }).useApi({ hello: () => source })
+  hostModule({ server, log: { level: 'fatal' } }).useApi({ hello: () => source })
   return consumerModule({ 
     socketFactory: () => socket = new WebSocket('ws://localhost:1234'),
     reconnectDelay: 0

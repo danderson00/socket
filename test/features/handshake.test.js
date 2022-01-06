@@ -11,7 +11,7 @@ const openSocket = () => new Promise(resolve => {
 const setup = async handshake => {
   const feature = () => ({ name: 'test', handshake })
   server = new WebSocket.Server({ port: 1234 })
-  host = hostModule({ server }, { log: { level: 'fatal' } }).useFeature(feature)
+  host = hostModule({ server, log: { level: 'fatal' } }).useFeature(feature)
   client = await openSocket()
   sentFromHost = jest.fn()
   client.on('message', sentFromHost)

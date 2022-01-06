@@ -15,8 +15,10 @@ const defaultOptions = {
   serializer: { errorDetail: 'minimal' }
 }
 
-module.exports = ({ server, socket, httpServer }, userOptions = {}) => {
+module.exports = (userOptions = {}) => {
   const options = { ...defaultOptions, ...userOptions }
+  const { server, socket, httpServer } = options
+
   const log = options.logger
     ? options.logger.child({ origin: 'host', source: 'socket.host' })
     : loggerModule({ ...options.log, scope: { origin: 'host', source: 'socket.host' } })

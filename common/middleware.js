@@ -3,6 +3,7 @@ module.exports = () => {
 
   return {
     add: (newMiddleware = {}) => {
+      // global middleware is passed as just a function
       if(typeof newMiddleware === 'function') {
         middleware = [...middleware, { 
           name: null, 

@@ -12,7 +12,7 @@ const openSocket = () => new Promise(resolve => {
 
 const setup = async (api, options) => {
   server = new WebSocket.Server({ port: 1234 })
-  host = hostModule({ server }, { log: { level: 'fatal' }, ...options }).useApi({ api })
+  host = hostModule({ server, log: { level: 'fatal' }, ...options }).useApi({ api })
   connections = host.connections.groupBy('id')
   client = await openSocket()
   sentFromHost = jest.fn()

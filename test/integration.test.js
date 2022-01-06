@@ -8,7 +8,7 @@ const websocket = target => async () => {
   const server = new WebSocket.Server({ port: 1234 })
 
   try {
-    const host = hostModule({ server }, { log: { level: 'fatal' } })
+    const host = hostModule({ server, log: { level: 'fatal' } })
     integrationApi.forEach(api => host.useApi(api))
     const api = await consumerModule({ socketFactory: () => new WebSocket('ws://localhost:1234') }).connect()
     await target(api)

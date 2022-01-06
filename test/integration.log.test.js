@@ -14,7 +14,7 @@ const setup = (feature, options, target) => async () => {
 
   try {
     const log = jest.fn()
-    const host = hostModule({ server }, { log: { level: 'info', writers: [() => log] } })
+    const host = hostModule({ server, log: { level: 'info', writers: [() => log] } })
       .useApi({
         hello: () => new Promise(r => setTimeout(() => r('world'), 10)),
         observableHello:  () => new Promise(r => setTimeout(() => r(subject({ initialValue: 'world' })), 10))
@@ -56,16 +56,17 @@ test("connection count is logged", setup(async ({ connect, log }) => {
   expect(previousLog(0).connectionCount).toBe(0)
 }))
 
-test("static calls log session establish and terminate", setup(async ({ connect, lastLog }) => {
+test("static calls log session establish and terminate", setup(async ({ connect, log }) => {
   const { api } = await connect()
   const promise = api.hello()
   await delay()
-  const establish = lastLog()
+  const previousLog = behind => log.mock.calls[log.mock.calls.length - behind - 1][0]
+  const establish = previousLog(0)
   expect(Object.keys(establish)).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
   expect(establish).toMatchObject({ operation: 'hello', message: 'Session established' })
 
   await promise
-  const terminate = lastLog()
+  const terminate = previousLog(0)
   expect(terminate).toMatchObject({ operation: 'hello', message: 'Session terminated', sessionId: establish.sessionId, connectionId: establish.connectionId })
 }))
 

@@ -18,7 +18,7 @@ yarn add @x/socket
 npm i @x/socket
 ```
 
-No socket implementation is provided out of the box and must be installed along with `@x/socket`. The 
+No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The 
 [`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js 
 and browser usage.
 
@@ -79,7 +79,7 @@ Name|Description
 ---|---
 server|A socket server that accepts incoming connections through the `open` event
 socket|An active socket, such as a child process object
-httpServer|The underlying HTTP server object. This is used to enable access from features, as described below
+httpServer|Optional. The underlying HTTP server object. This is only used to enable access from features, as described below
 log|Options passed to the [`@x/log`](https://www.npmjs.com/package/@x/log) logger facility. Ignored if `logger` is provided
 logger|[`@x/log`](https://www.npmjs.com/package/@x/log) instance
 serializer|An object containing options for the serializer, currently only `errorDetail`, set to `full`, `minimal` or `none`
@@ -209,48 +209,97 @@ events|An observable that emits other events emitted by the connection, such as 
 
 ## Features
 
+### Built-In Features
+
 The following built-in features are available.
 
-### `clientId`
+#### `clientId`
 
 Attaches a unique, per client UUID identifier named `clientId` to the connection object. The identifier is 
 encrypted on the client to hide the value and prevent tampering. The value is also attached to relevant log entries.
 
 Requires both host and consumer features to be enabled.
 
-#### Options
+##### Options
 
 Name|Location|Type|Description
 ---|---|---
 cipherKey|Host|Required. A `String` or `Buffer` used as the encryption key
 
-### `heartbeat`
+#### `heartbeat`
 
 Periodically perform a network request to prevent disconnection by proxies, load balancers, etc.
 
 Requires both host and consumer features to be enabled.
 
-#### Options
+##### Options
 
 Name|Location|Description
 ---|---|---
 interval|Consumer|Milliseconds between requests. Default: 30000
 
-### `log`
+#### `log`
 
 Adds a `log` function to the consumer API that appends entries to the system log with relevant context information 
 attached. Unhandled exceptions that occur on both consumer and host are also logged. 
 
 Requires both host and consumer features to be enabled.
 
-#### Options
+##### Options
 
 Name|Location|Description
 ---|---|---
 unhandled|Both|Set to false to disable logging of unhandled exceptions
 
-### `reestablishSessions`
+#### `reestablishSessions`
 
 Automatically reestablish subscriptions to active observables if the socket is disconnected and reconnected.
 
 The feature is only required to be enabled on the consumer.
+
+### Other Available Features
+
+A number of other features are available as separate packages:
+
+Name|Description
+---|---
+[@x/socket.auth](https://www.npmjs.com/package/@x/socket.auth)|Authentication supporting multiple providers
+[@x/socket.files](https://www.npmjs.com/package/@x/socket.files)|Simple file upload feature
+[@x/socket.unify](https://www.npmjs.com/package/@x/socket.unify)|Provides essential functionality for the [unify platform](https://unifyjs.io/)
+
+### Custom Features
+
+Features are able to add API functions and middleware, have an asynchronous construction and initialization phase 
+and are able to hook in to other key events such as handshaking and socket reconnection.
+
+#### Host Features
+
+Features for use on the host should be implemented as factory functions that return a specific definition structure. 
+The function should accept a single parameter, an object containing infrastructure that can be manipulated. It has 
+the following properties:
+
+Name|Description
+---|---
+log|The [logger](https://www.npmjs.com/package/@x/log) instance
+connections|An observable that emits new connection objects
+hostOptions|All host options
+server|The provided socket server object
+httpServer|The provided HTTP server object, if any 
+
+The function should return a definition with the following properties:
+
+Name|Description
+---|---
+name|The name of the feature
+api|Functions to add to the host API
+middleware|Middleware to add to the execution stack
+onConnect|A callback that executes when a new connection occurs
+handshake|A callback to interact with the handshaking process. See below
+
+##### Handshaking
+
+Consumer initiates handshake
+- collect handshakeData property from constructed consumer feature
+Host executes handshake callback on host feature, passing { data: handshakeData } (hash by feature name)
+- collect handshakeData from handshake callback results (hash by feature name)
+Consumer calls initialize with { api, handshakeData }

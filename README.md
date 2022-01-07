@@ -63,14 +63,8 @@ consumer()
 
 ## Host Configuration
 
-```javascript
-const host = require('@x/socket')
-
-host(options)
-```
-
-The default export from the `@x/socket` package is the host factory function. To explicitly reference the host 
-factory function, such as creating a host object in the browser, you can import the `@x/socket/host` namespace. 
+The default export from the `@x/socket` package is the host factory function. It can be explicitly referenced in the 
+browser by importing `@x/socket/host`. 
 
 The host factory function accepts a single parameter, an object containing options as follows. At least one of 
 `server` or `socket` must be provided.
@@ -87,15 +81,8 @@ throttle|An object containing API call throttling options, currently only a `tim
 
 ## Consumer Configuration
 
-```javascript
-const consumer = require('@x/socket')
-
-consumer(options)
-```
-
-The default browser export from the `@x/socket` package is the consumer factory function. To explicitly reference 
-the consumer factory function, such as creating a consumer object from a Node.js module, you can import the 
-`@x/socket/consumer` namespace.
+The default browser export from the `@x/socket` package is the consumer factory function. It can be explicitly 
+referenced from Node.js by importing `@x/socket/consumer`.
 
 The consumer factory function accepts a single parameter, an object containing options as follows.
 
@@ -222,7 +209,7 @@ Requires both host and consumer features to be enabled.
 
 ##### Options
 
-Name|Location|Type|Description
+Name|Location|Description
 ---|---|---
 cipherKey|Host|Required. A `String` or `Buffer` used as the encryption key
 
@@ -296,10 +283,42 @@ middleware|Middleware to add to the execution stack
 onConnect|A callback that executes when a new connection occurs
 handshake|A callback to interact with the handshaking process. See below
 
+#### Consumer Features
+
+Construction of the consumer feature is a two step process. First, a factory function should produce an object with 
+the following properties:
+
+Name|Description
+---|---
+name|The name of the feature
+handshakeData|Data to include in the host handshake process
+initialise|A callback that is executed once the handshake process is complete
+
+The `initialise` function is passed an object with the following properties:
+
+Name|Description
+---|---
+api|The API object
+handshakeData|The result of the handshake process. Contains the result of host feature handshake callbacks, keyed by the feature name
+
+The `initialise` function should return an object with the following properties:
+
+Name|Description
+---|---
+middleware|Middleware to add to the execution stack
+reconnect|A callback that executes when the connection is reestablished after being disconnected
+disconnect|A callback that executes when the connection is disconnected
+
 ##### Handshaking
 
-Consumer initiates handshake
-- collect handshakeData property from constructed consumer feature
-Host executes handshake callback on host feature, passing { data: handshakeData } (hash by feature name)
-- collect handshakeData from handshake callback results (hash by feature name)
-Consumer calls initialize with { api, handshakeData }
+The connection handshake process occurs in three distinct stages:
+
+1. The consumer collects any handshake data from any consumer features that return a `handshakeData` property 
+   from initial construction. This data is passed to the host in a special handshake operation.
+2. The host validates the handshake data and executes any `handshake` callbacks returned from host feature 
+   construction. The function accepts two arguments: 
+   - the first is the data sent from the consumer encapsulated in a property named `data`
+   - the second is the session context, as described in the middleware section above
+   Data returned from this function is returned to the consumer in an object keyed by the feature name.
+3. The consumer calls the `initialise` function on consumer feature definitions, passing the returned handshake data 
+   in a property called `handshakeData`.

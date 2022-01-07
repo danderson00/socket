@@ -2,8 +2,8 @@ const logUncaught = require('../../common/logUncaught')
 
 const defaultOptions = { unhandled: true }
 
-module.exports = options => ({ log }) => {
-  options = { ...defaultOptions, ...options }
+module.exports = userOptions => ({ log }) => {
+  const options = { ...defaultOptions, ...userOptions }
 
   if(options.unhandled) {
     logUncaught(error => log.child({ source: 'unhandled' }).error(error))

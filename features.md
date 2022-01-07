@@ -5,6 +5,22 @@ and are able to hook in to other key events such as handshaking and socket recon
 
 ## Host Features
 
+```javascript
+function hostFeature({ log, connections, hostOptions, server, httpServer }) {
+  return {
+    name: 'featureName',
+    api: {
+      apiFunction: (...args) => {}
+    },
+    middleware: {
+      apiFunction: (context, ...args) => {}  
+    },
+    onConnect: context => {},
+    handshake: ({ data: { featureName } }) => {}
+  }
+}
+```
+
 Features for use on the host should be implemented as factory functions that return a specific definition structure.
 The function should accept a single parameter, an object containing infrastructure that can be manipulated. It has
 the following properties:
@@ -29,8 +45,35 @@ handshake|A callback to interact with the handshaking process. See below
 
 ## Consumer Features
 
-Construction of the consumer feature is a two step process. First, a factory function should produce an object with
-the following properties:
+```javascript
+function consumerFeature({ log, socket, sessions, middleware }) {
+  return {
+    name: 'featureName',
+    handshakeData: { property: 'value' },
+    initialise: ({ api, handshakeData: { featureName } }) => {
+      return {
+        middleware: {
+          apiFunction: (context, ...args) => {}
+        },
+        reconnect: context => {},
+        disconnect: context => {}
+      }
+    }
+  }
+}
+```
+
+Construction of the consumer feature is a two step process. First, a factory function should accept an object 
+with the following properties:
+
+Name|Description
+---|---
+log|The [logger](https://www.npmjs.com/package/@x/log) instance
+socket|The underlying socket object for the connection
+sessions|An observable that emits new session objects
+middleware|An object containing all other currently mounted middleware
+
+It should return an object with the following properties:
 
 Name|Description
 ---|---

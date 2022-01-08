@@ -259,6 +259,9 @@ Name|Description
 
 ### Custom Features
 
+Features are able to add API functions and middleware, have an asynchronous construction and initialization phase
+and are able to hook in to other key events such as handshaking and socket reconnection.
+
 Information on implementation of custom features is available [here](https://gitlab.com/danderson00/socket/-/blob/master/features.md).
 
 ## License

@@ -8,7 +8,6 @@ const serializerModule = require('../common/serializer')
 const loggerModule = require('../common/logger')
 
 const defaultOptions = {
-  url: ``,
   serializer: { errorDetail: 'full' },
   log: { level: 'warn' }
 }

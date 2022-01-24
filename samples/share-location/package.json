@@ -1,0 +1,17 @@
+{
+  "name": "share-location",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Location sharing sample for @x/socket",
+  "main": "host.js",
+  "browser": "index.js",
+  "scripts": {
+    "start": "concurrently \"node src\" \"http-server public -S -o\""
+  },
+  "dependencies": {
+    "@x/socket": "0.6.2",
+    "concurrently": "^7.0.0",
+    "ws": "^6.1.3"
+  },
+  "license": "MIT"
+}

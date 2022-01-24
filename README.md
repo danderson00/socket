@@ -1,6 +1,6 @@
 # @x/socket
 
-Lightweight, reliable observable APIs over any socket
+Reliable, lightweight observable APIs over any socket
 
 `x/socket` allows you to expose APIs transparently over any transport medium that implements the `send(message)` and 
 `on('message', callback)` functions, such as Websockets, WebWorkers, WebRTC connections, child processes, etc. 
@@ -9,6 +9,8 @@ Lightweight, reliable observable APIs over any socket
 Connections over unreliable networks will automatically be reconnected after disconnection. A middleware layer is 
 provided to allow functions to be enhanced with concerns such as authentication or caching. For more complete control 
 over the function invocation, powerful "features" can be implemented.
+
+`@x/socket` is designed to work with `@x/observable` observables, including models built using `@x/expressions`
 
 ## Installation
 

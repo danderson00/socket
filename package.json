@@ -1,20 +1,20 @@
 {
   "name": "@x/socket",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "consumer/index.js",
   "scripts": {
-    "build": "babel consumer --presets @babel/preset-env --source-maps both --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps both --out-dir dist/common",
-    "prepublish": "babel consumer --presets @babel/preset-env --source-maps false --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps false --out-dir dist/common",
+    "build": "babel consumer --presets @babel/preset-env --source-maps both --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps both --out-dir dist/common && webpack",
+    "prepublish": "babel consumer --presets @babel/preset-env --source-maps false --out-dir dist/consumer && babel common --presets @babel/preset-env --source-maps false --out-dir dist/common && webpack",
     "test": "jest --runInBand"
   },
   "keywords": [],
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/expressions": "0.6.3",
-    "@x/log": "0.6.3",
+    "@x/expressions": "0.6.4",
+    "@x/log": "0.6.4",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
@@ -27,6 +27,14 @@
     "webpack-cli": "^4.9.1",
     "ws": "^6.1.3"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/danderson00/socket.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/danderson00/socket/issues"
+  },
+  "homepage": "https://gitlab.com/danderson00/socket#readme",
   "publishConfig": {
     "access": "public"
   }

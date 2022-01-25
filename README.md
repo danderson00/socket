@@ -10,7 +10,9 @@ Connections over unreliable networks will automatically be reconnected after dis
 provided to allow functions to be enhanced with concerns such as authentication or caching. For more complete control 
 over the function invocation, powerful "features" can be implemented.
 
-`@x/socket` is designed to work with `@x/observable` observables, including models built using `@x/expressions`
+`@x/socket` is designed to work with 
+[`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including models built using 
+[`@x/expressions`](https://www.npmjs.com/package/@x/expressions).
 
 ## Installation
 
@@ -23,6 +25,14 @@ npm i @x/socket
 No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The 
 [`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js 
 and browser usage.
+
+A browser package for the consumer is also available at `dist/consumer.min.js` and can be loaded to a webpage using:
+
+```html
+<script src="https://unpkg.com/@x/socket/dist/consumer.min.js"></script>
+```
+
+The library is exposed as `window.xsocket`. The bundle requires a modern browser with `async/await` support.
 
 ## A Simple Example
 

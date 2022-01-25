@@ -76,6 +76,8 @@ consumer()
   })
 ```
 
+A more detailed example is available [here](https://gitlab.com/danderson00/socket/-/tree/master/samples/share-location).
+
 ## Host Configuration
 
 The default export from the `@x/socket` package is the host factory function. It can be explicitly referenced in the 

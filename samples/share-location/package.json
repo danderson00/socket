@@ -6,10 +6,10 @@
   "main": "host.js",
   "browser": "index.js",
   "scripts": {
-    "start": "concurrently \"node src\" \"http-server public -S -o\""
+    "start": "concurrently \"node src\" \"http-server public -o\""
   },
   "dependencies": {
-    "@x/socket": "0.6.3",
+    "@x/socket": "0.6.4",
     "concurrently": "^7.0.0",
     "ws": "^6.1.3"
   },

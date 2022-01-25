@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <script src="socket.js"></script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs4sI-dzi_xlVeeAtok9f8lUED1b_6cSM&callback=onMapLoaded"></script>
-  <script src="index.js"></script>
-  <style>
-    #map {
-      height: 100%;
-    }
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-</body>
+  <head>
+    <script src="https://unpkg.com/@x/socket/dist/consumer.min.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDs4sI-dzi_xlVeeAtok9f8lUED1b_6cSM&callback=onMapLoaded"></script>
+    <script src="index.js"></script>
+    <style>
+      #map {
+        height: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+  </body>
 </html>

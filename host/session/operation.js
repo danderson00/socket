@@ -56,9 +56,11 @@ module.exports = (observable, context, options = {}) => {
           }, 'persistent')
         }        
     
-        const closeSubscription = context.connection.events
-          .where(({ topic }) => topic === 'close' || topic === 'error')
-          .subscribe(() => cleanup())
+        const closeSubscription = context.connection.events.subscribe(({ topic }) => {
+          if(topic === 'close' || topic === 'error') {
+            cleanup()
+          }
+        })
 
         cleanup = () => {
           log.info(`Session terminated`)

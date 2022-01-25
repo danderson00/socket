@@ -3,12 +3,14 @@ const sendWrapper = require('./sendWrapper')
 module.exports = (connection, sessionFactory) => (
   connection.messages.groupBy(
     'sessionId',
-    sessionObservable => sessionObservable
-      .where(x => x.session === 'establish' || x.session === 'reestablish')
-      .map(() => sessionFactory.create(
-        sessionObservable,
-        sendWrapper(connection.send, sessionObservable.key),
-        connection
-      ))
+    sessionObservable => sessionObservable.map(({ session }) => {
+      if(session === 'establish' || session === 'reestablish') {
+        sessionFactory.create(
+          sessionObservable,
+          sendWrapper(connection.send, sessionObservable.key),
+          connection
+        )
+      }
+    })
   )
 )

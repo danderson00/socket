@@ -14,26 +14,6 @@ over the function invocation, powerful "features" can be implemented.
 [`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including models built using 
 [`@x/expressions`](https://www.npmjs.com/package/@x/expressions).
 
-## Installation
-
-```shell
-yarn add @x/socket
-#or
-npm i @x/socket
-```
-
-No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The 
-[`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js 
-and browser usage.
-
-A browser package for the consumer is also available at `dist/consumer.min.js` and can be loaded to a webpage using:
-
-```html
-<script src="https://unpkg.com/@x/socket/dist/consumer.min.js"></script>
-```
-
-The library is exposed as `window.xsocket`. The bundle requires a modern browser with `async/await` support.
-
 ## A Simple Example
 
 The `@x/socket` package consists of host and consumer components. This example sets up two API functions - one that 
@@ -68,7 +48,8 @@ const consumer = require('@x/socket')
 
 consumer()
   .useFeature('reestablishSessions') // automatically reestablish observable sessions if disconnected
-  .connect().then(async api => {
+  .connect()
+  .then(async api => {
     console.log(await api.capitalize('hello, world')) // logs 'HELLO, WORLD'
     
     const timer = await api.timer()
@@ -77,6 +58,26 @@ consumer()
 ```
 
 A more detailed example is available [here](https://gitlab.com/danderson00/socket/-/tree/master/samples/share-location).
+
+## Installation
+
+```shell
+yarn add @x/socket
+#or
+npm i @x/socket
+```
+
+No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The
+[`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js
+and browser usage.
+
+A browser package for the consumer is also available at `dist/consumer.min.js` and can be loaded to a webpage using:
+
+```html
+<script src="https://unpkg.com/@x/socket/dist/consumer.min.js"></script>
+```
+
+The library is exposed as `window.xsocket`. The bundle requires a modern browser with `async/await` support.
 
 ## Host Configuration
 

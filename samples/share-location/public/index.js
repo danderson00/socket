@@ -1,43 +1,43 @@
-function onMapLoaded() {
-  // get an initial position and center a new map with it
-  navigator.geolocation.getCurrentPosition(
-    async ({ coords }) => {
-      const initialLocation = { lat: coords.latitude, lng: coords.longitude }
-      const map = new google.maps.Map(document.getElementById("map"), { center: initialLocation, zoom: 15 })
-      const markers = {}
+async function onMapLoaded() {
+  // concurrently connect and get an initial position to center the map
+  const [host, initialLocation] = await Promise.all([
+    window.xsocket({ url: `ws://${window.location.hostname}:8081/` })
+      .useFeature('reestablishSessions')
+      .useFeature('clientId')
+      .connect(),
+    getPosition()
+  ])
 
-      const host = await window.xsocket({ url: `ws://${window.location.hostname}:8081/` })
-        .useFeature('reestablishSessions')
-        .useFeature('clientId')
-        .connect()
+  // display the map and create a collection of markers
+  const map = new google.maps.Map(document.getElementById("map"), { center: initialLocation, zoom: 15 })
+  const markers = {}
 
-      const locationStream = await host.locationStream()
-      locationStream.subscribe(updateMarker)
-      updateLocation(initialLocation)
+  // subscribe to the stream of location updates and start updating with our initial location
+  const locationStream = await host.locationStream()
+  locationStream.subscribe(updateMarker)
+  updateLocation(initialLocation)
 
-      // a recursive function to continually update our position
-      function updateLocation(location) {
-        host.registerLocation(location)
-        navigator.geolocation.getCurrentPosition(
-          ({ coords: { latitude: lat, longitude: lng } }) => {
-            updateLocation({ lat, lng })
-          },
-          reportError
-        )
-      }
-
-      // update the marker for the specific clientId when updates are received
-      function updateMarker({ lat, lng, address, clientId }) {
-        const title = `Client ID: ${clientId}\nAddress: ${address}`
-        const marker = markers[clientId] = markers[clientId] || new google.maps.Marker({ title, map })
-        marker.setPosition({ lat, lng })
-      }
-    },
-    reportError
-  )
-
-  function reportError(error) {
-    console.error('An error occurred obtaining location: ', error)
+  // a recursive function to continually update our position
+  function updateLocation(location) {
+    host.registerLocation(location)
+    getPosition().then(updateLocation)
   }
+
+  // update the marker for the specific clientId
+  function updateMarker({ lat, lng, address, clientId }) {
+    const title = `Client ID: ${clientId}\nAddress: ${address}`
+    const marker = markers[clientId] = markers[clientId] || new google.maps.Marker({ title, map })
+    marker.setPosition({ lat, lng })
+  }
+}
+
+// "promisify" getCurrentPosition and map the result into the format we want
+function getPosition() {
+  return new Promise(
+    (resolve, reject) => navigator.geolocation.getCurrentPosition(
+      ({ coords }) => resolve({ lat: coords.latitude, lng: coords.longitude }),
+      reject
+    )
+  )
 }
 

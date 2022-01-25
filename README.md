@@ -191,7 +191,7 @@ Exceptions are bubbled up the execution stack and transparently flowed from host
 ```javascript
 const handleError = ({ next }) => {
   try {
-    next()
+    return next()
   } catch(error) {
     alert(`An error occurred: ${error.message}`)
   }

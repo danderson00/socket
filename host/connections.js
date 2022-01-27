@@ -8,7 +8,9 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const source = server
     ? expressions.fromEmitter(server, 'connection')
     : expressions.subject()
+
   const connectCallbacks = []
+  const disconnectCallbacks = []
 
   // just count connections for now - eventually maintain a list of active connections
   let connectionCount = 0
@@ -39,7 +41,10 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       connectCallbacks.forEach(callback => callback(connection))
 
       connectionLog.info('Connection established', { connectionCount: ++connectionCount })
-      socket.on('close', () => connectionLog.info('Connection closed', { connectionCount: --connectionCount }))
+      socket.on('close', () => {
+        disconnectCallbacks.forEach(callback => callback(connection))
+        connectionLog.info('Connection closed', { connectionCount: --connectionCount })
+      })
       return connection
     })
 
@@ -48,6 +53,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   }
 
   connections.registerConnectCallback = callback => connectCallbacks.push(callback)
+  connections.registerDisconnectCallback = callback => disconnectCallbacks.push(callback)
 
   return connections
 

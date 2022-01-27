@@ -54,6 +54,10 @@ module.exports = (userOptions = {}) => {
         connections.registerConnectCallback(constructed.onConnect)
       }
 
+      if(constructed.onDisconnect) {
+        connections.registerDisconnectCallback(constructed.onDisconnect)
+      }
+
       log.debug('Registering feature', { name: constructed.name })
       api.add(constructed.api)
       middleware.add(constructed.middleware)

@@ -137,6 +137,41 @@ Add a middleware layer to the execution stack.
 Add a feature to the execution stack. The `feature` parameter should either be the name of a built in feature or a
 feature factory function.
 
+## Cleaning Up
+
+Observables returned from API functions have an additional function property called `disconnect` that can be called 
+to signal the host to clean up internal subscriptions and call the `disconnect` function on the corresponding 
+observable. This also occurs if the socket is disconnected for any reason.
+
+To use the `timerObservable` above as an example, we can cancel the `setTimeout` call like follows:
+
+```javascript
+const createTimerObservable = () => observable((publish, o) => {
+  let count = 0
+  const handle = setInterval(() => publish(++count), 1000)
+  o.disconnect = () => clearTimeout(handle)
+})
+```
+
+You will notice that we changed `const` declaration from an observable instance to a factory function. Using a 
+single instance, the first call to `disconnect` would stop the timer for all consumers. Changing to a factory 
+function means that each subscriber gets its own instance of the `timerObservable`.
+
+### Isolating Consumer Disconnects With Proxies
+
+To share a single observable instance between multiple consumers without having disconnect calls affecting other 
+consumers, observables can be wrapped in `proxy` observables:
+
+```javascript
+const { proxy } = require('@x/observable')
+
+const api = {
+  timer: () => proxy(timerObservable)
+}
+```
+
+When `disconnect` is called on a proxy, the proxy simply unsubscribes from its parent observable.
+
 ## Middleware
 
 Middleware is added to the execution stack by using the `use` function. This function accepts either a single 

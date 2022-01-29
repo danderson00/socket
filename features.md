@@ -40,7 +40,8 @@ Name|Description
 name|The name of the feature
 api|Functions to add to the host API
 middleware|Middleware to add to the execution stack
-onConnect|A callback that executes when a new connection occurs
+onConnect|A callback that executes when a new connection occurs. Passed the connection object
+onDisconnect|A callback that executes when a connection is disconnected. Passed the connection object
 handshake|A callback to interact with the handshaking process. See below
 
 ## Consumer Features

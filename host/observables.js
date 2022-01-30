@@ -1,9 +1,12 @@
 module.exports = connection => {
   const attached = {}
 
-  connection.events.topic('close', 'error').subscribe(() =>
-    Object.values(attached).forEach(o => o.disconnect())
-  )
+  const closeSubscription = connection.events.subscribe(({ topic }) => {
+    if (topic === 'close' || topic === 'error') {
+      Object.values(attached).forEach(o => o.disconnect())
+      closeSubscription.unsubscribe()
+    }
+  })
 
   const observables = name => attached[name]
   observables.attach = (name, observable) => attached[name] = observable

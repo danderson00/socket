@@ -1,4 +1,4 @@
-const { errorObservable, subject } = require('@x/expressions/src/observable')
+const { subject } = require('@x/observable')
 const pipeline = require('../../common/pipeline')
 
 module.exports = (session, log) => pipeline(
@@ -24,13 +24,10 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
       } else if(data.type === 'observable') {
         observable = subject({ initialValue: data.value })
         observable.disconnect = terminate
+        observable.errorObservable = subject({ initialValue: data.error })
 
-        if(data.hasErrorObservable) {
-          observable.errorObservable = errorObservable(undefined, undefined, { initialValue: data.error })
-          if(data.error) {
-            // TODO: this is not the right place to log expression errors, it should be done higher up in the stack, i.e. @x/unify.react
-            log.error(`An error occurred in the ${session.data.operation} operation observable`, data.error.error, { frames: data.error.frames })
-          }
+        if(data.error) {
+          log.error(`An error occurred in the ${session.data.operation} operation observable`, data.error.error, { frames: data.error.frames })
         }
 
         resolve(observable)

@@ -34,7 +34,7 @@ module.exports = userOptions => {
         ? socketWrapper(options, reconnect, userConfiguration.disconnect, serializer, log)
         : socketModule(options, reconnect, userConfiguration.disconnect, serializer, log)
 
-      const sessions = sessionFactory(options, socket, middleware, log)
+      const sessions = sessionFactory(socket, middleware, log)
       const constructResult = await userConfiguration.construct({ socket, log, sessions, middleware })
       const connectResult = await connect(sessions, constructResult)
       await userConfiguration.initialise(connectResult)

@@ -1,7 +1,7 @@
 const sendWrapper = require('../sendWrapper')
-const { proxy } = require('@x/observable')
+const { filterObservable } = require('@x/observable')
 
-module.exports = (socket, middleware, options) => {
+module.exports = (socket, middleware) => {
   const nextId = (id => () => ++id)(0)
   let sessions = []
 
@@ -9,14 +9,14 @@ module.exports = (socket, middleware, options) => {
     get: () => sessions,
     create: (type, data, immediate) => {
       const id = nextId()
-      const sessionMessages = socket.messages.where(x => x.sessionId === id)
+      const sessionMessages = filterObservable(socket.messages, x => x.sessionId === id)
       const session = {
         id,
         type,
-        messages: proxy(sessionMessages), // a tiny little leak here - the where component stays subscribed after the proxy is disconnected
+        messages: sessionMessages,
         disconnect: () => {
           sessions = sessions.filter(x => x.id !== id)
-          session.messages.disconnect()
+          sessionMessages.disconnect()
         },
         terminate: () => {
           session.send.terminate()

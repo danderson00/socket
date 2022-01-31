@@ -31,8 +31,8 @@ module.exports = userOptions => {
 
     connect: async () => {
       const socket = options.socket
-        ? socketWrapper(options, reconnect, userConfiguration.disconnect, serializer, log)
-        : socketModule(options, reconnect, userConfiguration.disconnect, serializer, log)
+        ? socketWrapper(options, onConnect, userConfiguration.disconnect, serializer, log)
+        : socketModule(options, onConnect, userConfiguration.disconnect, serializer, log)
 
       const sessions = sessionFactory(socket, middleware, log)
       const constructResult = await userConfiguration.construct({ socket, log, sessions, middleware })
@@ -40,11 +40,10 @@ module.exports = userOptions => {
       await userConfiguration.initialise(connectResult)
       return connectResult.api
 
-      // TODO: this is called twice on first connect due to it being called above and from the on('open') from reliableSocket
-      //       this was introduced to enable the two stage construct / initialise for features but was not properly tested
-      //       the main consequence is that the handshake occurs twice on first connect
-      function reconnect() {
-        connect(sessions, constructResult).then(userConfiguration.reconnect)
+      function onConnect({ reconnect }) {
+        if(reconnect) {
+          connect(sessions, constructResult).then(userConfiguration.reconnect)
+        }
       }
     }
   }

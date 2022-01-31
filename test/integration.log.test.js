@@ -43,10 +43,10 @@ const setup = (feature, options, target) => async () => {
 test("connection count is logged", setup(async ({ connect, log }) => {
   const { socket: socket1 } = await connect()
   const previousLog = behind => log.mock.calls[log.mock.calls.length - behind - 1][0]
-  expect(Object.keys(previousLog(2))).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
-  expect(previousLog(2).connectionCount).toBe(1)
+  expect(Object.keys(previousLog(1))).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
+  expect(previousLog(1).connectionCount).toBe(1)
   const { socket: socket2 } = await connect()
-  expect(previousLog(2).connectionCount).toBe(2)
+  expect(previousLog(1).connectionCount).toBe(2)
   socket1.close()
   await delay(10)
   expect(Object.keys(previousLog(0))).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'level', 'message', 'connectionCount'])
@@ -56,17 +56,16 @@ test("connection count is logged", setup(async ({ connect, log }) => {
   expect(previousLog(0).connectionCount).toBe(0)
 }))
 
-test("static calls log session establish and terminate", setup(async ({ connect, log }) => {
+test("static calls log session establish and terminate", setup(async ({ connect, lastLog }) => {
   const { api } = await connect()
   const promise = api.hello()
   await delay()
-  const previousLog = behind => log.mock.calls[log.mock.calls.length - behind - 1][0]
-  const establish = previousLog(0)
+  const establish = lastLog()
   expect(Object.keys(establish)).toEqual(['timestamp', 'userAgent', 'origin', 'source', 'connectionId', 'sessionId', 'operation', 'level', 'message', 'reestablish'])
   expect(establish).toMatchObject({ operation: 'hello', message: 'Session established' })
 
   await promise
-  const terminate = previousLog(0)
+  const terminate = lastLog()
   expect(terminate).toMatchObject({ operation: 'hello', message: 'Session terminated', sessionId: establish.sessionId, connectionId: establish.connectionId })
 }))
 

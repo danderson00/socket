@@ -21,7 +21,7 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
   const reliableSend = reliableSendModule(options, messages, log)
   const commandFactory = commandModule(serializer, log)
 
-  const connectNewSocket = () => {
+  const connectNewSocket = initial => {
     log.debug(`Connecting to ${options.url || 'host'}`)
 
     const socket = socketFactory()
@@ -35,7 +35,7 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
 
     addListener('open', async () => {
       activeSocket = socket
-      await onConnect()
+      await onConnect({ reconnect: !initial })
       reliableSend.flush(activeSocket)
     })
 
@@ -61,7 +61,7 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
   }
   api.send.immediate = message => activeSocket.send(serialize(message))
 
-  connectNewSocket()
+  connectNewSocket(true)
 
   return api
 }

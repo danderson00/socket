@@ -106,7 +106,7 @@ The consumer factory function accepts a single parameter, an object containing o
 
 Name|Description
 ---|---
-url|The URL of the host to connect to. Defaults to the current window host and port or `ws://localhost:3001` if the current window host is `localhost`
+url|The URL of the host to connect to. Defaults to the current window host and path or `ws://localhost:3001` if the current window host is `localhost`
 socket|An active socket, such as a child process or WebWorker object
 socketFactory|Provide an alternative socket factory for when `window.WebSocket` is not available, such as from a Node.js process
 reconnectDelay|Milliseconds to wait before attempting to reconnect

@@ -149,7 +149,9 @@ To use the `timerObservable` above as an example, we can cancel the `setTimeout`
 const createTimerObservable = () => observable((publish, o) => {
   let count = 0
   const handle = setInterval(() => publish(++count), 1000)
-  o.disconnect = () => clearTimeout(handle)
+  
+  // functions returned from the observable function are called by the `disconnect` function
+  return () => clearTimeout(handle)
 })
 ```
 

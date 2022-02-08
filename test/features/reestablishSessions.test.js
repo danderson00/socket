@@ -1,7 +1,7 @@
 const hostModule = require('../../host')
 const consumerModule = require('../../consumer')
 const WebSocket = require('ws')
-const { subject } = require('@x/expressions/src/observable')
+const { subject } = require('@x/observable')
 
 let server, socket, source
 

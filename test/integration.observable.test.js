@@ -1,7 +1,7 @@
 const host = require('../host')
 const consumer = require('../consumer')
 const WebSocket = require('ws')
-const { subject } = require('@x/expressions')
+const { serializable: { subject } } = require('@x/expressions')
 
 let server
 

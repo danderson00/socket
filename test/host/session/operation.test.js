@@ -1,7 +1,7 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
 const logger = require('../../../common/logger')
-const { subject } = require('@x/expressions')
+const { serializable: { subject } } = require('@x/expressions')
 
 let sentFromHost, source
 

@@ -11,8 +11,8 @@ provided to allow functions to be enhanced with concerns such as authentication 
 over the function invocation, powerful "features" can be implemented.
 
 `@x/socket` is designed to work with 
-[`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including models built using 
-[`@x/expressions`](https://www.npmjs.com/package/@x/expressions).
+[`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including expressions and models built 
+using [`@x/expressions`](https://www.npmjs.com/package/@x/expressions).
 
 ## A Simple Example
 
@@ -77,7 +77,7 @@ A browser package for the consumer is also available at `dist/consumer.min.js` a
 <script src="https://unpkg.com/@x/socket/dist/consumer.min.js"></script>
 ```
 
-The library is exposed as `window.xsocket`. The bundle requires a modern browser with `async/await` support.
+The library is exposed as `window.xsocket`.
 
 ## Host Configuration
 
@@ -137,6 +137,28 @@ Add a middleware layer to the execution stack.
 Add a feature to the execution stack. The `feature` parameter should either be the name of a built in feature or a
 feature factory function.
 
+### Using Expressions
+
+Standard observables such as those returned to the consumer from API functions can be extended to enable 
+expressions to be built from them:
+
+```javascript
+import expressions from '@x/expressions'
+
+...
+
+// using the timer API from above that emits a simple count
+const o = await api.timer()
+expressions(o)
+  .assign({
+    hostCount: o => o,            // assign the value emitted by the host
+    consumerCount: o => o.count() // count the messages on the consumer 
+  })
+  .subscribe(({ hostCount, consumerCount }) => {
+    console.log(`Pulsed on host ${hostCount} times, on consumer ${consumerCount} times`)
+  })
+```
+
 ## Cleaning Up
 
 Observables returned from API functions have an additional function property called `disconnect` that can be called 
@@ -146,7 +168,7 @@ observable. This also occurs if the socket is disconnected for any reason.
 To use the `timerObservable` above as an example, we can cancel the `setTimeout` call like follows:
 
 ```javascript
-const createTimerObservable = () => observable((publish, o) => {
+const timerObservable = observable((publish, o) => {
   let count = 0
   const handle = setInterval(() => publish(++count), 1000)
   
@@ -154,10 +176,6 @@ const createTimerObservable = () => observable((publish, o) => {
   return () => clearTimeout(handle)
 })
 ```
-
-You will notice that we changed `const` declaration from an observable instance to a factory function. Using a 
-single instance, the first call to `disconnect` would stop the timer for all consumers. Changing to a factory 
-function means that each subscriber gets its own instance of the `timerObservable`.
 
 ### Isolating Consumer Disconnects With Proxies
 

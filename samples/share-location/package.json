@@ -9,7 +9,7 @@
     "start": "concurrently \"node src\" \"http-server public -o\""
   },
   "dependencies": {
-    "@x/socket": "0.6.10",
+    "@x/socket": "0.6.11",
     "concurrently": "^7.0.0",
     "ws": "^6.1.3"
   },

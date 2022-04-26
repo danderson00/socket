@@ -8,10 +8,11 @@ module.exports = ({ cipherKey: password } = {}) => {
 
   const { encrypt, decrypt, getKeyFromPassword } = cipher()
   const cipherKey = getKeyFromPassword(password)
-  const decryptClientId = encrypted => {
+  const decryptClientId = (encrypted, log) => {
     try {
       return decrypt(Buffer.from(encrypted, 'base64'), cipherKey).toString('utf8')
     } catch {
+      log.warn('Invalid clientId data provided')
       return uuid()
     }
   }
@@ -19,7 +20,7 @@ module.exports = ({ cipherKey: password } = {}) => {
   return () => ({
     name: 'clientId',
     handshake: ({ data }, context) => {
-      const clientId = data.clientId ? decryptClientId(data.clientId) : uuid()
+      const clientId = data.clientId ? decryptClientId(data.clientId, context.connection.log) : uuid()
       context.connection.clientId = clientId
       context.connection.log.setScope({ clientId })
       return encrypt(clientId, cipherKey).toString('base64')

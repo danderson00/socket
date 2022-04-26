@@ -50,7 +50,7 @@ handshake|A callback to interact with the handshaking process. See below
 function consumerFeature({ log, socket, sessions, middleware }) {
   return {
     name: 'featureName',
-    handshakeData: { property: 'value' },
+    handshakeData: () => ({ property: 'value' }),
     initialise: ({ api, handshakeData: { featureName } }) => {
       return {
         middleware: {
@@ -79,7 +79,7 @@ It should return an object with the following properties:
 Name|Description
 ---|---
 name|The name of the feature
-handshakeData|Data to include in the host handshake process
+handshakeData|Data to include in the host handshake process. Can be a raw value or function that is called on each connect attempt
 initialise|A callback that is executed once the handshake process is complete
 
 The `initialise` function is passed an object with the following properties:

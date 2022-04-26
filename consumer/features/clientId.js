@@ -1,13 +1,10 @@
 const STORAGE_KEY = '__socket__clientId'
 
-module.exports = () => () => {
-  const clientId = window.localStorage.getItem(STORAGE_KEY)
-  return {
-    name: 'clientId',
-    handshakeData: clientId,
-    initialise: ({ handshakeData }) => {
-      window.localStorage.setItem(STORAGE_KEY, handshakeData.clientId)
-      return {}
-    }
+module.exports = () => () => ({
+  name: 'clientId',
+  handshakeData: () => window.localStorage.getItem(STORAGE_KEY),
+  initialise: ({ handshakeData }) => {
+    window.localStorage.setItem(STORAGE_KEY, handshakeData.clientId)
+    return {}
   }
-}
+})

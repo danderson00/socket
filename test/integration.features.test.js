@@ -46,6 +46,23 @@ test("feature with handshake data", async () => {
   )
 })
 
+test("feature with consumer handshake data as function", async () => {
+  await setup(
+    () => ({ name: 'test', handshake: ({ data }) => {
+        expect(data.test).toBe('testFromConsumer')
+        return 'testFromHost'
+      } }),
+    () => ({
+      name: 'test',
+      handshakeData: () => 'testFromConsumer',
+      initialise: ({ handshakeData }) => {
+        expect(handshakeData.test).toBe('testFromHost')
+        return {}
+      }
+    })
+  )
+})
+
 test("onConnect and onDisconnect callbacks", async () => {
   const onConnect = jest.fn()
   const onDisconnect = jest.fn()

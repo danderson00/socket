@@ -44,7 +44,7 @@ module.exports = (userOptions = {}) => {
         feature = builtInFeature(feature, featureOptions)
       }
 
-      const constructed = feature({ log, executor, connections, hostOptions: options, server, httpServer })
+      const constructed = feature({ log, executor, connections, hostOptions: options, server, httpServer, api, middleware })
 
       if(!constructed.name) {
         throw new Error('Feature must have name')

@@ -15,7 +15,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   // just count connections for now - eventually maintain a list of active connections
   let connectionCount = 0
 
-  // this is rather nasty and needs to be refactored... the order properties are attached is significant
+  // this needs refactoring... the order properties are attached is significant
   const connections = source
     .map(({ args: [socket, request] }) => {
       const connectionId = uuid()
@@ -49,11 +49,13 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
     })
 
   if(socket) {
-    source.publish(socket)
+    source.publish({ args: [socket] })
   }
 
   connections.registerConnectCallback = callback => connectCallbacks.push(callback)
   connections.registerDisconnectCallback = callback => disconnectCallbacks.push(callback)
+
+  connections.add = socket => source.publish({ args: [socket] })
 
   return connections
 

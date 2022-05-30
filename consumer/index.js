@@ -2,7 +2,7 @@ const connect = require('./connect')
 const sessionFactory = require('./session')
 const middlewareModule = require('../common/middleware')
 const userConfigurationModule = require('./userConfiguration')
-const socketModule = require('./reliableSocket')
+const reliableSocket = require('./reliableSocket')
 const socketWrapper = require('./socketWrapper')
 const serializerModule = require('../common/serializer')
 const loggerModule = require('../common/logger')
@@ -32,7 +32,7 @@ module.exports = userOptions => {
     connect: async () => {
       const socket = options.socket
         ? socketWrapper(options, onConnect, userConfiguration.disconnect, serializer, log)
-        : socketModule(options, onConnect, userConfiguration.disconnect, serializer, log)
+        : reliableSocket(options, onConnect, userConfiguration.disconnect, serializer, log)
 
       const sessions = sessionFactory(socket, middleware, log)
       const constructResult = await userConfiguration.construct({ socket, log, sessions, middleware })

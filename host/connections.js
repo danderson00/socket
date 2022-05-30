@@ -5,9 +5,10 @@ const uuid = require('uuid').v4
 
 module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const { serialize, deserialize } = serializer
+  const sideSource = expressions.subject()
   const source = server
-    ? expressions.fromEmitter(server, 'connection')
-    : expressions.subject()
+    ? expressions.merge(expressions.fromEmitter(server, 'connection'), sideSource)
+    : sideSource
 
   const connectCallbacks = []
   const disconnectCallbacks = []
@@ -25,14 +26,16 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
         log: connectionLog,
         socket,
         request,
-        messages: expressions.fromEmitter(socket, 'message').map(({ data: message }) => {
-          // websocket package returns payload in `data` property, child process does not - could be flaky!
-          const deserialized = deserialize(message.data || message)
-          if (deserialized.commandId) {
-            safeSend(socket, { commandId: deserialized.commandId, status: 'ack' })
-          }
-          return deserialized
-        }),
+        messages: expressions.fromEmitter(socket, 'message')
+          .map(({ data: message }) => deserialize(message.data || message))
+          .filter(payload => {
+            return payload.src === 1
+          })
+          .tap(payload => {
+            if(payload.commandId) {
+              safeSend(socket, { commandId: payload.commandId, status: 'ack' })
+            }
+          }),
         events: expressions.fromEmitter(socket, 'error', 'close'),
         send: message => safeSend(socket, message)
       }
@@ -55,14 +58,14 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   connections.registerConnectCallback = callback => connectCallbacks.push(callback)
   connections.registerDisconnectCallback = callback => disconnectCallbacks.push(callback)
 
-  connections.add = socket => source.publish({ args: [socket] })
+  connections.add = socket => sideSource.publish({ args: [socket] })
 
   return connections
 
   function safeSend(socket, message) {
     try {
       log.debug('Sending message', message)
-      return socket.send(serialize(message))
+      return socket.send(serialize({ ...message, src: 2 }))
     } catch(error) {
       log.error(error, `Error sending message to socket`)
     }

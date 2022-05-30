@@ -1,4 +1,4 @@
-const { fromEmitter, swappable, mapObservable } = require('@x/observable')
+const { fromEmitter, swappable, filterObservable, mapObservable } = require('@x/observable')
 
 module.exports = (options, onConnect, onDisconnect, serializer, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
@@ -11,11 +11,13 @@ module.exports = (options, onConnect, onDisconnect, serializer, log) => {
 
   const addListener = (socket.on || socket.addEventListener).bind(socket)
 
-  // websocket package returns payload in `data` property, child process does not - could be flaky!
-  messages.swap(mapObservable(
-    fromEmitter(socket, 'message'),
-    ({ data }) => deserialize(data.data || data))
-  )
+  messages.swap(filterObservable(
+    mapObservable(
+      fromEmitter(socket, 'message'),
+      ({ data }) => deserialize(data.data || data)
+    ),
+    payload => payload.src === 2
+  ))
   events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
   addListener('close', e => {
@@ -24,9 +26,9 @@ module.exports = (options, onConnect, onDisconnect, serializer, log) => {
   })
   addListener('error', error => log.debug(error, 'Socket error'))
 
-  onConnect()
+  onConnect({ reconnect: false })
 
-  const send = message => socket.send(serialize(message))
+  const send = message => socket.send(serialize({ ...message, src: 1 }))
 
   const api = {
     messages,

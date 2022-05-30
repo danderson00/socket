@@ -1,7 +1,7 @@
 const defaultSocketFactory = require('./defaultSocketFactory')
 const commandModule = require('./command')
 const reliableSendModule = require('./reliableSend')
-const { fromEmitter, swappable, mapObservable } = require('@x/observable')
+const { fromEmitter, swappable, mapObservable, filterObservable } = require('@x/observable')
 
 const defaultOptions = { 
   reconnectDelay: 500
@@ -27,10 +27,13 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
     const socket = await socketFactory()
     const addListener = (socket.on || socket.addEventListener).bind(socket)
 
-    messages.swap(mapObservable(
-      fromEmitter(socket, 'message'),
-      ({ data }) => deserialize(data.data || data))
-    )
+    messages.swap(filterObservable(
+      mapObservable(
+        fromEmitter(socket, 'message'),
+        ({ data }) => deserialize(data.data || data)
+      ),
+      payload => payload.src === 2
+    ))
     events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
     addListener('open', async () => {
@@ -57,9 +60,9 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
   const api = {
     messages,
     events,
-    send: message => reliableSend.send(commandFactory(message), activeSocket)
+    send: message => reliableSend.send(commandFactory({ ...message, src: 1 }), activeSocket)
   }
-  api.send.immediate = message => activeSocket.send(serialize(message))
+  api.send.immediate = message => activeSocket.send(serialize({ ...message, src: 1 }))
 
   connectNewSocket(true).catch(error => log.debug(error, 'Socket error'))
 

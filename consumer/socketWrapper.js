@@ -1,4 +1,5 @@
 const { fromEmitter, swappable, filterObservable, mapObservable } = require('@x/observable')
+const { sources } = require('../common/constants')
 
 module.exports = (options, onConnect, onDisconnect, serializer, log) => {
   log = log.child({ source: 'socket.consumer.socketWrapper'})
@@ -16,7 +17,7 @@ module.exports = (options, onConnect, onDisconnect, serializer, log) => {
       fromEmitter(socket, 'message'),
       ({ data }) => deserialize(data.data || data)
     ),
-    payload => payload.src === 2
+    payload => payload.src === sources.HOST
   ))
   events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
@@ -28,7 +29,10 @@ module.exports = (options, onConnect, onDisconnect, serializer, log) => {
 
   onConnect({ reconnect: false })
 
-  const send = message => socket.send(serialize({ ...message, src: 1 }))
+  const send = message => (
+    socket.readyState === 1 &&
+    socket.send(serialize({ ...message, src: sources.CONSUMER }))
+  )
 
   const api = {
     messages,

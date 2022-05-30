@@ -33,7 +33,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms))
 
 test("socket immediately connects", async () => {
   const server = createServer()
-  const socket = reliableSocket({ socketFactory }, () => {}, () => {}, serializer, log)
+  reliableSocket({ socketFactory }, () => {}, () => {}, serializer, log)
   await delay(50)
   expect(server.connections.length).toBe(1)
 })
@@ -48,9 +48,9 @@ test("socket continues sending with new socket after disconnect", async () => {
   await delay(50)
   expect(server.connections.length).toBe(1)
   expect(server.connections[0].messages.calls.length).toBe(2)
-  expect(deserialize(server.connections[0].messages.calls[0][0])).toEqual({ value: 1, commandId: 1 })
-  expect(deserialize(server.connections[0].messages.calls[1][0])).toEqual({ value: 2, commandId: 2 })
-  server.connections[0].send(JSON.stringify({ commandId: 1, status: 'ack' }))
+  expect(deserialize(server.connections[0].messages.calls[0][0])).toEqual({ value: 1, src: 2, commandId: 1 })
+  expect(deserialize(server.connections[0].messages.calls[1][0])).toEqual({ value: 2, src: 2, commandId: 2 })
+  server.connections[0].send(JSON.stringify({ commandId: 1, src: 1, status: 'ack' }))
   lastWebSocket.close()
   await promise1
   await delay(50)
@@ -58,14 +58,14 @@ test("socket continues sending with new socket after disconnect", async () => {
   const promise3 = socket.send({ value: 3 })
   await delay(50)
   expect(server.connections[1].messages.calls.length).toBe(1)
-  server.connections[1].send(JSON.stringify({ commandId: 2, status: 'ack' }))
+  server.connections[1].send(JSON.stringify({ commandId: 2, src: 1, status: 'ack' }))
   await promise2
   await delay(50)
   expect(messages.mock.calls).toEqual([
-    [{ commandId: 1, status: 'ack'}],
-    [{ commandId: 2, status: 'ack'}]
+    [{ commandId: 1, src: 1, status: 'ack'}],
+    [{ commandId: 2, src: 1, status: 'ack'}]
   ])
-  server.connections[1].send(JSON.stringify({ commandId: 3, status: 'ack' }))
+  server.connections[1].send(JSON.stringify({ commandId: 3, src: 1, status: 'ack' }))
   await promise3
 })
 
@@ -79,7 +79,7 @@ test("socket continues retrying to connect if server unavailable", async () => {
   const promise1 = socket.send({ value: 1 })
   const promise2 = socket.send({ value: 2 })
   await delay(50)
-  server.connections[0].send(JSON.stringify({ commandId: 1, status: 'ack' }))
+  server.connections[0].send(JSON.stringify({ commandId: 1, src: 1, status: 'ack' }))
   server.close()
   // wait for enough time for 3 reconnect attempts to occur (reconnectDelay: 50)
   await delay(150)
@@ -87,7 +87,7 @@ test("socket continues retrying to connect if server unavailable", async () => {
   await promise1
   server = createServer()
   await delay(100)
-  server.connections[1].send(JSON.stringify({ commandId: 2, status: 'ack' }))
+  server.connections[1].send(JSON.stringify({ commandId: 2, src: 1, status: 'ack' }))
   await promise2
 })
 
@@ -95,7 +95,7 @@ test("socket calls onConnect function and awaits promise on each connect", async
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234'))
   const onConnect = jest.fn(() => delay(10))
-  const socket = reliableSocket({ socketFactory, reconnectDelay: 0 }, onConnect, () => {}, serializer, log)
+  reliableSocket({ socketFactory, reconnectDelay: 0 }, onConnect, () => {}, serializer, log)
   await delay(50)
   expect(socketFactory.mock.calls.length).toBe(1)
   expect(onConnect.mock.calls.length).toBe(1)
@@ -105,7 +105,7 @@ test("socket calls onConnect function and awaits promise on each connect", async
   expect(socketFactory.mock.calls.length).toBe(2)
   expect(onConnect.mock.calls.length).toBe(2)
   server.close()
-  server = createServer()
+  createServer()
   await delay(50)
   expect(socketFactory.mock.calls.length).toBe(3)
   expect(onConnect.mock.calls.length).toBe(3)
@@ -115,7 +115,7 @@ test("socket calls onDisconnect function and awaits promise before reconnecting"
   let server = createServer()
   const socketFactory = jest.fn(() => new WebSocket('ws://localhost:1234'))
   const onDisconnect = jest.fn(() => delay(10))
-  const socket = reliableSocket({ socketFactory, reconnectDelay: 0 }, () => {}, onDisconnect, serializer, log)
+  reliableSocket({ socketFactory, reconnectDelay: 0 }, () => {}, onDisconnect, serializer, log)
   await delay(50)
   expect(socketFactory.mock.calls.length).toBe(1)
   expect(onDisconnect.mock.calls.length).toBe(0)
@@ -128,7 +128,7 @@ test("socket calls onDisconnect function and awaits promise before reconnecting"
   expect(socketFactory.mock.calls.length).toBe(2)
   expect(onDisconnect.mock.calls.length).toBe(1)
   server.close()
-  server = createServer()
+  createServer()
   await delay(50)
   expect(socketFactory.mock.calls.length).toBe(3)
   expect(onDisconnect.mock.calls.length).toBe(2)

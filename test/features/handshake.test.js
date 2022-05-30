@@ -29,12 +29,13 @@ test("handshake returns feature data", async () => {
     session: 'establish',
     type: 'handshake',
     data: { version: '0.0.1' },
-    commandId: 1
+    commandId: 1,
+    src: 2
   }))
   await delay(10)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ commandId: 1, status: 'ack' })],
+    [JSON.stringify({ commandId: 1, status: 'ack', src: 1 })],
     [JSON.stringify({
       status: 'ok',
       data: {
@@ -42,7 +43,8 @@ test("handshake returns feature data", async () => {
         test: { p1: 1 }
       },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })

@@ -30,17 +30,19 @@ test("static API call returns ack and result", async () => {
     session: 'establish',
     type: 'operation',
     data: { operation: 'api' },
-    commandId: 1
+    commandId: 1,
+    src: 2
   }))
   await delay(10)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ commandId: 1, status: 'ack' })],
+    [JSON.stringify({ commandId: 1, status: 'ack', src: 1 })],
     [JSON.stringify({
       status: 'ok',
       data: { type: 'static', value: 'world' },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -52,7 +54,8 @@ test("async static API call returns ack and result", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(20)
 
@@ -61,7 +64,8 @@ test("async static API call returns ack and result", async () => {
       status: 'ok',
       data: { type: 'static', value: 'world' },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -72,7 +76,8 @@ test("nonexistent API function returns ack and error", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(50)
 
@@ -81,7 +86,8 @@ test("nonexistent API function returns ack and error", async () => {
       status: 'error',
       data: { message: "No operation 'api' on host API" },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -93,7 +99,8 @@ test("observable API call returns ack, result and updates", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(10)
 
@@ -102,7 +109,8 @@ test("observable API call returns ack, result and updates", async () => {
     status: 'ok',
     data: { type: 'observable', value: 'world', hasErrorObservable: true },
     session: 'persistent',
-    sessionId: 1
+    sessionId: 1,
+    src: 1
   })])
 
   source.publish('world2')
@@ -112,7 +120,8 @@ test("observable API call returns ack, result and updates", async () => {
   expect(sentFromHost.mock.calls[1]).toEqual([JSON.stringify({
     status: 'update',
     data: { value: 'world2' },
-    sessionId: 1
+    sessionId: 1,
+    src: 1
   })])
 })
 
@@ -123,16 +132,18 @@ test("session reestablish returns ack and update", async () => {
     session: 'reestablish',
     type: 'operation',
     data: { operation: 'api' },
-    commandId: 1
+    commandId: 1,
+    src: 2
   }))
   await delay(10)
 
   expect(sentFromHost.mock.calls).toEqual([
-    [JSON.stringify({ commandId: 1, status: 'ack' })],
+    [JSON.stringify({ commandId: 1, status: 'ack', src: 1 })],
     [JSON.stringify({
       status: 'update',
       data: { value: 'world' },
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -145,11 +156,13 @@ test("sending session terminate unsubscribes from observables", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   client.send(JSON.stringify({
     sessionId: 1,
-    session: 'terminate'
+    session: 'terminate',
+    src: 2
   }))
   source.publish('world2')
   await(delay(10))
@@ -163,7 +176,8 @@ test("parameters are passed to API functions", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api', parameters: [{ a: 'wor', b: 1 }, undefined, 'd'] } 
+    data: { operation: 'api', parameters: [{ a: 'wor', b: 1 }, undefined, 'd'] },
+    src: 2
   }))
   await delay(10)
 
@@ -172,7 +186,8 @@ test("parameters are passed to API functions", async () => {
       status: 'ok',
       data: { type: 'static', value: 'wor1d' },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -183,7 +198,8 @@ test("errors thrown from API functions are returned", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(20)
 
@@ -192,7 +208,8 @@ test("errors thrown from API functions are returned", async () => {
       status: 'error',
       data: { message: "test" },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -203,7 +220,8 @@ test("rejected promises from API functions are returned", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(10)
 
@@ -212,7 +230,8 @@ test("rejected promises from API functions are returned", async () => {
       status: 'error',
       data: { message: "test" },
       session: 'terminate',
-      sessionId: 1
+      sessionId: 1,
+      src: 1
     })]
   ])
 })
@@ -228,7 +247,8 @@ test("sessions are available on result connections observable", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(20)
   expect(connections().length).toBe(1)
@@ -241,11 +261,13 @@ test("sessions are removed from sessions collection when terminated", async () =
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' } 
+    data: { operation: 'api' },
+    src: 2
   }))
   client.send(JSON.stringify({
     sessionId: 1,
-    session: 'terminate'
+    session: 'terminate',
+    src: 2
   }))
   await delay(20)
   expect(connections().length).toBe(1)
@@ -259,7 +281,8 @@ test("sessions are throttled if option set", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' }
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(10)
   expect(sentFromHost.mock.calls.length).toBe(1)
@@ -293,7 +316,8 @@ test("throttling is off by default", async () => {
     sessionId: 1,
     session: 'establish',
     type: 'operation',
-    data: { operation: 'api' }
+    data: { operation: 'api' },
+    src: 2
   }))
   await delay(10)
 

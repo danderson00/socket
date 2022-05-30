@@ -2,6 +2,7 @@ const sessions = require('./sessions')
 const observables = require('./observables')
 const expressions = require('@x/expressions')
 const uuid = require('uuid').v4
+const { sources } = require('../common/constants')
 
 module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   const { serialize, deserialize } = serializer
@@ -28,9 +29,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
         request,
         messages: expressions.fromEmitter(socket, 'message')
           .map(({ data: message }) => deserialize(message.data || message))
-          .filter(payload => {
-            return payload.src === 1
-          })
+          .filter(payload => payload.src === sources.CONSUMER)
           .tap(payload => {
             if(payload.commandId) {
               safeSend(socket, { commandId: payload.commandId, status: 'ack' })
@@ -52,7 +51,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
     })
 
   if(socket) {
-    source.publish({ args: [socket] })
+    sideSource.publish({ args: [socket] })
   }
 
   connections.registerConnectCallback = callback => connectCallbacks.push(callback)
@@ -65,7 +64,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
   function safeSend(socket, message) {
     try {
       log.debug('Sending message', message)
-      return socket.send(serialize({ ...message, src: 2 }))
+      return socket.send(serialize({ ...message, src: sources.HOST }))
     } catch(error) {
       log.error(error, `Error sending message to socket`)
     }

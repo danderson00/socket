@@ -105,3 +105,29 @@ test("connection observables are disconnected when socket closes", async () => {
   await new Promise(r => setTimeout(r, 10))
   expect(disconnect.mock.calls.length).toBe(1)
 })
+
+test("multiple middleware", async () => {
+  const api = await setup(
+    { echo: text => `${text}.` },
+    [
+      { echo: ({ next }, text) => next(text + 'h') },
+      ({ next }, text) => next(text + 'h')
+    ],
+    [
+      { echo: ({ next }, text) => next(text + 'c') },
+      ({ next }, text) => next(text + 'c')
+    ]
+  )
+  const result = await api.echo('test')
+  expect(result).toBe('testcchh.')
+})
+
+test("context exposes operation", async () => {
+  const api = await setup(
+    { echo: text => `${text}.` },
+    { echo: ({ next, operation }, text) => next(text + operation) },
+    { echo: ({ next, data: { operation } }, text) => next(text + operation) }
+  )
+  const result = await api.echo('test')
+  expect(result).toBe('testechoecho.')
+})

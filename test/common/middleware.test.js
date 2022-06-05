@@ -26,3 +26,11 @@ test("global middleware is added in order", () => {
   expect(middleware.get('o1')).toEqual([{ name: 'o1', handler }, { name: null, handler }])
   expect(middleware.get('o2')).toEqual([{ name: null, handler }, { name: 'o2', handler }])
 })
+
+test("multiple middleware can be passed as an array", () => {
+  const middleware = middlewareModule(log)
+  const handler = () => {}
+  middleware.add([{ o1: handler }, handler, { o2: handler }])
+  expect(middleware.get('o1')).toEqual([{ name: 'o1', handler }, { name: null, handler }])
+  expect(middleware.get('o2')).toEqual([{ name: null, handler }, { name: 'o2', handler }])
+})

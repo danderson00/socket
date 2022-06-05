@@ -28,7 +28,7 @@ module.exports = (observable, context, options = {}) => {
 
   log.info(`Session ${reestablish ? 're' : ''}established`, { reestablish })
 
-  const promise = hostApi.execute(operation, patchParameters(parameters), context)
+  const promise = hostApi.execute(operation, patchParameters(parameters), { ...context, operation })
     .then(value => {
       if(isObservable(value)) {
         const resultSubscription = value.subscribe(

@@ -16,7 +16,7 @@ module.exports = (userOptions, messages, log) => {
         if(!currentAttempt) {
           clearTimeout(currentTimeout)
 
-          if(!socket) {
+          if(!socket || socket.readyState !== 1) {
             // if we have no socket, we probably haven't connected yet
             // wait until retry is explicitly called with a new socket
             return

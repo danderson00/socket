@@ -37,11 +37,17 @@ module.exports = (userOptions, onConnect, onDisconnect, serializer, log) => {
     ))
     events.swap(fromEmitter(socket, 'open', 'close', 'error'))
 
-    addListener('open', async () => {
+    const setActiveSocket = async () => {
       activeSocket = socket
       await onConnect({ reconnect: !initial })
       reliableSend.flush(activeSocket)
-    })
+    }
+
+    if(socket.readyState === 1) {
+      await setActiveSocket()
+    } else {
+      addListener('open', setActiveSocket)
+    }
 
     addListener('close', async e => {
       log.debug(e, 'Socket closed')

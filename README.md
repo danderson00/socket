@@ -271,7 +271,22 @@ events|An observable that emits other events emitted by the connection, such as 
 
 ### Built-In Features
 
-The following built-in features are available.
+The following built-in features are available. They should be loaded by using the `useFeature` function:
+
+```javascript
+hostOrConsumer.useFeature(name, options)
+```
+
+#### `apiKey`
+
+Prevents interaction with the API unless a valid API key is provided.
+
+Requires both host and consumer features to be enabled.
+
+##### Options
+
+The options argument should be a static value containing the value to check, or a function. The host function should 
+return a truthy value to allow access. The consumer function should return the value to check. 
 
 #### `clientId`
 

@@ -6,14 +6,14 @@ const { subject } = require('@x/expressions')
 
 let sentFromHost, source
 
-const setup = callback => {
+const setup = (callback, handshakeData) => {
   const hostApi = apiModule()
   hostApi.add({ api: () => {} })
   sentFromHost = jest.fn()
   source = subject({ initialValue: {
     session: 'establish',
     type: 'handshake',
-    data: { version: '0.0.1' }
+    data: { version: '0.0.1', ...handshakeData }
   } })
   source.disconnect = jest.fn()
   const log = loggerModule({ level: 0 })
@@ -61,4 +61,16 @@ test("handshake callback is passed data and context", async () => {
   expect(spy.mock.calls[0][1]).toHaveProperty('send')
   expect(spy.mock.calls[0][1]).toHaveProperty('hostApi')
   expect(spy.mock.calls[0][1]).toHaveProperty('log')
+})
+
+test("invalid handshake is ignored", async () => {
+  await setup(undefined, { version: '0.0.20' })
+  expect(sentFromHost.mock.calls.length).toBe(0)
+})
+
+test("handshake is ignored if handshake callback throws", async () => {
+  await setup(() => {
+    throw new Error('bad')
+  })
+  expect(sentFromHost.mock.calls.length).toBe(0)
 })

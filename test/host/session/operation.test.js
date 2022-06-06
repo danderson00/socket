@@ -5,7 +5,7 @@ const { serializable: { subject } } = require('@x/expressions')
 
 let sentFromHost, source
 
-const setup = (api, data = {}, events) => {
+const setup = (api, { data = {}, events, handshake = { success: true } } = {}) => {
   const executor = {
     execute: (name, parameters) => Promise.resolve(api.apply(null, parameters))
   }
@@ -17,7 +17,8 @@ const setup = (api, data = {}, events) => {
   }})
   source.disconnect = jest.fn()
   const log = logger({ level: 'fatal' })
-  sessionFactory(executor, log).create(source, sendWrapper(sentFromHost, 1), { events: events || subject(), log })
+  const connection = { events: events || subject(), log, handshake }
+  sessionFactory(executor, log).create(source, sendWrapper(sentFromHost, 1), connection)
   return new Promise(setTimeout)
 }
 
@@ -34,9 +35,9 @@ test("operation executes host API, returns result and disconnects session", asyn
 })
 
 test("operation passes parameters to host API", async () => {
-  await setup((a, d) => a.b + a.c + d, {
+  await setup((a, d) => a.b + a.c + d, { data: {
     parameters: [{ b: 'wor', c: 1 }, 'd']
-  })
+  } })
 
   expect(sentFromHost.mock.calls).toEqual([[{
     sessionId: 1,
@@ -80,7 +81,7 @@ test("operation returns error if API throws", async () => {
 })
 
 test("operation returns error if API rejects promise", async () => {
-  await setup(() => Promise.reject('world'), )
+  await setup(() => Promise.reject('world'))
   expect(sentFromHost.mock.calls[0][0]).toMatchObject({
     sessionId: 1,
     session: 'terminate',
@@ -121,7 +122,7 @@ test("operation disconnects from result observable when connection closes", asyn
   const result = subject()
   result.disconnect = jest.fn()
   const events = subject()
-  await setup(() => result, undefined, events)
+  await setup(() => result, { events })
 
   events.publish({ topic: 'close' })
   expect(result.disconnect.mock.calls.length).toBe(1)
@@ -131,8 +132,13 @@ test("operation disconnects from result observable when connection errors", asyn
   const result = subject()
   result.disconnect = jest.fn()
   const events = subject()
-  await setup(() => result, undefined, events)
+  await setup(() => result, { events })
 
   events.publish({ topic: 'error' })
   expect(result.disconnect.mock.calls.length).toBe(1)
+})
+
+test("operations are ignored if handshake has not been successful", async () => {
+  await setup(() => 'world', { handshake: { success: false } })
+  expect(sentFromHost.mock.calls.length).toBe(0)
 })

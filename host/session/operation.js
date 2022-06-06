@@ -2,13 +2,18 @@ const { isObservable, unwrap } = require('@x/expressions')
 const throttle = require('./throttle')
 
 module.exports = (observable, context, options = {}) => {
-  const { send, hostApi, disconnect } = context
+  const { send, hostApi, disconnect, connection } = context
+
+  if(options.requireHandshake !== false && !(connection.handshake && connection.handshake.success)) {
+    disconnect()
+    return
+  }
+
   const request = observable()
   const { operation, parameters } = request.data
   const reestablish = request.session === 'reestablish'
   const log = context.log.child({ operation })
 
-  // *sigh* things start to rot pretty quickly
   // we need to subscribe to the session observable immediately
   // in case we get a terminate immediately after establish,
   // but the host API call may not have finished, so wait for
@@ -16,7 +21,6 @@ module.exports = (observable, context, options = {}) => {
   let cleanup
   observable.subscribe(({ session }) => {
     if(session === 'terminate') {
-      disconnect()
       // clean up immediately if available
       if(cleanup) {
         cleanup()
@@ -64,6 +68,7 @@ module.exports = (observable, context, options = {}) => {
 
         cleanup = () => {
           log.info(`Session terminated`)
+          disconnect()
           resultSubscription.unsubscribe()
           closeSubscription.unsubscribe()
           errorSubscription && errorSubscription.unsubscribe()

@@ -12,7 +12,7 @@ const openSocket = () => new Promise(resolve => {
 
 const setup = async (api, options) => {
   server = new WebSocket.Server({ port: 1234 })
-  host = hostModule({ server, log: { level: 'fatal' }, ...options }).useApi({ api })
+  host = hostModule({ server, log: { level: 'fatal' }, requireHandshake: false, ...options }).useApi({ api })
   connections = host.connections.groupBy('id')
   client = await openSocket()
   sentFromHost = jest.fn()
@@ -330,3 +330,17 @@ test("throttling is off by default", async () => {
   await delay(10)
   expect(sentFromHost.mock.calls.length).toBe(6)
 })
+
+test("malformed messages and messages without source tag are ignored", async () => {
+  await setup(() => 'world')
+  client.send('not JSON')
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'operation',
+    data: { operation: 'api' }
+  }))
+  await delay(10)
+  expect(sentFromHost.mock.calls).toEqual([])
+})
+

@@ -28,8 +28,14 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
         socket,
         request,
         messages: expressions.fromEmitter(socket, 'message')
-          .map(({ data: message }) => deserialize(message.data || message))
-          .filter(payload => payload.src === sources.CONSUMER)
+          .map(({ data: message }) => {
+            try {
+              return deserialize(message.data || message)
+            } catch(error) {
+              log.warn('Malformed message', error)
+            }
+          })
+          .filter(payload => payload && payload.src === sources.CONSUMER)
           .tap(payload => {
             if(payload.commandId) {
               safeSend(socket, { commandId: payload.commandId, status: 'ack' })

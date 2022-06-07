@@ -62,7 +62,20 @@ module.exports = (userOptions = {}) => {
       api.add(constructed.api)
       middleware.add(constructed.middleware)
       sessionFactory.addHandshake(constructed.name, constructed.handshake)
-    })
+    }),
+    execute: (name, parameters, context = {}) => executor.execute(
+      name,
+      parameters,
+      {
+        ...context,
+        connection: {
+          handshake: { success: true },
+          log,
+          ...context.connection
+        },
+        log
+      }
+    )
   }
 
   return host

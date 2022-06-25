@@ -12,7 +12,9 @@ over the function invocation, powerful "features" can be implemented.
 
 `@x/socket` is designed to work with 
 [`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including expressions and models built 
-using [`@x/expressions`](https://www.npmjs.com/package/@x/expressions).
+using [`@x/expressions`](https://www.npmjs.com/package/@x/expressions). To expose and consume 
+[ReactiveX](https://rxjs.dev/) observables, check out the 
+[@x/socket.rx feature](https://www.npmjs.com/package/@x/socket.rx). 
 
 ## A Simple Example
 

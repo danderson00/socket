@@ -1,4 +1,4 @@
-const getUserAgent = require('../userAgent')
+const { userAgent, screen } = require('../handshakeData')
 
 module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve, reject) => {
   const evaluateData = () => data && Object.keys(data).reduce(
@@ -9,7 +9,12 @@ module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve,
     {}
   )
 
-  send.handshake({ version: '0.0.1', data: evaluateData(), userAgent: getUserAgent() })
+  send.handshake({
+    version: '0.0.1',
+    data: evaluateData(),
+    userAgent: userAgent(),
+    screen: screen()
+  })
 
   messages.subscribe(({ status, data }) => {
     disconnect()

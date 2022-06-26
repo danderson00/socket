@@ -1,5 +1,5 @@
 import { createElement, createContext, useEffect, useState, useContext } from 'react'
-import { isObservable } from '@x/expressions'
+import { isObservable } from '@x/observable'
 
 const instanceContext = createContext({})
 

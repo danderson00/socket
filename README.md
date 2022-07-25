@@ -195,6 +195,11 @@ const api = {
 
 When `disconnect` is called on a proxy, the proxy simply unsubscribes from its parent observable.
 
+## Security
+
+`@x/socket` provides comprehensive low level functionality for authenticating users and authorising their actions. See 
+the [security guide](https://gitlab.com/danderson00/socket/-/blob/master/security.md) for more information.
+
 ## Middleware
 
 Middleware is added to the execution stack by using the `use` function. This function accepts either a single 

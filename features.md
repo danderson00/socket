@@ -103,8 +103,8 @@ The connection handshake process occurs in three distinct stages:
 
 1. The consumer collects any handshake data from any consumer features that return a `handshakeData` property
    from initial construction. This data is passed to the host in a special handshake operation.
-2. The host validates the handshake data and executes any `handshake` callbacks returned from host feature
-   construction. The function accepts two arguments:
+2. The host validates the handshake data and executes any `handshake` callbacks defined on host features. 
+   The function accepts two arguments:
   - the first is the data sent from the consumer encapsulated in a property named `data`
   - the second is the session context, as described in the middleware section above.
     Data returned from this function is returned to the consumer in an object keyed by the feature name.

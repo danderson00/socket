@@ -3,8 +3,10 @@ const observables = require('./observables')
 const expressions = require('@x/expressions')
 const uuid = require('uuid').v4
 const { sources } = require('../common/constants')
+const cancellable = require('./utilities/cancellableTimeout')
 
-module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
+module.exports = ({ server, socket }, sessionFactory, serializer, log, options) => {
+  const { handshakeTimeout } = options
   const { serialize, deserialize } = serializer
   const sideSource = expressions.subject()
   const source = server
@@ -27,6 +29,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
         log: connectionLog,
         socket,
         request,
+        disconnect: code => socket.close(code),
         messages: expressions.fromEmitter(socket, 'message')
           .map(({ data: message }) => {
             try {
@@ -46,6 +49,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log) => {
       }
       connection.observables = observables(connection)
       connection.sessions = sessions(connection, sessionFactory)
+      connection.disconnectTimeout = cancellable(connection.disconnect, handshakeTimeout)
       connectCallbacks.forEach(callback => callback(connection))
 
       connectionLog.info('Connection established', { connectionCount: ++connectionCount })

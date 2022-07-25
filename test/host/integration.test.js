@@ -344,3 +344,21 @@ test("malformed messages and messages without source tag are ignored", async () 
   expect(sentFromHost.mock.calls).toEqual([])
 })
 
+test("connection is disconnected after handshakeTimeout", async () => {
+  await setup(() => 'world', { handshakeTimeout: 5 })
+  await delay(20)
+  expect(client.readyState).toEqual(3)
+})
+
+test("connection is not disconnected after successful handshake", async () => {
+  await setup(() => 'world', { handshakeTimeout: 20 })
+  client.send(JSON.stringify({
+    sessionId: 1,
+    session: 'establish',
+    type: 'handshake',
+    data: { version: '0.0.1' },
+    src: 2
+  }))
+  await delay(50)
+  expect(client.readyState).toEqual(1)
+})

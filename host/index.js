@@ -11,7 +11,7 @@ const { writers } = require('@x/log')
 const defaultOptions = {
   log: { level: 'info' },
   throttle: false,
-  timeout: 5000,
+  handshakeTimeout: 1000,
   serializer: { errorDetail: 'minimal' }
 }
 
@@ -27,7 +27,7 @@ module.exports = (userOptions = {}) => {
   const middleware = middlewareModule(log)
   const executor = executorModule(api, middleware, log)
   const sessionFactory = sessionModule(executor, log, options)
-  const connections = connectionsModule({ server, socket }, sessionFactory, serializer, log)
+  const connections = connectionsModule({ server, socket }, sessionFactory, serializer, log, options)
 
   const chainable = target => (...args) => {
     target.apply(null, args)

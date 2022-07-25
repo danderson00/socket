@@ -4,13 +4,12 @@ const apiModule = require('../../../host/api')
 const loggerModule = require('../../../common/logger')
 const { subject } = require('@x/expressions')
 
-let sentFromHost, source
-
 const setup = (callback, handshakeData) => {
   const hostApi = apiModule()
   hostApi.add({ api: () => {} })
-  sentFromHost = jest.fn()
-  source = subject({ initialValue: {
+  const sentFromHost = jest.fn()
+  const disconnect = jest.fn()
+  const source = subject({ initialValue: {
     session: 'establish',
     type: 'handshake',
     data: { version: '0.0.1', ...handshakeData }
@@ -18,13 +17,14 @@ const setup = (callback, handshakeData) => {
   source.disconnect = jest.fn()
   const log = loggerModule({ level: 0 })
   const sessions = sessionFactory(hostApi, log)
+  const connection = { events: subject(), log, disconnect, disconnectTimeout: { cancel: () => {} } }
   sessions.addHandshake('test', callback)
-  sessions.create(source, sendWrapper(sentFromHost, 1), { events: subject(), log })
-  return new Promise(setTimeout)
+  sessions.create(source, sendWrapper(sentFromHost, 1), connection)
+  return { sentFromHost, source, disconnect }
 }
 
 test("handshake returns api functions", async () => {
-  await setup()
+  const { sentFromHost, source } = setup()
 
   expect(sentFromHost.mock.calls).toEqual([[{
     sessionId: 1,
@@ -38,7 +38,7 @@ test("handshake returns api functions", async () => {
 })
 
 test("handshake returns callback data", async () => {
-  await setup(() => 'test')
+  const { sentFromHost } = setup(() => 'test')
 
   expect(sentFromHost.mock.calls).toEqual([[{
     sessionId: 1,
@@ -55,7 +55,7 @@ test("handshake returns callback data", async () => {
 
 test("handshake callback is passed data and context", async () => {
   const spy = jest.fn()
-  await setup(spy)
+  setup(spy)
   expect(spy.mock.calls.length).toBe(1)
   expect(spy.mock.calls[0][0]).toEqual({ version: '0.0.1' })
   expect(spy.mock.calls[0][1]).toHaveProperty('send')
@@ -63,14 +63,16 @@ test("handshake callback is passed data and context", async () => {
   expect(spy.mock.calls[0][1]).toHaveProperty('log')
 })
 
-test("invalid handshake is ignored", async () => {
-  await setup(undefined, { version: '0.0.20' })
+test("invalid handshake causes disconnect", async () => {
+  const { sentFromHost, disconnect } = setup(undefined, { version: '0.0.20' })
   expect(sentFromHost.mock.calls.length).toBe(0)
+  expect(disconnect.mock.calls.length).toBe(1)
 })
 
-test("handshake is ignored if handshake callback throws", async () => {
-  await setup(() => {
+test("socket is disconnected if handshake callback throws", async () => {
+  const { sentFromHost, disconnect } = setup(() => {
     throw new Error('bad')
   })
   expect(sentFromHost.mock.calls.length).toBe(0)
+  expect(disconnect.mock.calls.length).toBe(1)
 })

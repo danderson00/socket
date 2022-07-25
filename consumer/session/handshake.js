@@ -1,6 +1,12 @@
 const { userAgent, screen } = require('../handshakeData')
 
-module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve, reject) => {
+module.exports = ({ messages, send, disconnect, data, socket }) => new Promise((resolve, reject) => {
+  const disconnectListener = socket.events.subscribe(({ topic }) => {
+    if(topic === 'close' || topic === 'error') {
+      reject(new Error('Connection handshake failed'))
+    }
+  })
+
   const evaluateData = () => data && Object.keys(data).reduce(
     (result, key) => ({
       ...result,
@@ -18,6 +24,7 @@ module.exports = ({ messages, send, disconnect, data }) => new Promise((resolve,
 
   messages.subscribe(({ status, data }) => {
     disconnect()
+    disconnectListener.unsubscribe()
     if(status === 'ok') {
       resolve(data)
     } else {

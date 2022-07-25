@@ -4,8 +4,6 @@ const WebSocket = require('ws')
 
 let server
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
 const setup = ({ host, consumer } = {}) => {
   server = new WebSocket.Server({ port: 1234 })
   hostModule({ server, log: { level: 'fatal' } })
@@ -24,10 +22,8 @@ test("apiKey passes if both are the same static value", async () => {
 })
 
 test("apiKey fails if both static values don't match", async () => {
-  const spy = jest.fn()
-  setup({ host: '123', consumer: '1234' }).then(spy)
-  await delay(10)
-  expect(spy.mock.calls.length).toBe(0)
+  await expect(setup({ host: '123', consumer: '1234' }))
+    .rejects.toEqual(new Error('Connection handshake failed'))
 })
 
 test("host apiKey can be validation function", async () => {
@@ -41,15 +37,11 @@ test("consumer apiKey can be function", async () => {
 })
 
 test("apiKey fails if test function returns false", async () => {
-  const spy = jest.fn()
-  setup({ host: () => false, consumer: '1234' }).then(spy)
-  await delay(10)
-  expect(spy.mock.calls.length).toBe(0)
+  await expect(setup({ host: () => false, consumer: '1234' }))
+    .rejects.toEqual(new Error('Connection handshake failed'))
 })
 
 test("apiKey fails if test function throws", async () => {
-  const spy = jest.fn()
-  setup({ host: () => { throw new Error() }, consumer: '1234' }).then(spy)
-  await delay(10)
-  expect(spy.mock.calls.length).toBe(0)
+  await expect(setup({ host: () => { throw new Error() }, consumer: '1234' }))
+    .rejects.toEqual(new Error('Connection handshake failed'))
 })

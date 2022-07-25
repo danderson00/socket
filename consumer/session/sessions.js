@@ -13,6 +13,7 @@ module.exports = (socket, middleware) => {
       const session = {
         id,
         type,
+        socket,
         messages: sessionMessages,
         disconnect: () => {
           sessions = sessions.filter(x => x.id !== id)

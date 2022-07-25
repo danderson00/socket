@@ -98,6 +98,7 @@ log|Options passed to the [`@x/log`](https://www.npmjs.com/package/@x/log) logge
 logger|[`@x/log`](https://www.npmjs.com/package/@x/log) instance
 serializer|An object containing options for the serializer, currently only `errorDetail`, set to `full`, `minimal` or `none`
 throttle|An object containing API call throttling options, currently only a `timeout` value in milliseconds 
+handshakeTimeout|Milliseconds to wait before disconnecting a socket without a successful handshake (default: 1000)
 
 ## Consumer Configuration
 

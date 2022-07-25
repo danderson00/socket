@@ -61,7 +61,21 @@ property.
 
 ### Loading additional user context after authentication
 
+Middleware can also be used to load additional information about the user and attach it to the user object.
 
+```javascript
+host.use({
+  getData: async ({ connection, next }) => {
+    const result = await next()
+    if(result.success) {
+      // the user object is mutable - attached data will be exposed through the 
+      // `connection.user` object for the life of the connection
+      result.user.externalData = await loadExternalData(result.user.username)
+    }
+    return result
+  }
+})
+```
 
 ## Restricting socket connections using the handshake process
 
@@ -109,4 +123,16 @@ built in `apiKey` feature.
 
 ## Custom external authentication provider - a simple example
 
-- code example from hydro
+```javascript
+host.useFeature(auth({
+  // return the user object on successful authentication, or a falsy value to fail
+  external: ({ code }) => code === 'secret_code' && { username: 'user' },  
+  secret: 'askljd78euiw8#wsehui@#%asd789sd',
+  anonymous: false
+}))
+```
+
+```javascript
+// the consumer authenticate call looks like
+api.authenticate({ provider: 'external', code: 'secret_code' })
+```

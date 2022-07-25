@@ -4,14 +4,15 @@ Socket connections can be secured using a number of mechanisms -
 
 - users can be authenticated using the [`@x/socket.auth feature`](https://www.npmjs.com/package/@x/socket.auth)
 - middleware can be used to authorise users and restrict access to API functions based on user and other context
-- the handshake process can accept or refuse connections based on a provided payload, for example, the `apiKey` feature
+- the handshake process can accept or refuse connections based on a provided payload, for example, the built in 
+  `apiKey` feature
 
 ## Authenticating users with `@x/socket.auth`
 
 The `socket.auth` feature provides an authentication service with out of the box support for 
 [Auth0](https://Auth0.com/),
 [AWS Cognito](https://aws.amazon.com/cognito/),
-[facebook login](https://developers.facebook.com/docs/facebook-login/) 
+[facebook](https://developers.facebook.com/docs/facebook-login/) 
 and a simple username / password provider for development purposes. Other external providers can easily be added using 
 a generic provider. The feature adds a number of functions to the host API for authenticating users and retrieving the 
 current status.

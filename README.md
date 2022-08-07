@@ -357,6 +357,13 @@ and are able to hook in to other key events such as handshaking and socket recon
 
 Information on implementation of custom features is available [here](https://gitlab.com/danderson00/socket/-/blob/master/features.md).
 
+## Project Status
+
+This library and other libraries under the `@x` scope are under active development and are used in production systems.
+
+We would love to hear from you! Please raise an [issue](https://gitlab.com/danderson00/socket/-/issues) if you have any 
+questions or issues, or alternatively tweet [@danderson00](https://twitter.com/danderson00/).
+
 ## License
 
 **The MIT License (MIT)**

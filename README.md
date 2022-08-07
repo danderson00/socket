@@ -1,6 +1,6 @@
 # @x/socket
 
-Reliable, lightweight observable APIs over any socket
+Ultra reliable, lightweight observable APIs over any socket
 
 `x/socket` allows you to expose APIs transparently over any transport medium that implements the `send(message)` and 
 `on('message', callback)` functions, such as Websockets, WebWorkers, WebRTC connections, child processes, etc. 
@@ -64,9 +64,9 @@ A more detailed example is available [here](https://gitlab.com/danderson00/socke
 ## Installation
 
 ```shell
-yarn add @x/socket
-#or
-npm i @x/socket
+yarn add @x/socket ws
+# or
+npm i @x/socket ws
 ```
 
 No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The

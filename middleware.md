@@ -3,7 +3,7 @@
 Middleware functions are injected into the call stack of API functions and can be used to inspect or modify passed
 parameters returned results.
 
-Middleware is added to the execution stack by using the `use` function. This function accepts either a single
+Middleware is added to the execution stack by calling the `use` function. This function accepts either a single
 function or an object with multiple functions attached. Passing a single function will cause the middleware to be
 executed for all API functions ("global" middleware). Passing an object will cause middleware to be executed only
 when the API function with the corresponding name is executed.
@@ -38,10 +38,26 @@ The `next` function is always asynchronous and should be awaited or the promise 
 middleware functions is passed back up to the preceding execution layer, allowing the result to be modified by
 middleware. Returned promises will be awaited, and exceptions bubble up the stack.
 
-## Example: Injecting Parameters
+## Host Connection Object
+
+The host connection object is mutable and can be used to store connection specific information. It has the following
+properties:
+
+Name|Description
+---|---
+id|Unique connection identifier
+log|The connection specific [logger](https://www.npmjs.com/package/@x/log) instance
+socket|The underlying socket object
+request|An object containing information about the request (generally [http.IncomingMessage](https://www.w3schools.com/nodejs/obj_http_incomingmessage.asp))
+messages|An observable that emits all messages received by the connection
+events|An observable that emits other events emitted by the connection, such as `error` and `close`
+
+## Examples
+
+### Injecting Parameters
 
 The `next` function can be used to alter the parameters that are passed to the next layer. This example assumes a
-property named `userId` has been attached to the connection object and appends this as an additional parameter to
+property named `userId` has been attached to the connection object and inserts this as the first parameter to
 the API call.
 
 ```javascript
@@ -60,7 +76,14 @@ host()
   })
 ```
 
-## Example: Error Handling
+The API should only be called with the `recordId` parameter:
+
+```javascript
+const api = await consumer().connect()
+const data = await api.getData(recordId)
+```
+
+### Error Handling
 
 Exceptions are bubbled up the execution stack and transparently flowed from host to consumer.
 
@@ -81,17 +104,3 @@ const api = consumer()
   .use(handleError)
   .connect()
 ```
-
-## Host Connection Object
-
-The host connection object is mutable and can be used to store connection specific information. It has the following
-properties:
-
-Name|Description
----|---
-id|Unique connection identifier
-log|The connection specific [logger](https://www.npmjs.com/package/@x/log) instance
-socket|The underlying socket object
-request|An object containing information about the request
-messages|An observable that emits all messages received by the connection
-events|An observable that emits other events emitted by the connection, such as `error` and `close`

@@ -8,13 +8,14 @@ Ultra reliable, lightweight observable APIs over any socket
 
 Connections over unreliable networks will automatically be reconnected after disconnection. A middleware layer is 
 provided to allow functions to be enhanced with concerns such as authentication or caching. For more complete control 
-over the function invocation, powerful "features" can be implemented.
+over the function invocation, powerful "[features](https://gitlab.com/danderson00/socket/-/blob/master/features.md)" 
+can be implemented.
 
 `@x/socket` is designed to work with 
 [`@x/observable`](https://www.npmjs.com/package/@x/observable) observables, including expressions and models built 
 using [`@x/expressions`](https://www.npmjs.com/package/@x/expressions). To expose and consume 
 [ReactiveX](https://rxjs.dev/) observables, check out the 
-[@x/socket.rx feature](https://www.npmjs.com/package/@x/socket.rx). 
+[socket.rx feature](https://www.npmjs.com/package/@x/socket.rx). 
 
 ## A Simple Example
 
@@ -59,7 +60,8 @@ consumer()
   })
 ```
 
-A more detailed example is available [here](https://gitlab.com/danderson00/socket/-/tree/master/samples/share-location).
+A more detailed location sharing example is available 
+[here](https://gitlab.com/danderson00/socket/-/tree/master/samples/share-location).
 
 ## Installation
 
@@ -70,8 +72,7 @@ npm i @x/socket ws
 ```
 
 No socket server implementation is provided out of the box and must be installed along with `@x/socket`. The
-[`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js
-and browser usage.
+[`ws Websocket package`](https://www.npmjs.com/package/ws) has been heavily tested and is recommended for Node.js usage.
 
 A browser package for the consumer is also available at `dist/consumer.min.js` and can be loaded to a webpage using:
 
@@ -86,7 +87,7 @@ The library is exposed as `window.xsocket`.
 The default export from the `@x/socket` package is the host factory function. It can be explicitly referenced in the 
 browser by importing `@x/socket/host`. 
 
-The host factory function accepts a single parameter, an object containing options as follows. At least one of 
+The host factory function accepts a single parameter, an object containing the following options. At least one of 
 `server` or `socket` must be provided.
 
 Name|Description
@@ -197,8 +198,9 @@ When `disconnect` is called on a proxy, the proxy simply unsubscribes from its p
 
 ## Security
 
-`@x/socket` provides comprehensive low level functionality for authenticating users and authorising their actions. See 
-the [security guide](https://gitlab.com/danderson00/socket/-/blob/master/security.md) for more information.
+`@x/socket` provides comprehensive low level functionality for authenticating users and authorising their actions. 
+
+See the [security guide](https://gitlab.com/danderson00/socket/-/blob/master/security.md) for more information.
 
 ## Middleware
 
@@ -281,14 +283,11 @@ A number of other features are available as separate packages:
 
 Name|Description
 ---|---
-[@x/socket.auth](https://www.npmjs.com/package/@x/socket.auth)|Authentication supporting multiple providers
-[@x/socket.files](https://www.npmjs.com/package/@x/socket.files)|Simple file upload feature
-[@x/socket.unify](https://www.npmjs.com/package/@x/socket.unify)|Provides essential functionality for the [unify platform](https://unifyjs.io/)
+[socket.auth](https://www.npmjs.com/package/@x/socket.auth)|Authentication supporting multiple providers
+[socket.files](https://www.npmjs.com/package/@x/socket.files)|Simple file upload feature
+[socket.unify](https://www.npmjs.com/package/@x/socket.unify)|Provides essential functionality for the [unify platform](https://unifyjs.io/)
 
 ### Custom Features
-
-Features are able to add API functions and middleware, have an asynchronous construction and initialization phase
-and are able to hook in to other key events such as handshaking and socket reconnection.
 
 Information on implementation of custom features is available [here](https://gitlab.com/danderson00/socket/-/blob/master/features.md).
 

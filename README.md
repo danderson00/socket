@@ -246,6 +246,16 @@ Name|Location|Description
 ---|---|---
 cipherKey|Host|Required. A `String` or `Buffer` used as the encryption key
 
+#### `configuration`
+
+Passes a static value provided on the host to a callback on the consumer.
+
+##### Options
+
+The host should be configured with the static value to be passed to the consumer.
+
+The consumer should be configured with a callback that receives the value.
+
 #### `heartbeat`
 
 Periodically perform a network request to prevent disconnection by proxies, load balancers, etc.

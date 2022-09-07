@@ -1,3 +1,5 @@
+const { errorCodes } = require('../../common/constants')
+
 module.exports = (observable, context) => {
   const { hostApi, send, handshakeCallbacks, connection } = context
 
@@ -19,11 +21,11 @@ module.exports = (observable, context) => {
       connection.log.info('Connection handshake complete', { userAgent: data.userAgent, screen: data.screen })
     } else {
       connection.log.error('Invalid handshake request')
-      connection.disconnect()
+      connection.disconnect(errorCodes.HANDSHAKE_FAILED)
     }
   } catch(error) {
     connection.log.error('Invalid handshake request', error)
-    connection.disconnect()
+    connection.disconnect(errorCodes.HANDSHAKE_FAILED)
   } finally {
     observable.disconnect()
   }

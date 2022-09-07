@@ -1,8 +1,10 @@
 const { userAgent, screen } = require('../handshakeData')
+const { errorCodes } = require('../../common/constants')
 
 module.exports = ({ messages, send, disconnect, data, socket }) => new Promise((resolve, reject) => {
-  const disconnectListener = socket.events.subscribe(({ topic }) => {
-    if(topic === 'close' || topic === 'error') {
+  const disconnectListener = socket.events.subscribe(({ topic, data: { code } }) => {
+    disconnectListener.unsubscribe()
+    if(topic === 'close' && code === errorCodes.HANDSHAKE_FAILED) {
       reject(new Error('Connection handshake failed'))
     }
   })

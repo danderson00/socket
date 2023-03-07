@@ -60,8 +60,11 @@ module.exports = (observable, context, options = {}) => {
           }, 'persistent')
         }        
     
-        const closeSubscription = context.connection.events.subscribe(({ topic }) => {
+        const closeSubscription = context.connection.events.subscribe(({ topic, data }) => {
           if(topic === 'close' || topic === 'error') {
+            if(topic === 'error') {
+              log.error('Socket error', data)
+            }
             cleanup()
           }
         })

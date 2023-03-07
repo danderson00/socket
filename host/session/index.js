@@ -17,6 +17,14 @@ module.exports = (hostApi, parentLog, options) => {
       let disconnected = false
       const log = connection.log.child({ sessionId })
 
+      const eventSubscription = connection.events.subscribe(({ topic, data }) => {
+        if (topic === 'error') {
+          handleError(data)
+        } else if (topic === 'close') {
+          disconnect()
+        }
+      })
+
       if (sessions[type]) {
         const context = {
           id: sessionId,
@@ -45,6 +53,7 @@ module.exports = (hostApi, parentLog, options) => {
         } else {
           log.debug(`Disconnecting session`)
           sessionObservable.disconnect()
+          eventSubscription.unsubscribe()
           disconnected = true
         }
       }

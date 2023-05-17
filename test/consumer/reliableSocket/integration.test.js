@@ -1,6 +1,7 @@
 const reliableSocket = require('../../../consumer/reliableSocket')
 const serializerModule = require('../../../common/serializer')
 const log = require('../../../common/logger')('none')
+const enableDestroy = require('../../enableDestroy')
 const WebSocket = require('ws')
 
 let servers = []
@@ -10,7 +11,9 @@ afterEach(() => {
 })
 
 const createServer = () => {
-  const server = new WebSocket.Server({ port: 1234 })
+  const server = new WebSocket.Server({ port: 1234, clientTracking: true })
+  enableDestroy(server)
+  // const server = WebSocketServer({ port: 1234, clientTracking: true })
   const connections = []
   server.on('connection', socket => {
     const messages = jest.fn()
@@ -20,7 +23,7 @@ const createServer = () => {
       send: message => socket.send(message)
     })
   })
-  const result = { close: () => server.close(), connections }
+  const result = { close: () => server.destroy(), connections }
   servers.push(result)
   return result
 }
@@ -86,7 +89,7 @@ test("socket continues retrying to connect if server unavailable", async () => {
   expect(socketFactory.mock.calls.length).toBe(3)
   await promise1
   server = createServer()
-  await delay(100)
+  await delay(200)
   server.connections[1].send(JSON.stringify({ commandId: 2, src: 1, status: 'ack' }))
   await promise2
 })
@@ -101,7 +104,7 @@ test("socket calls onConnect function and awaits promise on each connect", async
   expect(onConnect.mock.calls.length).toBe(1)
   server.close()
   server = createServer()
-  await delay(50)
+  await delay(100)
   expect(socketFactory.mock.calls.length).toBe(2)
   expect(onConnect.mock.calls.length).toBe(2)
   server.close()

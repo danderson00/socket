@@ -9,9 +9,9 @@
     "start": "concurrently \"node src\" \"http-server public -o\""
   },
   "dependencies": {
-    "@x/socket": "0.6.36",
+    "@x/socket": "0.7.0",
     "concurrently": "^7.0.0",
-    "ws": "^6.1.3"
+    "ws": "^8.13.0"
   },
   "license": "MIT"
 }

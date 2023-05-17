@@ -16,7 +16,7 @@ const setup = async (api, options) => {
   connections = host.connections.groupBy('id')
   client = await openSocket()
   sentFromHost = jest.fn()
-  client.on('message', sentFromHost)
+  client.on('message', data => sentFromHost(data?.toString()))
 }
 
 const delay = delay => new Promise(r => setTimeout(r, delay))

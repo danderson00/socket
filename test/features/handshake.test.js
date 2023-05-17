@@ -14,7 +14,7 @@ const setup = async handshake => {
   host = hostModule({ server, log: { level: 'fatal' } }).useFeature(feature)
   client = await openSocket()
   sentFromHost = jest.fn()
-  client.on('message', sentFromHost)
+  client.on('message', data => sentFromHost(data?.toString()))
 }
 
 const delay = delay => new Promise(r => setTimeout(r, delay))

@@ -1,6 +1,6 @@
 {
   "name": "@x/socket",
-  "version": "0.7.5",
+  "version": "0.7.8",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "consumer/index.js",
@@ -12,9 +12,9 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/expressions": "0.7.5",
-    "@x/observable": "0.7.5",
-    "@x/log": "0.7.5",
+    "@x/expressions": "0.7.8",
+    "@x/observable": "0.7.8",
+    "@x/log": "0.7.8",
     "uuid": "^3.4.0"
   },
   "devDependencies": {
@@ -30,6 +30,12 @@
   "optionalDependencies": {
     "react": "*"
   },
+  "files": [
+    "./common/**/*",
+    "./consumer/**/*",
+    "./host/**/*",
+    "./react/**/*"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://gitlab.com/danderson00/socket.git"

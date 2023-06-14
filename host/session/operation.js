@@ -30,7 +30,7 @@ module.exports = (observable, context, options = {}) => {
     }
   })
 
-  log.info(`Session ${reestablish ? 're' : ''}established`, { reestablish })
+  log.debug(`Session ${reestablish ? 're' : ''}established`, { reestablish })
 
   const promise = hostApi.execute(operation, patchParameters(parameters), { ...context, operation })
     .then(value => {
@@ -70,7 +70,7 @@ module.exports = (observable, context, options = {}) => {
         })
 
         cleanup = () => {
-          log.info(`Session terminated`)
+          log.debug(`Session terminated`)
           disconnect()
           resultSubscription.unsubscribe()
           closeSubscription.unsubscribe()
@@ -83,7 +83,7 @@ module.exports = (observable, context, options = {}) => {
       } else {
         send.ok({ type: 'static', value })   
         disconnect()
-        log.info(`Session terminated`)
+        log.debug(`Session terminated`)
       }
     })
   

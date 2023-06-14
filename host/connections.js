@@ -23,7 +23,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log, options) 
   const connections = source
     .map(({ args: [socket, request] }) => {
       const connectionId = uuid()
-      const connectionLog = log.child({ connectionId })
+      const connectionLog = log.child({ connectionId, clientIp: request.headers['x-forwarded-for'] })
       const connection = {
         id: connectionId,
         log: connectionLog,

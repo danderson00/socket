@@ -11,12 +11,12 @@ module.exports = logError => {
 }
 
 const normalizeError = error => {
-  if(error && error.message) {
-    return { message: error.message, stack: error.stack }
+  if(error instanceof Error) {
+    return error
   } else if(typeof error === 'string') {
     return { message: error }
   } else {
-    return { message: JSON.stringify(error) }
+    return error && { message: JSON.stringify(error) }
   }
 }
 

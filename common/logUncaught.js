@@ -10,21 +10,11 @@ module.exports = logError => {
   }
 }
 
-const normalizeError = error => {
-  if(error instanceof Error) {
-    return error
-  } else if(typeof error === 'string') {
-    return { message: error }
-  } else {
-    return error && { message: JSON.stringify(error) }
-  }
-}
-
 const normalizeEvent = event => {
   if(typeof ErrorEvent !== 'undefined' && event instanceof ErrorEvent) {
-    return normalizeError(event.error)
+    return event.error
   } else if (typeof PromiseRejectionEvent !== 'undefined' && event instanceof PromiseRejectionEvent) {
-    return normalizeError(event.reason)
+    return event.reason
   }
-  return normalizeError(event)
+  return event
 }

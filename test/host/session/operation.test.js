@@ -64,7 +64,7 @@ test("operation returns error if API function does not exist", async () => {
     sessionId: 1,
     status: 'error',
     session: 'terminate',
-    data: new TypeError("Cannot read property 'apply' of undefined")
+    data: new TypeError("Cannot read properties of undefined (reading 'apply')")
   }]])
   expect(source.disconnect.mock.calls.length).toBe(1)
 })

@@ -2,7 +2,7 @@ const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
 const apiModule = require('../../../host/api')
 const loggerModule = require('../../../common/logger')
-const { subject } = require('@x/expressions')
+const { subject } = require('@x/observable')
 
 const setup = (callback, handshakeData) => {
   const hostApi = apiModule()

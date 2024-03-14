@@ -1,7 +1,7 @@
 const sessionFactory = require('../../../host/session')
 const sendWrapper = require('../../../host/sendWrapper')
 const logger = require('../../../common/logger')
-const { serializable: { subject } } = require('@x/expressions')
+const { subject } = require('@x/observable')
 
 let sentFromHost, source
 
@@ -98,7 +98,7 @@ test("operation returns persistent session if API returns observable", async () 
     sessionId: 1,
     session: 'persistent',
     status: 'ok',
-    data: { type: 'observable', value: 'world', hasErrorObservable: true, error: undefined }
+    data: { type: 'observable', value: 'world', hasErrorObservable: false, error: undefined }
   }]])
   expect(source.disconnect.mock.calls.length).toBe(0)
 

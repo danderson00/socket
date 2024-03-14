@@ -1,9 +1,11 @@
 const sendWrapper = require('./sendWrapper')
+const groupedObservable = require('./utilities/groupedObservable')
 
 module.exports = (connection, sessionFactory) => (
-  connection.messages.groupBy(
+  groupedObservable(
+    connection.messages,
     'sessionId',
-    sessionObservable => sessionObservable.map(({ session }) => {
+    sessionObservable => sessionObservable.subscribe(({ session }) => {
       if(session === 'establish' || session === 'reestablish') {
         sessionFactory.create(
           sessionObservable,

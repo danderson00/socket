@@ -12,7 +12,6 @@
   "author": "danderson00",
   "license": "MIT",
   "dependencies": {
-    "@x/expressions": "0.7.14",
     "@x/observable": "0.7.14",
     "@x/log": "0.7.14",
     "uuid": "^3.4.0"

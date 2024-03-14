@@ -1,5 +1,5 @@
 const sessionsModule = require('../../consumer/session/sessions')
-const { subject } = require('@x/expressions')
+const { subject } = require('@x/observable')
 
 const socket = () => ({ messages: subject(), send: () => {} })
 

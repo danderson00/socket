@@ -1,6 +1,6 @@
 {
   "name": "@x/socket",
-  "version": "0.7.14",
+  "version": "1.0.0",
   "description": "Lightweight observable APIs over any socket",
   "main": "host/index.js",
   "browser": "consumer/index.js",

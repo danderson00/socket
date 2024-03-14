@@ -293,10 +293,10 @@ test("sessions are throttled if option set", async () => {
   source.publish(4)
   source.publish(5)
 
-  await delay(12)
+  await delay(10)
   expect(sentFromHost.mock.calls.length).toBe(2)
 
-  await delay(20)
+  await delay(15)
   expect(sentFromHost.mock.calls.length).toBe(3)
 
   source.publish(5)
@@ -346,7 +346,7 @@ test("malformed messages and messages without source tag are ignored", async () 
 
 test("connection is disconnected after handshakeTimeout", async () => {
   await setup(() => 'world', { handshakeTimeout: 5 })
-  await delay(30)
+  await delay(20)
   expect(client.readyState).toEqual(3)
 })
 

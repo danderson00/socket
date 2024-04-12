@@ -47,7 +47,7 @@ const executeOperation = (session, parameters, log) => new Promise((resolve, rej
 
     } else if(status === 'error') {
       disconnect()
-      reject(data)
+      reject({ ...data, origin: 'host' })
     }
   })
 })

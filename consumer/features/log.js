@@ -20,8 +20,8 @@ module.exports = options => ({ log }) => {
           // - it should be the other way around - a log writer calling the API function
           log: ({ next }, level, ...args) => {
             const entry = log[level].apply(log, args)
-            // the entry will be serialized
-            return next.apply(null, [level, entry])
+            if(entry.origin !== 'host')
+              return next.apply(null, [level, entry])
           }
         }
       }

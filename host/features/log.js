@@ -9,17 +9,14 @@ module.exports = userOptions => ({ log }) => {
     logUncaught(error => log.child({ source: 'unhandled' }).error(error))
   }
 
-  const apiLog = log.child({ source: 'api' })
-  
   return {
     name: 'log',
     middleware: {
       log: (context, level, ...args) => {
-        apiLog[level].apply(apiLog, args)
+        context.log[level]({ origin: 'consumer' }, ...args)
       }
     },
     api: {
-      // this is becoming a bit of an anti-pattern...
       log: () => { }
     }
   }

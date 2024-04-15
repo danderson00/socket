@@ -1,5 +1,5 @@
 const cipher = require('../utilities/cipher')
-const { v4: uuid } = require('uuid')
+const uuid = require('../../common/uuid')
 
 module.exports = ({ cipherKey: password } = {}) => {
   if(!password) {

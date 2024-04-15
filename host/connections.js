@@ -1,7 +1,7 @@
 const sessions = require('./sessions')
 const observables = require('./observables')
 const observable = require('@x/observable')
-const uuid = require('uuid').v4
+const uuid = require('../common/uuid')
 const { sources } = require('../common/constants')
 const cancellable = require('./utilities/cancellableTimeout')
 

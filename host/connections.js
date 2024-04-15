@@ -23,7 +23,7 @@ module.exports = ({ server, socket }, sessionFactory, serializer, log, options) 
   // this needs refactoring... the order properties are attached is significant
   source.subscribe(({ args: [socket, request] }) => {
     const connectionId = uuid()
-    const connectionLog = log.child({ connectionId, clientIp: request.headers['x-forwarded-for'] })
+    const connectionLog = log.child({ connectionId, clientIp: request.headers['x-forwarded-for'] || request.socket.remoteAddress })
     const connection = {
       id: connectionId,
       log: connectionLog,
